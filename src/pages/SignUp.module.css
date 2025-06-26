@@ -1,0 +1,265 @@
+.wrapper {
+  min-height: 100vh;
+  background: #232733;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 72px;
+  background: #232733;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  padding: 0 48px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #232733;
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+}
+
+.logoCircle {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00c3ff, #ffb347, #ff5e62);
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.logoText {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ff7a00;
+  letter-spacing: 2px;
+  font-family: 'Arial Black', Arial, sans-serif;
+}
+
+.languageSwitch {
+  display: flex;
+  align-items: center;
+  background: #393e4b;
+  border-radius: 12px;
+  padding: 4px 16px 4px 8px;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 1px 4px #0002;
+}
+
+.flag {
+  width: 24px;
+  height: 16px;
+  background: linear-gradient(90deg, #da251d 60%, #ffd600 40%);
+  border-radius: 3px;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  min-height: 100vh;
+  padding-top: 72px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 640px;
+  max-width: 700px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 32px;
+}
+
+.infoBox {
+  background: #181a20;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.infoTitle {
+  display: flex;
+  align-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ff7a00;
+  margin-bottom: 18px;
+}
+
+.emoji {
+  font-size: 2rem;
+  margin-right: 10px;
+}
+
+.zaloRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.zaloIcon {
+  width: 28px;
+  height: 28px;
+  background: #e0e7ef;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.phone {
+  color: #6fa3ff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px #0002;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #181a20;
+  border-radius: 24px;
+  padding: 44px 44px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: 32px 0 0 0;
+}
+
+.formTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.input {
+  background: #232733;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+.input:focus {
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:hover {
+  background: #1d4ed8;
+}
+
+.switchText {
+  text-align: right;
+  font-size: 0.95rem;
+  color: #b0b6c1;
+}
+
+.link {
+  color: #3b82f6;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1200px) {
+  .leftPanel {
+    min-width: 420px;
+    max-width: 98vw;
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    padding: 0 16px;
+    height: 60px;
+  }
+  .container {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 60px 0 0 0;
+  }
+  .leftPanel, .rightPanel {
+    margin: 0;
+    min-width: 90vw;
+    max-width: 98vw;
+    border-radius: 18px;
+    padding: 32px 16px;
+  }
+  .rightPanel {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 0 6px;
+    height: 48px;
+  }
+  .container {
+    padding: 48px 0 0 0;
+  }
+  .leftPanel, .rightPanel {
+    min-width: 100vw;
+    max-width: 100vw;
+    border-radius: 0;
+    padding: 24px 4vw;
+  }
+  .form {
+    max-width: 100vw;
+    padding: 0;
+  }
+} 
