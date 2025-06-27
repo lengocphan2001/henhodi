@@ -1,14 +1,17 @@
 import React from 'react';
 import styles from './SignUp.module.css';
+import { Link } from 'react-router-dom';
 
 const SignUp: React.FC = () => {
   return (
     <div className={styles.wrapper}>
       <header className={styles.header}>
-        <div className={styles.logoRow}>
-          <div className={styles.logoCircle}></div>
-          <span className={styles.logoText}>HEHODI</span>
-        </div>
+        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <div className={styles.logoRow}>
+            <div className={styles.logoCircle}></div>
+            <span className={styles.logoText}>HEHODI</span>
+          </div>
+        </Link>
         <div className={styles.languageSwitch}>
           <span className={styles.flag}></span>
           <span>Tiếng Việt</span>
