@@ -176,7 +176,12 @@ const Main: React.FC = () => {
     : girls.filter(girl => girl.area === activeFilter);
 
   return (
-    <div className={styles.wrapper} style={{ minHeight: '100vh', background: '#232733', paddingBottom: 32 }}>
+    <div className={styles.wrapper} style={{ 
+      minHeight: '100vh', 
+      background: '#232733', 
+      paddingBottom: 'var(--space-8)',
+      overflowX: 'hidden'
+    }}>
       <Header />
       <InfoSection />
       <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
