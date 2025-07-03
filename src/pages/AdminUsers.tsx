@@ -12,19 +12,9 @@ const AdminUsers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [formData, setFormData] = useState<CreateUserRequest>({
-    username: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: 'user',
-    profile: {
-      fullName: '',
-      avatar: '',
-      address: ''
-    }
-  });
+  const [formData, setFormData] = useState<Partial<User>>({});
 
   useEffect(() => {
     if (!apiService.isAdmin()) {
@@ -38,13 +28,15 @@ const AdminUsers: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getUsers(currentPage, 10, searchTerm);
-      if (response.success && response.data) {
+      if (response.success && response.data && Array.isArray(response.data.data)) {
         setUsers(response.data.data);
         setTotalPages(response.data.totalPages);
       } else {
+        setUsers([]);
         setError(response.message || 'Failed to load users');
       }
     } catch (err) {
+      setUsers([]);
       setError('Failed to load users');
       console.error('Load users error:', err);
     } finally {
@@ -52,48 +44,68 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  const openCreateModal = () => {
+    setFormData({ username: '', email: '', phone: '', role: 'user', isActive: true });
+    setShowCreateModal(true);
+  };
+
+  const handleCreateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
-      const response = await apiService.createUser(formData);
+      const response = await apiService.createUser(formData as any);
       if (response.success) {
         setShowCreateModal(false);
-        setFormData({
-          username: '',
-          email: '',
-          password: '',
-          phone: '',
-          role: 'user',
-          profile: {
-            fullName: '',
-            avatar: '',
-            address: ''
-          }
-        });
         loadUsers();
       } else {
         setError(response.message || 'Failed to create user');
       }
     } catch (err) {
       setError('Failed to create user');
-      console.error('Create user error:', err);
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    console.log('Selected user:', user);
+    setFormData({
+      ...user,
+      phone: user.phone || '',
+      fullName: user.profile?.fullName || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    if (name === 'isActive' && type === 'checkbox') {
+      setFormData({ ...formData, isActive: (e.target as HTMLInputElement).checked });
+    } else if (name === 'fullName') {
+      setFormData({ ...formData, fullName: value });
+    } else {
+      setFormData({ ...formData, [name]: value });
     }
   };
 
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
-
+    setError('');
     try {
-      const updateData: UpdateUserRequest = {
-        username: formData.username,
-        email: formData.email,
-        phone: formData.phone,
-        role: formData.role,
-        profile: formData.profile
+      const updatePayload = {
+        ...selectedUser,
+        ...formData,
+        profile: {
+          ...selectedUser.profile,
+          fullName: formData.fullName || selectedUser.profile?.fullName || ''
+        },
+        phone: formData.phone
       };
-
-      const response = await apiService.updateUser(selectedUser._id, updateData);
+      const response = await apiService.updateUser(updatePayload);
       if (response.success) {
         setShowEditModal(false);
         setSelectedUser(null);
@@ -103,27 +115,34 @@ const AdminUsers: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to update user');
-      console.error('Update user error:', err);
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  const openDeleteModal = (user: User) => {
+    setSelectedUser(user);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    setError('');
     try {
+      const userId = String(selectedUser.id || selectedUser._id);
       const response = await apiService.deleteUser(userId);
       if (response.success) {
+        setShowDeleteModal(false);
+        setSelectedUser(null);
         loadUsers();
       } else {
         setError(response.message || 'Failed to delete user');
       }
     } catch (err) {
       setError('Failed to delete user');
-      console.error('Delete user error:', err);
     }
   };
 
-  const handleToggleStatus = async (userId: string) => {
+  const handleToggleStatus = async (user: User) => {
+    const userId = String(user.id || user._id);
     try {
       const response = await apiService.toggleUserStatus(userId);
       if (response.success) {
@@ -133,25 +152,7 @@ const AdminUsers: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to toggle user status');
-      console.error('Toggle status error:', err);
     }
-  };
-
-  const openEditModal = (user: User) => {
-    setSelectedUser(user);
-    setFormData({
-      username: user.username,
-      email: user.email,
-      password: '',
-      phone: user.phone || '',
-      role: user.role,
-      profile: {
-        fullName: user.profile?.fullName || '',
-        avatar: user.profile?.avatar || '',
-        address: user.profile?.address || ''
-      }
-    });
-    setShowEditModal(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -180,6 +181,96 @@ const AdminUsers: React.FC = () => {
           textAlign: 'center'
         }}>
           Loading Users...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#232733',
+        color: '#fff'
+      }}>
+        <header style={{ 
+          background: '#181a20', 
+          padding: 'var(--space-6)', 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 'var(--space-4)'
+          }}>
+            <Link to="/admin" style={{ textDecoration: 'none' }}>
+              <button style={{
+                background: 'transparent',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-2) var(--space-4)',
+                color: '#fff',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}>
+                ← Back to Dashboard
+              </button>
+            </Link>
+            <h1 style={{ 
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-2xl)',
+              fontWeight: 'var(--font-bold)',
+              color: '#667eea'
+            }}>
+              User Management
+            </h1>
+          </div>
+          <button
+            onClick={openCreateModal}
+            style={{
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-6)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-semibold)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            + Add User
+          </button>
+        </header>
+
+        <div style={{ 
+          maxWidth: 'var(--container-xl)', 
+          margin: '0 auto', 
+          padding: 'var(--space-6)'
+        }}>
+          <div style={{ 
+            background: '#ff5e62', 
+            color: '#fff', 
+            padding: 'var(--space-4)', 
+            borderRadius: 'var(--radius-lg)', 
+            marginBottom: 'var(--space-6)',
+            fontFamily: 'var(--font-primary)',
+            fontSize: 'var(--text-sm)'
+          }}>
+            {error}
+          </div>
         </div>
       </div>
     );
@@ -230,7 +321,7 @@ const AdminUsers: React.FC = () => {
           </h1>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={openCreateModal}
           style={{
             background: 'linear-gradient(135deg, #667eea, #764ba2)',
             color: '#fff',
@@ -425,7 +516,7 @@ const AdminUsers: React.FC = () => {
                     </td>
                     <td style={{ padding: 'var(--space-4)' }}>
                       <button
-                        onClick={() => handleToggleStatus(user._id)}
+                        onClick={() => handleToggleStatus(user)}
                         style={{
                           background: user.isActive ? '#43e97b' : '#ff5e62',
                           color: '#fff',
@@ -474,7 +565,7 @@ const AdminUsers: React.FC = () => {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user._id)}
+                          onClick={() => openDeleteModal(user)}
                           style={{
                             background: '#ff5e62',
                             color: '#fff',
@@ -554,7 +645,7 @@ const AdminUsers: React.FC = () => {
         )}
       </div>
 
-      {/* Create User Modal */}
+      {/* CREATE MODAL */}
       {showCreateModal && (
         <div style={{ 
           position: 'fixed',
@@ -603,7 +694,8 @@ const AdminUsers: React.FC = () => {
                     type="text"
                     required
                     value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    onChange={handleCreateChange}
+                    name="username"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -632,7 +724,8 @@ const AdminUsers: React.FC = () => {
                     type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={handleCreateChange}
+                    name="email"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -661,7 +754,8 @@ const AdminUsers: React.FC = () => {
                     type="password"
                     required
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={handleCreateChange}
+                    name="password"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -689,7 +783,8 @@ const AdminUsers: React.FC = () => {
                   <input
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={handleCreateChange}
+                    name="phone"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -716,7 +811,8 @@ const AdminUsers: React.FC = () => {
                   </label>
                   <select
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value as 'user' | 'admin'})}
+                    onChange={handleCreateChange}
+                    name="role"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -733,37 +829,7 @@ const AdminUsers: React.FC = () => {
                     <option value="admin">Admin</option>
                   </select>
                 </div>
-                <div>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: 'var(--space-2)',
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: 'var(--font-semibold)',
-                    color: '#d1d5db'
-                  }}>
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.profile?.fullName}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      profile: {...formData.profile, fullName: e.target.value}
-                    })}
-                    style={{
-                      width: '100%',
-                      background: '#232733',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      borderRadius: 'var(--radius-lg)',
-                      padding: 'var(--space-3)',
-                      color: '#fff',
-                      fontFamily: 'var(--font-primary)',
-                      fontSize: 'var(--text-sm)',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
+
               </div>
               <div style={{ 
                 display: 'flex', 
@@ -810,7 +876,7 @@ const AdminUsers: React.FC = () => {
         </div>
       )}
 
-      {/* Edit User Modal */}
+      {/* EDIT MODAL */}
       {showEditModal && selectedUser && (
         <div style={{ 
           position: 'fixed',
@@ -858,8 +924,9 @@ const AdminUsers: React.FC = () => {
                   <input
                     type="text"
                     required
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    value={formData.username || ''}
+                    onChange={handleEditChange}
+                    name="username"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -887,8 +954,9 @@ const AdminUsers: React.FC = () => {
                   <input
                     type="email"
                     required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    value={formData.email || ''}
+                    onChange={handleEditChange}
+                    name="email"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -915,8 +983,9 @@ const AdminUsers: React.FC = () => {
                   </label>
                   <input
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    value={formData.phone || ''}
+                    onChange={handleEditChange}
+                    name="phone"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -942,8 +1011,9 @@ const AdminUsers: React.FC = () => {
                     Role
                   </label>
                   <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value as 'user' | 'admin'})}
+                    value={formData.role || 'user'}
+                    onChange={handleEditChange}
+                    name="role"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -962,34 +1032,27 @@ const AdminUsers: React.FC = () => {
                 </div>
                 <div>
                   <label style={{ 
-                    display: 'block',
-                    marginBottom: 'var(--space-2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Full Name
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      checked={formData.isActive ?? true}
+                      onChange={handleEditChange}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        accentColor: '#4facfe'
+                      }}
+                    />
+                    Active
                   </label>
-                  <input
-                    type="text"
-                    value={formData.profile?.fullName}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      profile: {...formData.profile, fullName: e.target.value}
-                    })}
-                    style={{
-                      width: '100%',
-                      background: '#232733',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      borderRadius: 'var(--radius-lg)',
-                      padding: 'var(--space-3)',
-                      color: '#fff',
-                      fontFamily: 'var(--font-primary)',
-                      fontSize: 'var(--text-sm)',
-                      outline: 'none'
-                    }}
-                  />
                 </div>
               </div>
               <div style={{ 
@@ -1033,6 +1096,90 @@ const AdminUsers: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE MODAL */}
+      {showDeleteModal && selectedUser && (
+        <div style={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{ 
+            background: '#181a20', 
+            borderRadius: 'var(--radius-2xl)', 
+            padding: 'var(--space-8)', 
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <h2 style={{ 
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-xl)',
+              fontWeight: 'var(--font-bold)',
+              marginBottom: 'var(--space-6)',
+              color: '#ff5e62'
+            }}>
+              Delete User: {selectedUser.username}
+            </h2>
+            <p style={{ 
+              fontFamily: 'var(--font-primary)',
+              fontSize: 'var(--text-sm)',
+              color: '#d1d5db'
+            }}>
+              Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+            <div style={{ 
+              display: 'flex', 
+              gap: 'var(--space-4)', 
+              marginTop: 'var(--space-6)'
+            }}>
+              <button
+                type="button"
+                onClick={handleDeleteUser}
+                style={{
+                  background: 'linear-gradient(135deg, #ff5e62, #ff9a9e)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3) var(--space-6)',
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 'var(--font-semibold)',
+                  cursor: 'pointer',
+                  flex: 1
+                }}
+              >
+                Delete User
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                style={{
+                  background: 'transparent',
+                  color: '#d1d5db',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3) var(--space-6)',
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                  flex: 1
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

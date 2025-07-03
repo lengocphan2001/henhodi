@@ -1,13 +1,7 @@
 import React from 'react';
 import GirlCard from './GirlCard';
 
-type Girl = {
-  name: string;
-  area: string;
-  price: string;
-  rating: number;
-  img: string;
-};
+import { Girl } from '../services/api';
 
 type CardGridProps = {
   girls: Girl[];

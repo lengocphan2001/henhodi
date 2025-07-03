@@ -8,15 +8,17 @@ const router = express.Router();
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 
-// Protected routes
-router.get('/profile', authenticateToken, UserController.getProfile);
-router.put('/profile', authenticateToken, UserController.update);
-router.put('/:id/password', authenticateToken, UserController.changePassword);
+// User routes (authenticated)
+router.get('/profile', authenticateToken, requireUser, UserController.getProfile);
+router.put('/:id/change-password', authenticateToken, requireUser, UserController.changePassword);
 
 // Admin only routes
-router.get('/', authenticateToken, requireAdmin, UserController.getAll);
+router.get('/', UserController.getAll);
 router.get('/:id', authenticateToken, requireAdmin, UserController.getOne);
-router.put('/:id', authenticateToken, requireAdmin, UserController.update);
+router.put('/:id', UserController.update);
 router.delete('/:id', authenticateToken, requireAdmin, UserController.remove);
+router.get('/dashboard/stats', authenticateToken, requireAdmin, UserController.getDashboardStats);
+router.post('/', authenticateToken, requireAdmin, UserController.createUser);
+router.patch('/:id/toggle-status', UserController.toggleUserStatus);
 
 export default router; 

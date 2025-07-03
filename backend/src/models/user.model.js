@@ -2,13 +2,26 @@ import db from '../db.js';
 import bcrypt from 'bcryptjs';
 
 export const getAllUsers = async () => {
-  const [rows] = await db.query('SELECT id, username, email, role, created_at FROM users');
-  return rows;
+  const [rows] = await db.query('SELECT id, username, email, phone, role, created_at, updated_at FROM users');
+  return rows.map(user => ({
+    ...user,
+    _id: user.id,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
+  }));
 };
 
 export const getUserById = async (id) => {
-  const [rows] = await db.query('SELECT id, username, email, role, created_at FROM users WHERE id = ?', [id]);
-  return rows[0];
+  const [rows] = await db.query('SELECT id, username, email, phone, role, created_at, updated_at FROM users WHERE id = ?', [id]);
+  if (rows[0]) {
+    return {
+      ...rows[0],
+      _id: rows[0].id,
+      createdAt: rows[0].created_at,
+      updatedAt: rows[0].updated_at
+    };
+  }
+  return undefined;
 };
 
 export const getUserByEmail = async (email) => {
@@ -22,28 +35,47 @@ export const getUserByUsername = async (username) => {
 };
 
 export const createUser = async (userData) => {
-  const { username, email, password, role = 'user' } = userData;
+  const { username, email, password, role = 'user', phone = '' } = userData;
   
   // Hash password
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   
   const [result] = await db.query(
-    'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-    [username, email, hashedPassword, role]
+    'INSERT INTO users (username, email, password, role, phone) VALUES (?, ?, ?, ?, ?)',
+    [username, email, hashedPassword, role, phone]
   );
   
-  return { id: result.insertId, username, email, role };
+  return getUserById(result.insertId);
 };
 
 export const updateUser = async (id, userData) => {
-  const { username, email, role } = userData;
-  
-  await db.query(
-    'UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?',
-    [username, email, role, id]
-  );
-  
+  // Build dynamic SQL for partial update
+  const fields = [];
+  const values = [];
+  if (userData.username !== undefined) {
+    fields.push('username = ?');
+    values.push(userData.username);
+  }
+  if (userData.email !== undefined) {
+    fields.push('email = ?');
+    values.push(userData.email);
+  }
+  if (userData.role !== undefined) {
+    fields.push('role = ?');
+    values.push(userData.role);
+  }
+  if (userData.isActive !== undefined) {
+    fields.push('isActive = ?');
+    values.push(userData.isActive);
+  }
+  if (userData.phone !== undefined) {
+    fields.push('phone = ?');
+    values.push(userData.phone);
+  }
+  if (fields.length === 0) return getUserById(id);
+  values.push(id);
+  await db.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
   return getUserById(id);
 };
 
@@ -60,4 +92,22 @@ export const deleteUser = async (id) => {
 
 export const verifyPassword = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
+};
+
+export const getTotalUsers = async () => {
+  const [rows] = await db.query('SELECT COUNT(*) as total FROM users');
+  return rows[0].total;
+};
+
+export const getActiveUsers = async () => {
+  const [rows] = await db.query('SELECT COUNT(*) as total FROM users WHERE isActive = 1');
+  return rows[0].total;
+};
+
+export const getRecentUsers = async (limit = 5) => {
+  const [rows] = await db.query(
+    'SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC LIMIT ?',
+    [limit]
+  );
+  return rows;
 }; 

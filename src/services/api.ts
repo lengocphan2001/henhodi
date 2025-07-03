@@ -19,15 +19,18 @@ export interface PaginatedResponse<T> {
 
 // User Types
 export interface User {
-  _id: string;
+  id?: string | number;
+  _id?: string | number;
   username: string;
   email: string;
   phone?: string;
+  fullName?: string;
   role: 'user' | 'admin';
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   lastLogin?: string;
+  password?: string;
   profile?: {
     fullName?: string;
     avatar?: string;
@@ -86,7 +89,7 @@ export interface Girl {
     'Cân nặng': string;
     'Số đo': string;
   };
-  images?: string[];
+  images: string[];
   reviews?: Review[];
 }
 
@@ -196,6 +199,9 @@ class ApiService {
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         ...(this.token && { Authorization: `Bearer ${this.token}` }),
         ...options.headers,
       },
@@ -204,13 +210,49 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Handle 304 Not Modified response
+      if (response.status === 304) {
+        // For 304 responses, we need to return a success response
+        // but the data might be cached, so we'll return an empty success response
+        return {
+          success: true,
+          data: undefined,
+          message: 'Data not modified'
+        };
+      }
+
+      // For other responses, try to parse JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // If response is empty or not JSON, handle gracefully
+        if (response.ok) {
+          return {
+            success: true,
+            data: undefined
+          };
+        } else {
+          throw new Error('Invalid response format');
+        }
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'API request failed');
       }
 
-      return data;
+      // Handle different response formats
+      if (data.success !== undefined) {
+        // Response already has success field
+        return data;
+      } else {
+        // Response doesn't have success field, wrap it
+        return {
+          success: true,
+          data: data
+        };
+      }
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -219,7 +261,7 @@ class ApiService {
 
   // Auth Methods
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await this.request<LoginResponse>('/auth/login', {
+    const response = await this.request<LoginResponse>('/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -234,7 +276,7 @@ class ApiService {
   }
 
   async register(userData: RegisterRequest): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/register', {
+    return this.request<User>('/users/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -247,7 +289,7 @@ class ApiService {
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/me');
+    return this.request<User>('/users/profile');
   }
 
   // User Management Methods
@@ -271,10 +313,11 @@ class ApiService {
     });
   }
 
-  async updateUser(id: string, userData: UpdateUserRequest): Promise<ApiResponse<User>> {
-    return this.request<User>(`/users/${id}`, {
+  async updateUser(user: User): Promise<ApiResponse<User>> {
+    const userId = user.id || user._id;
+    return this.request<User>(`/users/${userId}`, {
       method: 'PUT',
-      body: JSON.stringify(userData),
+      body: JSON.stringify(user),
     });
   }
 
@@ -284,8 +327,8 @@ class ApiService {
     });
   }
 
-  async toggleUserStatus(id: string): Promise<ApiResponse<User>> {
-    return this.request<User>(`/users/${id}/toggle-status`, {
+  async toggleUserStatus(userId: string): Promise<ApiResponse<User>> {
+    return this.request<User>(`/users/${userId}/toggle-status`, {
       method: 'PATCH',
     });
   }
@@ -297,6 +340,8 @@ class ApiService {
       limit: limit.toString(),
       ...(search && { search }),
       ...(area && { area }),
+      // Add cache-busting parameter to prevent 304 responses
+      _t: Date.now().toString(),
     });
     return this.request<PaginatedResponse<Girl>>(`/girls?${params}`);
   }
@@ -332,16 +377,145 @@ class ApiService {
   }
 
   async uploadImage(file: File): Promise<ApiResponse<{ url: string }>> {
-    const formData = new FormData();
-    formData.append('image', file);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
 
-    return this.request<{ url: string }>('/upload/image', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      body: formData,
-    });
+      const response = await fetch(`${this.baseURL}/upload/girl/image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  }
+
+  async uploadGirlImage(girlId: string, file: File): Promise<ApiResponse<{ url: string }>> {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await this.request<{ url: string }>(`/girls/${girlId}/image`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Upload girl image error:', error);
+      return {
+        success: false,
+        message: 'Failed to upload image',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  // Detail images functions
+  async uploadDetailImage(girlId: string, file: File, order?: number): Promise<ApiResponse<{ id: number; url: string }>> {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      if (order !== undefined) {
+        formData.append('order', order.toString());
+      }
+      
+      const response = await fetch(`${this.baseURL}/girls/${girlId}/detail-images`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+        body: formData,
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Upload detail image error:', error);
+      return {
+        success: false,
+        message: 'Failed to upload detail image',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getDetailImages(girlId: string): Promise<ApiResponse<Array<{
+    id: number;
+    order: number;
+    createdAt: string;
+    url: string;
+  }>>> {
+    try {
+      const response = await this.request<Array<{
+        id: number;
+        order: number;
+        createdAt: string;
+        url: string;
+      }>>(`/girls/${girlId}/detail-images`);
+      
+      return response;
+    } catch (error) {
+      console.error('Get detail images error:', error);
+      return {
+        success: false,
+        message: 'Failed to get detail images',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async deleteDetailImage(girlId: string, imageId: number): Promise<ApiResponse<void>> {
+    try {
+      const response = await this.request<void>(`/girls/${girlId}/detail-images/${imageId}`, {
+        method: 'DELETE',
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Delete detail image error:', error);
+      return {
+        success: false,
+        message: 'Failed to delete detail image',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async updateDetailImageOrder(girlId: string, imageId: number, order: number): Promise<ApiResponse<void>> {
+    try {
+      const response = await this.request<void>(`/girls/${girlId}/detail-images/${imageId}/order`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order }),
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Update detail image order error:', error);
+      return {
+        success: false,
+        message: 'Failed to update detail image order',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
   // Review Methods
@@ -377,7 +551,7 @@ class ApiService {
     recentUsers: User[];
     recentGirls: Girl[];
   }>> {
-    return this.request('/dashboard/stats');
+    return this.request('/users/dashboard/stats');
   }
 
   // Utility Methods

@@ -1,13 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Girl } from '../services/api';
 
-type GirlCardProps = {
-  name: string;
-  area: string;
-  price: string;
-  rating: number;
-  img: string;
-};
+type GirlCardProps = Girl;
 
 const GirlCard: React.FC<GirlCardProps> = (props) => {
   const navigate = useNavigate();

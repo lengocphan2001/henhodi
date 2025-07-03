@@ -512,8 +512,8 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 {stats.recentUsers.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    {stats.recentUsers.slice(0, 5).map((user) => (
-                      <div key={user._id} style={{ 
+                    {stats.recentUsers.slice(0, 5).map((user, idx) => (
+                      <div key={user._id || idx} style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
@@ -582,8 +582,8 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 {stats.recentGirls.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    {stats.recentGirls.slice(0, 5).map((girl) => (
-                      <div key={girl._id} style={{ 
+                    {stats.recentGirls.slice(0, 5).map((girl, idx) => (
+                      <div key={girl._id || idx} style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',

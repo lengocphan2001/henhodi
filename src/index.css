@@ -437,3 +437,13 @@ html {
   .md\:text-left { text-align: left !important; }
   .md\:text-right { text-align: right !important; }
 }
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
