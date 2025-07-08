@@ -25,8 +25,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
         position: 'relative',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
-        height: '100%',
-        minHeight: '480px',
+        height: 'auto',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
@@ -53,7 +52,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'space-between',
-        gap: 'var(--space-3)'
+        gap: 'var(--space-1)'
       }}>
         <div style={{ 
           color: '#fff', 
@@ -72,7 +71,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
           fontSize: 'var(--text-sm)', 
           lineHeight: 'var(--leading-normal)',
           letterSpacing: 'var(--tracking-normal)',
-          marginBottom: 'var(--space-2)'
+          marginBottom: 'var(--space-1)'
         }}>
           {area}
         </div>
@@ -80,28 +79,41 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
           display: 'flex', 
           alignItems: 'center', 
           gap: 'var(--space-1)', 
-          marginBottom: 'var(--space-3)'
+          marginBottom: 'var(--space-1)'
         }}>
-          {[...Array(rating)].map((_, i) => (
-            <span key={i} style={{ 
-              color: '#ffb347', 
-              fontSize: 'var(--text-lg)',
-              textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
-            }}>
-              ★
-            </span>
-          ))}
+          {Array.from({ length: 5 }).map((_, i) => {
+            const full = i + 1 <= Math.floor(Number(rating));
+            const half = !full && i + 0.5 <= Number(rating);
+            return (
+              <span key={i} style={{ 
+                color: '#ffb347', 
+                fontSize: 'var(--text-lg)',
+                textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
+              }}>
+                {full ? '★' : half ? '⯨' : '☆'}
+              </span>
+            );
+          })}
+          <span style={{
+            color: '#fff',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 600,
+            fontSize: 'var(--text-sm)',
+            marginLeft: '8px'
+          }}>
+            {Number(rating || 0).toFixed(2)}
+          </span>
         </div>
         <div style={{ 
           display: 'flex', 
-          gap: 'var(--space-2)', 
-          marginBottom: 'var(--space-3)'
+          gap: 'var(--space-1)', 
+          marginBottom: 'var(--space-1)'
         }}>
           <span style={{ 
             background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
             color: '#fff', 
             borderRadius: 'var(--radius-lg)', 
-            padding: 'var(--space-1) var(--space-3)', 
+            padding: 'var(--space-1) var(--space-1)', 
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-semibold)', 
             fontSize: 'var(--text-sm)',
@@ -119,7 +131,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
           color: '#fff', 
           border: 'none', 
           borderRadius: 'var(--radius-xl)', 
-          padding: 'var(--space-3) 0', 
+          padding: 'var(--space-1) 0', 
           fontFamily: 'var(--font-heading)',
           fontWeight: 'var(--font-semibold)', 
           fontSize: 'var(--text-base)', 

@@ -36,7 +36,7 @@ const FooterInfoSection: React.FC = () => (
     <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
-      gap: 'var(--space-4)', 
+      gap: 'var(--space-2)', 
       marginBottom: 'var(--space-5)',
       flexWrap: 'wrap'
     }}>
@@ -53,7 +53,7 @@ const FooterInfoSection: React.FC = () => (
       <span style={{ 
         background: '#393e4b', 
         borderRadius: 'var(--radius-lg)', 
-        padding: 'var(--space-1) var(--space-4)', 
+        padding: 'var(--space-1) var(--space-2)', 
         color: '#fff', 
         fontFamily: 'var(--font-primary)',
         fontWeight: 'var(--font-medium)', 

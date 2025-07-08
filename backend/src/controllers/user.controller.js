@@ -7,19 +7,29 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const getAll = async (req, res) => {
   try {
-    const users = await User.getAllUsers();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+
+    const result = await User.getUsersWithPagination(page, limit, search);
+    
     res.json({
       success: true,
       data: {
-        data: users,
-        total: users.length,
-        page: 1,
-        limit: users.length,
-        totalPages: 1
+        data: result.users,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Get users error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to load users', 
+      error: error.message 
+    });
   }
 };
 

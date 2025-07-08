@@ -55,17 +55,41 @@ const createTables = async () => {
       )
     `);
 
+    // Add phone column if it doesn't exist (migration)
+    try {
+      await connection.execute('ALTER TABLE users ADD COLUMN phone VARCHAR(20)');
+      console.log('✅ Added phone column to users table');
+    } catch (error) {
+      if (error.message.includes('Duplicate column name')) {
+        console.log('ℹ️ Phone column already exists in users table');
+      } else {
+        console.log('ℹ️ Could not add phone column:', error.message);
+      }
+    }
+
+    // Add profile column if it doesn't exist (migration)
+    try {
+      await connection.execute('ALTER TABLE users ADD COLUMN profile JSON');
+      console.log('✅ Added profile column to users table');
+    } catch (error) {
+      if (error.message.includes('Duplicate column name')) {
+        console.log('ℹ️ Profile column already exists in users table');
+      } else {
+        console.log('ℹ️ Could not add profile column:', error.message);
+      }
+    }
+
     // Drop and recreate girls table to fix BLOB field issues
     try {
       // Disable foreign key checks temporarily
       await connection.execute('SET FOREIGN_KEY_CHECKS = 0');
       
       // Drop tables in correct order
-      await connection.execute('DROP TABLE IF EXISTS reviews');
-      console.log('🗑️ Dropped reviews table');
+      // await connection.execute('DROP TABLE IF EXISTS reviews');
+      // console.log('🗑️ Dropped reviews table');
       
-      await connection.execute('DROP TABLE IF EXISTS girls');
-      console.log('🗑️ Dropped girls table');
+      // await connection.execute('DROP TABLE IF EXISTS girls');
+      // console.log('🗑️ Dropped girls table');
       
       // Re-enable foreign key checks
       await connection.execute('SET FOREIGN_KEY_CHECKS = 1');
@@ -75,7 +99,7 @@ const createTables = async () => {
 
     // Create girls table with proper BLOB configuration
     await connection.execute(`
-      CREATE TABLE girls (
+      CREATE TABLE IF NOT EXISTS girls (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         area VARCHAR(255) NOT NULL,
@@ -110,7 +134,7 @@ const createTables = async () => {
 
     // Recreate reviews table
     await connection.execute(`
-      CREATE TABLE reviews (
+      CREATE TABLE IF NOT EXISTS reviews (
         id INT AUTO_INCREMENT PRIMARY KEY,
         userId INT NOT NULL,
         girlId INT NOT NULL,
@@ -121,7 +145,7 @@ const createTables = async () => {
         FOREIGN KEY (girlId) REFERENCES girls(id) ON DELETE CASCADE
       )
     `);
-    console.log('✅ Recreated reviews table');
+    console.log('✅ Created reviews table');
 
     // Create indexes for better performance
     await createIndexes(connection);

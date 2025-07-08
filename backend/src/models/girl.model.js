@@ -32,10 +32,27 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
     const detailImages = await getDetailImages(row.id);
     const detailImageUrls = detailImages.map(img => img.url);
     
+    // Determine the image URL
+    let imgUrl;
+    if (row.img_url && row.img_url.trim() !== '') {
+      // If img_url is set, use it
+      imgUrl = row.img_url;
+    } else {
+      // If no img_url, check if there's a BLOB image
+      const imageBuffer = await getGirlImage(row.id);
+      if (imageBuffer) {
+        // There's a BLOB image, use the API endpoint
+        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+      } else {
+        // No image at all, use placeholder
+        imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
+      }
+    }
+    
     return {
       ...row,
       _id: row.id,
-      img: row.img_url.startsWith('http') ? row.img_url : `http://localhost:5000/api/girls/${row.id}/image`,
+      img: imgUrl,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       info: parseJsonSafely(row.info, {}),
@@ -72,19 +89,44 @@ export const getGirlById = async (id) => {
   
   const row = rows[0];
   
+  
   // Get detail images for this girl
   const detailImages = await getDetailImages(id);
   const detailImageUrls = detailImages.map(img => img.url);
   
-  return {
+  // Determine the image URL
+  let imgUrl;
+  if (row.img_url && row.img_url.trim() !== '') {
+    // If img_url is set, use it
+    imgUrl = row.img_url;
+    
+  } else {
+    // If no img_url, check if there's a BLOB image
+    const imageBuffer = await getGirlImage(id);
+    
+    if (imageBuffer) {
+      // There's a BLOB image, use the API endpoint
+      imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+      
+    } else {
+      // No image at all, use placeholder
+      imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
+      
+    }
+  }
+  
+  const result = {
     ...row,
     _id: row.id,
-    img: row.img_url.startsWith('http') ? row.img_url : `http://localhost:5000/api/girls/${row.id}/image`,
+    img: imgUrl,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     info: parseJsonSafely(row.info, {}),
     images: detailImageUrls // Use detail image URLs instead of the JSON field
   };
+  
+  
+  return result;
 };
 
 export const getGirlImage = async (id) => {
@@ -95,7 +137,7 @@ export const getGirlImage = async (id) => {
 export const createGirl = async (girl) => {
   // Prepare the data without the img field (BLOB field)
   const defaultInfo = {
-    'Người đánh': '',
+    'Người đánh giá': '',
     'ZALO': girl.zalo || '',
     'Giá 1 lần': girl.price || '',
     'Giá phòng': '',
@@ -115,7 +157,7 @@ export const createGirl = async (girl) => {
     area: girl.area,
     price: girl.price,
     rating: girl.rating || 0,
-    img_url: girl.img || 'https://via.placeholder.com/300x400?text=No+Image',
+    img_url: '', // Start with empty URL, will be set when image is uploaded
     zalo: girl.zalo || null,
     phone: girl.phone || null,
     description: girl.description || null,
@@ -174,14 +216,30 @@ export const updateGirl = async (id, girl) => {
 
 export const updateGirlImage = async (id, imageBuffer) => {
   try {
-    // Update only the img field with the BLOB data
-    const [result] = await db.query('UPDATE girls SET img = ? WHERE id = ?', [imageBuffer, id]);
+    console.log('updateGirlImage called with id:', id);
+    console.log('updateGirlImage - imageBuffer length:', imageBuffer?.length);
+    
+    // Update both the img field (BLOB) and img_url field with the proper URL
+    const imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+    console.log('updateGirlImage - setting img_url to:', imgUrl);
+    
+    const [result] = await db.query(
+      'UPDATE girls SET img = ?, img_url = ? WHERE id = ?', 
+      [imageBuffer, imgUrl, id]
+    );
+    
+    console.log('updateGirlImage - update result:', result);
     
     if (result.affectedRows === 0) {
       throw new Error('Girl not found');
     }
     
-    return getGirlById(id);
+    // Verify the update worked
+    const updatedGirl = await getGirlById(id);
+    console.log('updateGirlImage - updated girl img_url:', updatedGirl?.img_url);
+    console.log('updateGirlImage - updated girl img:', updatedGirl?.img);
+    
+    return updatedGirl;
   } catch (error) {
     console.error('Error updating girl image:', error);
     throw error;
@@ -222,10 +280,27 @@ export const getRecentGirls = async (limit = 5) => {
     const detailImages = await getDetailImages(row.id);
     const detailImageUrls = detailImages.map(img => img.url);
     
+    // Determine the image URL
+    let imgUrl;
+    if (row.img_url && row.img_url.trim() !== '') {
+      // If img_url is set, use it
+      imgUrl = row.img_url;
+    } else {
+      // If no img_url, check if there's a BLOB image
+      const imageBuffer = await getGirlImage(row.id);
+      if (imageBuffer) {
+        // There's a BLOB image, use the API endpoint
+        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+      } else {
+        // No image at all, use placeholder
+        imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
+      }
+    }
+    
     return {
       ...row,
       _id: row.id,
-      img: row.img_url.startsWith('http') ? row.img_url : `http://localhost:5000/api/girls/${row.id}/image`,
+      img: imgUrl,
       createdAt: row.created_at,
       images: detailImageUrls
     };

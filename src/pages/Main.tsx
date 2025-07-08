@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './SignUp.module.css';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import InfoSection from '../components/InfoSection';
 import FilterTabs from '../components/FilterTabs';
 import CardGrid from '../components/CardGrid';
-import FooterInfoSection from '../components/FooterInfoSection';
 import { apiService, Girl } from '../services/api';
 
-
-
 const Main: React.FC = () => {
+  const { t } = useTranslation();
   const [girls, setGirls] = useState<Girl[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +33,11 @@ const Main: React.FC = () => {
           const uniqueAreas = Array.from(new Set(girlsData.map(girl => girl.area)));
           setFilters(['Full Phú Quốc', ...uniqueAreas]);
         } else {
-          setError('Failed to load girls data');
+          setError(t('main.failedToLoadGirls'));
         }
       } catch (err) {
         console.error('Error loading girls:', err);
-        setError('Failed to load girls data');
+        setError(t('main.failedToLoadGirls'));
       } finally {
         setLoading(false);
       }
@@ -66,20 +65,18 @@ const Main: React.FC = () => {
         <div style={{ 
           textAlign: 'center',
           fontFamily: 'var(--font-heading)',
-          fontSize: 'var(--text-xl)'
+          fontSize: 'var(--text-lg)'
         }}>
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            Loading girls...
-          </div>
           <div style={{ 
             width: '40px', 
             height: '40px', 
-            border: '4px solid rgba(255, 255, 255, 0.1)', 
-            borderTop: '4px solid #667eea', 
+            border: '3px solid #ff7a00', 
+            borderTop: '3px solid transparent', 
             borderRadius: '50%', 
             animation: 'spin 1s linear infinite',
-            margin: '0 auto'
+            margin: '0 auto var(--space-2)'
           }}></div>
+          {t('common.loading')}
         </div>
       </div>
     );
@@ -101,24 +98,14 @@ const Main: React.FC = () => {
           fontFamily: 'var(--font-heading)',
           fontSize: 'var(--text-lg)'
         }}>
-          <div style={{ marginBottom: 'var(--space-4)', color: '#ff5e62' }}>
+          <div style={{ marginBottom: 'var(--space-2)', color: '#ff5e62' }}>
             {error}
           </div>
           <button 
             onClick={() => window.location.reload()}
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-6)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              cursor: 'pointer'
-            }}
+            className="pretty-button danger"
           >
-            Try Again
+            {t('common.retry')}
           </button>
         </div>
       </div>
@@ -127,23 +114,14 @@ const Main: React.FC = () => {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
       background: '#232733', 
-      padding: '20px',
-      color: 'white'
+      color: 'white',
+      flex: 1
     }}>
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#232733', 
-        paddingBottom: 'var(--space-8)',
-        overflowX: 'hidden'
-      }}>
-        <Header />
-        <InfoSection />
-        <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-        <CardGrid girls={filteredGirls} />
-        <FooterInfoSection />
-      </div>
+      <Header />
+      <InfoSection />
+      <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+      <CardGrid girls={filteredGirls} />
     </div>
   );
 };

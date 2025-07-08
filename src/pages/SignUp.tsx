@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import styles from './SignUp.module.css';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const SignUp: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -26,23 +29,23 @@ const SignUp: React.FC = () => {
 
   const validateForm = () => {
     if (!formData.email || !formData.password || !formData.confirmPassword || !formData.username) {
-      setError('Vui lòng nhập đầy đủ thông tin');
+      setError(t('auth.fillAllFields'));
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
+      setError(t('auth.passwordMismatch'));
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
+      setError(t('auth.passwordMinLength'));
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Email không hợp lệ');
+      setError(t('auth.invalidEmail'));
       return false;
     }
 
@@ -68,14 +71,14 @@ const SignUp: React.FC = () => {
 
       if (response.success) {
         // Registration successful, redirect to login
-        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+        alert(t('auth.registerSuccess'));
         navigate('/signin');
       } else {
-        setError(response.message || 'Đăng ký thất bại');
+        setError(response.message || t('auth.registerFailed'));
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError('Đăng ký thất bại. Vui lòng thử lại.');
+      setError(t('auth.registerFailedTryAgain'));
     } finally {
       setLoading(false);
     }
@@ -90,21 +93,18 @@ const SignUp: React.FC = () => {
             <span className={styles.logoText}>HEHODI</span>
           </div>
         </Link>
-        <div className={styles.languageSwitch}>
-          <span className={styles.flag}></span>
-          <span>Tiếng Việt</span>
-        </div>
+        <LanguageSwitcher />
       </header>
       <div className={styles.container}>
         <div className={styles.leftPanel}>
-          <div className={styles.title}>Black Phú Quốc</div>
+          <div className={styles.title}>{t('main.title')}</div>
           <div className={styles.subtitle}>
-            Đặt lịch hẹn gặp các bé vui lòng nhắn vui lòng nhắn Zalo dưới đây
+            {t('auth.scheduleAppointment')}
           </div>
           <div className={styles.infoBox}>
             <div className={styles.infoTitle}>
               <span role="img" aria-label="thumbs up" className={styles.emoji}>👍</span>
-              <span>ĐẲNG CẤP GÁI GỌI</span>
+              <span>{t('auth.premiumCallGirls')}</span>
             </div>
             <div className={styles.zaloRow}>
               <div className={styles.zaloIcon}></div>
@@ -118,7 +118,7 @@ const SignUp: React.FC = () => {
         </div>
         <div className={styles.rightPanel}>
           <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.formTitle}>Đăng Ký Tài Khoản</div>
+            <div className={styles.formTitle}>{t('auth.registerAccount')}</div>
             
             {error && (
               <div style={{
@@ -138,7 +138,7 @@ const SignUp: React.FC = () => {
               className={styles.input} 
               type="text" 
               name="username"
-              placeholder="Tên đăng nhập" 
+              placeholder={t('auth.username')} 
               value={formData.username}
               onChange={handleInputChange}
               disabled={loading}
@@ -147,7 +147,7 @@ const SignUp: React.FC = () => {
               className={styles.input} 
               type="email" 
               name="email"
-              placeholder="Email" 
+              placeholder={t('auth.email')} 
               value={formData.email}
               onChange={handleInputChange}
               disabled={loading}
@@ -156,7 +156,7 @@ const SignUp: React.FC = () => {
               className={styles.input} 
               type="password" 
               name="password"
-              placeholder="Mật khẩu" 
+              placeholder={t('auth.password')} 
               value={formData.password}
               onChange={handleInputChange}
               disabled={loading}
@@ -165,7 +165,7 @@ const SignUp: React.FC = () => {
               className={styles.input} 
               type="password" 
               name="confirmPassword"
-              placeholder="Nhập lại mật khẩu" 
+              placeholder={t('auth.confirmPassword')} 
               value={formData.confirmPassword}
               onChange={handleInputChange}
               disabled={loading}
@@ -179,10 +179,10 @@ const SignUp: React.FC = () => {
                 cursor: loading ? 'not-allowed' : 'pointer'
               }}
             >
-              {loading ? 'Đang đăng ký...' : 'Đăng Ký'}
+              {loading ? t('auth.registering') : t('auth.signUp')}
             </button>
             <div className={styles.switchText}>
-              Bạn đã có tài khoản <Link to="/signin" className={styles.link}>Đăng nhập</Link>
+              {t('auth.alreadyHaveAccount')} <Link to="/signin" className={styles.link}>{t('auth.signIn')}</Link>
             </div>
           </form>
         </div>

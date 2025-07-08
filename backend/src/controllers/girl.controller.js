@@ -129,17 +129,6 @@ export const uploadDetailImage = async (req, res) => {
     const { id } = req.params;
     const { order } = req.body;
     
-    console.log('Upload detail image request:', {
-      id,
-      order,
-      hasFile: !!req.file,
-      fileInfo: req.file ? {
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size
-      } : null,
-      headers: req.headers['content-type']
-    });
     
     // Validate girl ID
     if (!id || id === 'undefined' || id === 'null') {

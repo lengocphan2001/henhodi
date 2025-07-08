@@ -12,22 +12,22 @@ const CardGrid: React.FC<CardGridProps> = ({ girls }) => {
     <div
       style={{
         maxWidth: 'var(--container-xl)',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        // margin: '0 auto',
+        display: 'flex',
+        // gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr)) ',
         gap: 'var(--space-6)',
         marginBottom: 'var(--space-12)',
-        padding: '0 var(--space-6)',
-        minHeight: '480px',
         justifyContent: 'center',
+        // padding: '0 var(--space-6)',
+        minHeight: '480px',
+        // justifyContent: 'center',
       }}
     >
       {girls.map((girl, idx) => (
         <div key={idx} style={{ 
           width: '100%', 
-          maxWidth: '400px',
-          justifySelf: 'center',
-          height: '100%'
+          maxWidth: '300px',
+          justifySelf: 'center'
         }}>
           <GirlCard {...girl} />
         </div>

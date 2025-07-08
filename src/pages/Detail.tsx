@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './SignUp.module.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { apiService, Review } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 // Type for the girl prop
 type Girl = {
+  _id?: string;
+  id?: string | number;
   name: string;
   area: string;
   price: string;
@@ -13,15 +18,17 @@ type Girl = {
   phone?: string;
   description?: string;
   info?: Record<string, string>;
+  images?: string[];
 };
 
-const comments = [
-  'Con hàng này tuyệt vời lắm anh em',
-  'Gái phục vụ nhiệt tình lắm anh em',
-  'Gái đẹp, giá hợp lý, sẽ quay lại',
-];
+// Helper to mask phone number
+function maskPhone(phone?: string) {
+  if (!phone || phone.length < 4) return 'Anonymous';
+  return phone.slice(0, -4) + 'xxxx';
+}
 
 const Detail: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   // Get girl data from location state (passed from main page)
@@ -35,7 +42,7 @@ const Detail: React.FC = () => {
     phone: '0965209115',
     description: 'NHIỆT TÌNH - VUI VẺ',
     info: {
-      'Người đánh': 'Ngọc Miu',
+      'Người đánh giá': 'Ngọc Miu',
       'ZALO': '0965209115',
       'Giá 1 lần': '700.000 VND',
       'Giá phòng': '150.000 VND',
@@ -47,47 +54,129 @@ const Detail: React.FC = () => {
     },
   };
 
+  // Review state
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [newReview, setNewReview] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch reviews on mount
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const girlId = girl.id || girl._id;
+      if (!girlId) {
+        console.log('No girlId found');
+        return;
+      }
+      try {
+        console.log('Fetching reviews for girlId:', girlId);
+        const res = await apiService.getReviews(girlId.toString());
+        console.log('Review API response:', res);
+        if (res.success && res.data) {
+          setReviews(res.data.data);
+        }
+      } catch (err) {
+        setError(t('detail.cannotLoadReviews'));
+        console.error('Error fetching reviews:', err);
+      }
+    };
+    fetchReviews();
+  }, [girl.id, girl._id]);
+
+  // Submit review
+  const handleSubmitReview = async () => {
+    if (!newReview.trim()) return;
+    const girlId = girl.id || girl._id;
+    if (!girlId) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await apiService.createReview({
+        girlId: girlId.toString(),
+        rating: 5, // or allow user to select rating
+        comment: newReview.trim(),
+      });
+      if (res.success && res.data) {
+        setReviews([res.data, ...reviews]);
+        setNewReview('');
+      } else {
+        setError(res.message || t('detail.submitReviewFailed'));
+      }
+    } catch (err) {
+      setError(t('detail.submitReviewFailed'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className={styles.wrapper} style={{ 
-      minHeight: '100vh', 
+    <div style={{ 
       background: '#232733', 
-      paddingBottom: 'var(--space-8)',
-      overflowX: 'hidden'
+      flex: 1
     }}>
+      {/* Header */}
+      <header style={{ 
+        background: '#181a20', 
+        padding: 'var(--space-6)', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 'var(--space-4)'
+      }}>
+        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <div className={styles.logoRow}>
+            <div className={styles.logoCircle}></div>
+            <span className={styles.logoText}>HEHODI</span>
+          </div>
+        </Link>
+        <div style={{ flexShrink: 0, minWidth: '160px' }}>
+          <LanguageSwitcher />
+        </div>
+      </header>
+
       <div style={{ 
         maxWidth: 'var(--container-xl)', 
         margin: '0 auto', 
-        paddingTop: 'var(--space-8)', 
-        padding: 'var(--space-6)'
+        padding: 'var(--space-6)',
+        paddingTop: 'var(--space-8)'
       }}>
         <button 
           onClick={() => navigate(-1)} 
           style={{ 
             marginBottom: 'var(--space-6)', 
-            background: '#393e4b', 
+            background: 'rgba(255, 255, 255, 0.05)',
             color: '#fff', 
-            border: 'none', 
+            border: '1px solid rgba(255, 255, 255, 0.2)', 
             borderRadius: 'var(--radius-lg)', 
-            padding: 'var(--space-3) var(--space-7)', 
+            padding: 'var(--space-3) var(--space-4)', 
             fontFamily: 'var(--font-heading)',
-            fontWeight: 'var(--font-semibold)', 
+            fontWeight: 'var(--font-medium)', 
             fontSize: 'var(--text-base)',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            lineHeight: 'var(--leading-tight)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            textTransform: 'uppercase',
             letterSpacing: 'var(--tracking-wide)',
-            textTransform: 'uppercase'
+            lineHeight: 'var(--leading-tight)',
+            boxShadow: 'none',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#4a5568';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
             e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#393e4b';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          ← Quay lại
+          <span style={{ fontSize: '16px' }}>←</span>
+          {t('detail.backToList')}
         </button>
         <div style={{ 
           display: 'grid',
@@ -100,7 +189,7 @@ const Detail: React.FC = () => {
           <div style={{ 
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-4)',
+            gap: 'var(--space-1)',
             maxWidth: '400px',
             justifySelf: 'center'
           }}>
@@ -109,7 +198,7 @@ const Detail: React.FC = () => {
               height: '400px', 
               objectFit: 'cover', 
               borderRadius: 'var(--radius-2xl)', 
-              marginBottom: 'var(--space-4)',
+              marginBottom: 'var(--space-2)',
               boxShadow: 'var(--shadow-lg)'
             }} />
             <div style={{ 
@@ -139,15 +228,28 @@ const Detail: React.FC = () => {
               gap: 'var(--space-1)', 
               marginBottom: 'var(--space-3)'
             }}>
-              {[...Array(girl.rating)].map((_, i) => (
-                <span key={i} style={{ 
-                  color: '#ffb347', 
-                  fontSize: 'var(--text-xl)',
-                  textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
-                }}>
-                  ★
-                </span>
-              ))}
+              {Array.from({ length: 5 }).map((_, i) => {
+                const full = i + 1 <= Math.floor(girl.rating);
+                const half = !full && i + 0.5 <= girl.rating;
+                return (
+                  <span key={i} style={{ 
+                    color: '#ffb347', 
+                    fontSize: 'var(--text-xl)',
+                    textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
+                  }}>
+                    {full ? '★' : half ? '⯨' : '☆'}
+                  </span>
+                );
+              })}
+              <span style={{
+                color: '#fff',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 600,
+                fontSize: 'var(--text-base)',
+                marginLeft: '8px'
+              }}>
+                {Number(girl.rating || 0).toFixed(2)}
+              </span>
             </div>
             <div style={{ 
               display: 'flex', 
@@ -158,7 +260,7 @@ const Detail: React.FC = () => {
                 background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
                 color: '#fff', 
                 borderRadius: 'var(--radius-lg)', 
-                padding: 'var(--space-2) var(--space-4)', 
+                padding: 'var(--space-2) var(--space-2)', 
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 'var(--font-semibold)', 
                 fontSize: 'var(--text-sm)',
@@ -168,7 +270,7 @@ const Detail: React.FC = () => {
                 boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
                 whiteSpace: 'nowrap'
               }}>
-                Tẩu nhanh : {girl.price}
+                {t('detail.quickPrice')} : {girl.price}
               </span>
             </div>
             <button style={{ 
@@ -176,7 +278,7 @@ const Detail: React.FC = () => {
               color: '#fff', 
               border: 'none', 
               borderRadius: 'var(--radius-xl)', 
-              padding: 'var(--space-4) 0', 
+              padding: 'var(--space-2) 0', 
               fontFamily: 'var(--font-heading)',
               fontWeight: 'var(--font-semibold)', 
               fontSize: 'var(--text-base)', 
@@ -197,7 +299,7 @@ const Detail: React.FC = () => {
               e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
             }}
             >
-              Hẹn gặp bé click vào đây
+              {t('detail.meetGirlClickHere')}
             </button>
           </div>
           {/* Right: Details and comments */}
@@ -211,14 +313,14 @@ const Detail: React.FC = () => {
               display: 'flex', 
               alignItems: 'center', 
               gap: 'var(--space-3)', 
-              marginBottom: 'var(--space-4)', 
+              marginBottom: 'var(--space-2)', 
               flexWrap: 'wrap'
             }}>
               <span style={{ 
                 background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
                 color: '#fff', 
                 borderRadius: 'var(--radius-lg)', 
-                padding: 'var(--space-1) var(--space-4)', 
+                padding: 'var(--space-1) var(--space-2)', 
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 'var(--font-bold)', 
                 fontSize: 'var(--text-sm)',
@@ -252,15 +354,21 @@ const Detail: React.FC = () => {
                 color: '#fff', 
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 'var(--font-semibold)', 
-                marginBottom: 'var(--space-4)',
+                marginBottom: 'var(--space-2)',
                 fontSize: 'var(--text-lg)',
                 lineHeight: 'var(--leading-tight)',
                 letterSpacing: 'var(--tracking-normal)'
               }}>
-                Checker đánh giá
+                {t('detail.checkerReviews')}
               </div>
-              {comments.map((c, i) => (
-                <div key={i} style={{ 
+              {error && <div style={{ color: '#ff5e62', marginBottom: 'var(--space-3)' }}>{error}</div>}
+              {reviews.length === 0 && (
+                <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: 'var(--space-3)' }}>
+                  {t('detail.noReviews')}
+                </div>
+              )}
+              {reviews.map((c, i) => (
+                <div key={c._id || i} style={{ 
                   color: '#d1d5db', 
                   fontFamily: 'var(--font-primary)',
                   fontSize: 'var(--text-base)', 
@@ -273,23 +381,23 @@ const Detail: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#6fa3ff'
                   }}>
-                    0972xxxxxx:
-                  </span> {c}
+                    {maskPhone(c.phone)}:
+                  </span> {c.comment}
                 </div>
               ))}
               <div style={{ 
                 display: 'flex', 
                 gap: 'var(--space-3)', 
-                marginTop: 'var(--space-4)',
+                marginTop: 'var(--space-2)',
                 flexWrap: 'wrap'
               }}>
                 <input 
-                  placeholder="Nhập đánh giá của bạn vào đây" 
+                  placeholder={t('detail.enterYourReview')} 
                   style={{ 
                     flex: 1, 
                     borderRadius: 'var(--radius-lg)', 
                     border: '1px solid rgba(255, 255, 255, 0.1)', 
-                    padding: 'var(--space-3) var(--space-4)', 
+                    padding: 'var(--space-3) var(--space-2)', 
                     fontFamily: 'var(--font-primary)',
                     fontSize: 'var(--text-base)',
                     background: '#232733',
@@ -300,6 +408,9 @@ const Detail: React.FC = () => {
                     letterSpacing: 'var(--tracking-normal)',
                     minWidth: '200px'
                   }}
+                  value={newReview}
+                  onChange={e => setNewReview(e.target.value)}
+                  disabled={submitting}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#3b82f6';
                     e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
@@ -309,33 +420,36 @@ const Detail: React.FC = () => {
                     e.target.style.boxShadow = 'none';
                   }}
                 />
-                <button style={{ 
-                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
-                  color: '#fff', 
-                  border: 'none', 
-                  borderRadius: 'var(--radius-lg)', 
-                  padding: 'var(--space-3) var(--space-6)', 
-                  fontFamily: 'var(--font-heading)',
-                  fontWeight: 'var(--font-semibold)', 
-                  fontSize: 'var(--text-base)', 
-                  cursor: 'pointer',
-                  lineHeight: 'var(--leading-tight)',
-                  letterSpacing: 'var(--tracking-wide)',
-                  textTransform: 'uppercase',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-                  whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
-                }}
+                <button 
+                  style={{ 
+                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
+                    color: '#fff', 
+                    border: 'none', 
+                    borderRadius: 'var(--radius-lg)', 
+                    padding: 'var(--space-3) var(--space-6)', 
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 'var(--font-semibold)', 
+                    fontSize: 'var(--text-base)', 
+                    cursor: 'pointer',
+                    lineHeight: 'var(--leading-tight)',
+                    letterSpacing: 'var(--tracking-wide)',
+                    textTransform: 'uppercase',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onClick={handleSubmitReview}
+                  disabled={submitting}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+                  }}
                 >
-                  Gửi đi
+                  {submitting ? t('detail.sending') : t('detail.send')}
                 </button>
               </div>
             </div>
@@ -372,124 +486,81 @@ const Detail: React.FC = () => {
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-semibold)', 
             fontSize: 'var(--text-xl)', 
-            marginBottom: 'var(--space-4)',
+            marginBottom: 'var(--space-2)',
             lineHeight: 'var(--leading-tight)',
             letterSpacing: 'var(--tracking-normal)'
           }}>
-            <span role="img" aria-label="camera">📷</span> Hình ảnh của bé
+            <span role="img" aria-label="camera">📷</span> {t('detail.girlPhotos')}
           </div>
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 'var(--space-5)',
-            maxWidth: '600px'
-          }}>
-            {[1,2,3].map((i) => (
-              <img key={i} src={girl.img} alt={girl.name} style={{ 
-                width: '100%', 
-                height: '200px', 
-                objectFit: 'cover', 
-                borderRadius: 'var(--radius-xl)',
-                boxShadow: 'var(--shadow-lg)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              />
-            ))}
-          </div>
-        </div>
-        {/* Footer info */}
-        <div style={{ 
-          maxWidth: 'var(--container-lg)', 
-          margin: '0 auto', 
-          background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-10)', 
-          color: '#fff', 
-          boxShadow: 'var(--shadow-lg)',
-          border: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          <div style={{ 
-            background: 'linear-gradient(135deg, #232733, #2a2d35)', 
-            color: '#ff7a00', 
-            fontFamily: 'var(--font-heading)',
-            fontWeight: 'var(--font-bold)', 
-            fontSize: 'var(--text-xl)', 
-            borderRadius: 'var(--radius-xl)', 
-            padding: 'var(--space-3) var(--space-7)', 
-            display: 'inline-block', 
-            marginBottom: 'var(--space-5)',
-            lineHeight: 'var(--leading-tight)',
-            letterSpacing: 'var(--tracking-wide)',
-            textTransform: 'uppercase',
-            boxShadow: '0 2px 8px rgba(255, 122, 0, 0.2)'
-          }}>
-            Black Phú Quốc
-          </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 'var(--space-4)', 
-            marginBottom: 'var(--space-5)',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{ 
-              color: '#fff', 
-              fontFamily: 'var(--font-heading)',
-              fontWeight: 'var(--font-bold)', 
-              fontSize: 'var(--text-xl)',
-              lineHeight: 'var(--leading-tight)',
-              letterSpacing: 'var(--tracking-tight)'
+          {girl.images && girl.images.length > 0 ? (
+            <div style={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: 'var(--space-5)',
+              maxWidth: '800px'
             }}>
-              Cộng Đồng Black Gái Phú Quốc
-            </span>
-            <span style={{ 
-              background: '#393e4b', 
-              borderRadius: 'var(--radius-lg)', 
-              padding: 'var(--space-1) var(--space-4)', 
-              color: '#fff', 
-              fontFamily: 'var(--font-primary)',
-              fontWeight: 'var(--font-medium)', 
-              fontSize: 'var(--text-sm)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-2)',
-              lineHeight: 'var(--leading-tight)',
-              letterSpacing: 'var(--tracking-wide)',
-              textTransform: 'uppercase'
+              {girl.images.map((image, index) => (
+                <img key={index} src={image} alt={`${girl.name} - ${t('detail.photo')} ${index + 1}`} style={{ 
+                  width: '100%', 
+                  aspectRatio: '1 / 1',
+                  height: 'auto',
+                  maxWidth: '200px',
+                  objectFit: 'cover', 
+                  borderRadius: 'var(--radius-xl)',
+                  boxShadow: 'var(--shadow-lg)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                }}
+                onClick={() => {
+                  // Open image in new tab for full view
+                  window.open(image, '_blank');
+                }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{ 
+              background: '#181a20', 
+              borderRadius: 'var(--radius-xl)', 
+              padding: 'var(--space-8)', 
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              color: '#d1d5db'
             }}>
-              <span className={styles.flag}></span>
-              Tiếng Việt
-            </span>
-          </div>
-          <div style={{ 
-            color: '#d1d5db', 
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-base)', 
-            lineHeight: 'var(--leading-relaxed)',
-            letterSpacing: 'var(--tracking-normal)',
-            opacity: 0.9
-          }}>
-            Cộng đồng anh chị Vua Gái Gọi Phú Quốc, nơi chia sẻ thông tin các em hàng đang hoạt động tại khu vực với chất lượng được đảm bảo uy tín nhất hiện nay. Chúng tôi cam kết là mạng cộng đồng sân chơi lành mạnh vì lợi ích của anh em Checker Phú Quốc.
-          </div>
-          <div style={{ 
-            color: '#aaa', 
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-sm)', 
-            marginTop: 'var(--space-5)',
-            lineHeight: 'var(--leading-normal)',
-            letterSpacing: 'var(--tracking-normal)'
-          }}>
-            Liên hệ đăng bài : Telegram : Dev_code99
-          </div>
+              <div style={{ 
+                fontSize: 'var(--text-4xl)', 
+                marginBottom: 'var(--space-2)',
+                opacity: 0.5
+              }}>
+                📷
+              </div>
+              <div style={{ 
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-lg)',
+                marginBottom: 'var(--space-2)',
+                color: '#fff'
+              }}>
+                {t('detail.noDetailedPhotos')}
+              </div>
+              <div style={{ 
+                fontFamily: 'var(--font-primary)',
+                fontSize: 'var(--text-base)',
+                opacity: 0.7
+              }}>
+                {t('detail.detailedPhotosComingSoon')}
+              </div>
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );

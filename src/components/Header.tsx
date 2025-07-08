@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import styles from '../pages/SignUp.module.css';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -60,156 +63,97 @@ const Header: React.FC = () => {
             <span className={styles.logoText}>HEHODI</span>
           </div>
         </Link>
-        <div style={{ color: '#fff' }}>Loading...</div>
+        <div style={{ color: '#fff' }}>{t('common.loading')}</div>
       </header>
     );
   }
 
   return (
-    <header className={styles.header} style={{ 
-      background: '#232733', 
-      borderBottom: '1px solid #232733', 
-      position: 'relative', 
-      zIndex: 10 
-    }}>
-      <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-        <div className={styles.logoRow}>
-          <div className={styles.logoCircle}></div>
-          <span className={styles.logoText}>HEHODI</span>
+    <header
+      className={styles.header}
+      style={{
+        background: '#232733',
+        borderBottom: '1px solid #232733',
+        position: 'relative',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '72px',
+        padding: '0 var(--space-6)'
+      }}
+    >
+      {/* Left: Logo */}
+      <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <div className={styles.logoRow}>
+            <div className={styles.logoCircle}></div>
+            <span className={styles.logoText}>HEHODI</span>
+          </div>
+        </Link>
+      </div>
+      {/* Right: Actions */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          minWidth: 0
+        }}
+      >
+        <div style={{ flexShrink: 0, minWidth: '160px' }}>
+          <LanguageSwitcher />
         </div>
-      </Link>
-      <div style={{ 
-        display: 'flex', 
-        gap: 'var(--space-3)',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
         {user ? (
           <>
-            <div style={{ 
-              color: '#fff', 
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <span>Xin chào, {user.username}</span>
-              {user.role === 'admin' && (
-                <span style={{ 
-                  background: '#ff5e62', 
-                  padding: '2px 8px', 
-                  borderRadius: '12px', 
-                  fontSize: '12px' 
-                }}>
-                  Admin
-                </span>
-              )}
-            </div>
+            
+            {user.role === 'admin' && (
+              <span style={{ 
+                background: '#ff5e62', 
+                padding: '2px 8px', 
+                borderRadius: '12px', 
+                fontSize: '12px',
+                marginLeft: '4px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                flexShrink: 1
+              }}>
+                Admin
+              </span>
+            )}
             {user.role === 'admin' && (
               <button 
-                className={`${styles.button} button-text-small`} 
-                style={{ 
-                  background: '#4a90e2', 
-                  color: '#fff', 
-                  borderRadius: 'var(--radius-lg)', 
-                  padding: 'var(--space-2) var(--space-6)', 
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  minWidth: 'fit-content'
-                }}
+                className="pretty-button header"
                 onClick={handleAdminClick}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#357abd';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#4a90e2';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
               >
-                Quản lý
+                {t('header.manage')}
               </button>
             )}
             <button 
-              className={`${styles.button} button-text-small`} 
-              style={{ 
-                background: '#ff5e62', 
-                color: '#fff', 
-                borderRadius: 'var(--radius-lg)', 
-                padding: 'var(--space-2) var(--space-6)', 
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-                minWidth: 'fit-content'
-              }}
+              className="pretty-button header danger"
               onClick={handleLogout}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e53e3e';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#ff5e62';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
             >
-              Đăng xuất
+              {t('header.logout')}
             </button>
           </>
         ) : (
           <>
-            <Link to="/signup">
+            <Link to="signup">
               <button 
-                className={`${styles.button} button-text-small`} 
-                style={{ 
-                  background: '#393e4b', 
-                  color: '#fff', 
-                  borderRadius: 'var(--radius-lg)', 
-                  padding: 'var(--space-2) var(--space-6)', 
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  minWidth: 'fit-content'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#4a5568';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#393e4b';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="pretty-button header"
+                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
               >
-                Đăng Ký
+                {t('header.signUp')}
               </button>
             </Link>
             <Link to="/signin">
               <button 
-                className={`${styles.button} button-text-small`} 
-                style={{ 
-                  background: 'linear-gradient(90deg,#ff5e62,#ffb347)', 
-                  color: '#fff', 
-                  borderRadius: 'var(--radius-lg)', 
-                  padding: 'var(--space-2) var(--space-6)', 
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  minWidth: 'fit-content'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 94, 98, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                className="pretty-button header danger"
+                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
               >
-                Đăng nhập
+                {t('header.signIn')}
               </button>
             </Link>
           </>

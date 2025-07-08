@@ -69,6 +69,42 @@ router.put('/:id', GirlController.update);
 router.delete('/:id', GirlController.remove);
 router.patch('/:id/toggle-status', GirlController.toggleStatus);
 
+// Image upload route for existing girls
+router.post('/:id/image', detailImageUpload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    const girlId = req.params.id;
+    
+    // Update the girl's image in the database
+    await Girl.updateGirlImage(girlId, req.file.buffer);
+    
+    // Return the full backend URL
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    
+    res.json({
+      success: true,
+      data: {
+        url: `${baseUrl}/api/girls/${girlId}/image`,
+        filename: req.file.originalname,
+        size: req.file.size
+      },
+      message: 'Image uploaded successfully'
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload image: ' + error.message
+    });
+  }
+});
+
 // Detail images routes (protected)
 router.post('/:id/detail-images', detailImageUpload.single('image'), GirlController.uploadDetailImage);
 router.delete('/:id/detail-images/:imageId', GirlController.deleteDetailImage);

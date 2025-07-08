@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import styles from './SignUp.module.css';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const SignIn: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -27,7 +30,7 @@ const SignIn: React.FC = () => {
     
     // Validation
     if (!formData.email || !formData.password) {
-      setError('Vui lòng nhập đầy đủ thông tin');
+      setError(t('auth.fillAllFields'));
       return;
     }
 
@@ -59,11 +62,11 @@ const SignIn: React.FC = () => {
         }
       } else {
         console.log('Login failed:', response.message);
-        setError(response.message || 'Đăng nhập thất bại');
+        setError(response.message || t('auth.loginFailed'));
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Đăng nhập thất bại. Vui lòng thử lại.');
+      setError(t('auth.loginFailedTryAgain'));
     } finally {
       setLoading(false);
     }
@@ -78,21 +81,18 @@ const SignIn: React.FC = () => {
             <span className={styles.logoText}>HEHODI</span>
           </div>
         </Link>
-        <div className={styles.languageSwitch}>
-          <span className={styles.flag}></span>
-          <span>Tiếng Việt</span>
-        </div>
+        <LanguageSwitcher />
       </header>
       <div className={styles.container}>
         <div className={styles.leftPanel}>
-          <div className={styles.title}>Black Phú Quốc</div>
+          <div className={styles.title}>{t('main.title')}</div>
           <div className={styles.subtitle}>
-            Đặt lịch hẹn gặp các bé vui lòng nhắn vui lòng nhắn Zalo dưới đây
+            {t('auth.scheduleAppointment')}
           </div>
           <div className={styles.infoBox}>
             <div className={styles.infoTitle}>
               <span role="img" aria-label="thumbs up" className={styles.emoji}>👍</span>
-              <span>ĐẲNG CẤP GÁI GỌI</span>
+              <span>{t('auth.premiumCallGirls')}</span>
             </div>
             <div className={styles.zaloRow}>
               <div className={styles.zaloIcon}></div>
@@ -106,7 +106,7 @@ const SignIn: React.FC = () => {
         </div>
         <div className={styles.rightPanel}>
           <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.formTitle}>Đăng Nhập</div>
+            <div className={styles.formTitle}>{t('auth.signIn')}</div>
             
             {error && (
               <div style={{
@@ -126,7 +126,7 @@ const SignIn: React.FC = () => {
               className={styles.input} 
               type="email" 
               name="email"
-              placeholder="Email" 
+              placeholder={t('auth.email')} 
               value={formData.email}
               onChange={handleInputChange}
               disabled={loading}
@@ -135,7 +135,7 @@ const SignIn: React.FC = () => {
               className={styles.input} 
               type="password" 
               name="password"
-              placeholder="Mật khẩu" 
+              placeholder={t('auth.password')} 
               value={formData.password}
               onChange={handleInputChange}
               disabled={loading}
@@ -149,10 +149,10 @@ const SignIn: React.FC = () => {
                 cursor: loading ? 'not-allowed' : 'pointer'
               }}
             >
-              {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
             </button>
             <div className={styles.switchText}>
-              Bạn chưa có tài khoản? <Link to="/signup" className={styles.link}>Đăng ký</Link>
+              {t('auth.dontHaveAccount')} <Link to="/signup" className={styles.link}>{t('auth.signUp')}</Link>
             </div>
           </form>
         </div>

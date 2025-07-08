@@ -2,7 +2,7 @@ import db from '../db.js';
 import bcrypt from 'bcryptjs';
 
 export const getAllUsers = async () => {
-  const [rows] = await db.query('SELECT id, username, email, phone, role, created_at, updated_at FROM users');
+  const [rows] = await db.query('SELECT id, username, email, phone, role, isActive, created_at, updated_at FROM users');
   return rows.map(user => ({
     ...user,
     _id: user.id,
@@ -11,8 +11,46 @@ export const getAllUsers = async () => {
   }));
 };
 
+export const getUsersWithPagination = async (page = 1, limit = 10, search = '') => {
+  const offset = (page - 1) * limit;
+  let query = 'SELECT id, username, email, phone, role, isActive, created_at, updated_at FROM users';
+  let countQuery = 'SELECT COUNT(*) as total FROM users';
+  let params = [];
+  let countParams = [];
+
+  if (search) {
+    const searchCondition = 'WHERE username LIKE ? OR email LIKE ?';
+    query += ' ' + searchCondition;
+    countQuery += ' ' + searchCondition;
+    const searchParam = `%${search}%`;
+    params = [searchParam, searchParam];
+    countParams = [searchParam, searchParam];
+  }
+
+  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  params.push(limit, offset);
+
+  const [rows] = await db.query(query, params);
+  const [countRows] = await db.query(countQuery, countParams);
+
+  const users = rows.map(user => ({
+    ...user,
+    _id: user.id,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
+  }));
+
+  return {
+    users,
+    total: countRows[0].total,
+    page,
+    limit,
+    totalPages: Math.ceil(countRows[0].total / limit)
+  };
+};
+
 export const getUserById = async (id) => {
-  const [rows] = await db.query('SELECT id, username, email, phone, role, created_at, updated_at FROM users WHERE id = ?', [id]);
+  const [rows] = await db.query('SELECT id, username, email, phone, role, isActive, created_at, updated_at FROM users WHERE id = ?', [id]);
   if (rows[0]) {
     return {
       ...rows[0],

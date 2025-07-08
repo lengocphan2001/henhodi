@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService, User, CreateUserRequest, UpdateUserRequest, PaginatedResponse } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AdminUsers: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,11 +36,11 @@ const AdminUsers: React.FC = () => {
         setTotalPages(response.data.totalPages);
       } else {
         setUsers([]);
-        setError(response.message || 'Failed to load users');
+        setError(response.message || t('admin.failedToLoadUsers'));
       }
     } catch (err) {
       setUsers([]);
-      setError('Failed to load users');
+      setError(t('admin.failedToLoadUsers'));
       console.error('Load users error:', err);
     } finally {
       setLoading(false);
@@ -62,10 +65,10 @@ const AdminUsers: React.FC = () => {
         setShowCreateModal(false);
         loadUsers();
       } else {
-        setError(response.message || 'Failed to create user');
+        setError(response.message || t('admin.failedToCreateUser'));
       }
     } catch (err) {
-      setError('Failed to create user');
+      setError(t('admin.failedToCreateUser'));
     }
   };
 
@@ -111,10 +114,10 @@ const AdminUsers: React.FC = () => {
         setSelectedUser(null);
         loadUsers();
       } else {
-        setError(response.message || 'Failed to update user');
+        setError(response.message || t('admin.failedToUpdateUser'));
       }
     } catch (err) {
-      setError('Failed to update user');
+      setError(t('admin.failedToUpdateUser'));
     }
   };
 
@@ -134,10 +137,10 @@ const AdminUsers: React.FC = () => {
         setSelectedUser(null);
         loadUsers();
       } else {
-        setError(response.message || 'Failed to delete user');
+        setError(response.message || t('admin.failedToDeleteUser'));
       }
     } catch (err) {
-      setError('Failed to delete user');
+      setError(t('admin.failedToDeleteUser'));
     }
   };
 
@@ -148,10 +151,10 @@ const AdminUsers: React.FC = () => {
       if (response.success) {
         loadUsers();
       } else {
-        setError(response.message || 'Failed to toggle user status');
+        setError(response.message || t('admin.failedToToggleStatus'));
       }
     } catch (err) {
-      setError('Failed to toggle user status');
+      setError(t('admin.failedToToggleStatus'));
     }
   };
 
@@ -168,11 +171,11 @@ const AdminUsers: React.FC = () => {
   if (loading) {
     return (
       <div style={{ 
-        minHeight: '100vh', 
         background: '#232733', 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center',
+        flex: 1
       }}>
         <div style={{ 
           color: '#fff', 
@@ -180,7 +183,7 @@ const AdminUsers: React.FC = () => {
           fontSize: 'var(--text-xl)',
           textAlign: 'center'
         }}>
-          Loading Users...
+          {t('admin.loadingUsers')}
         </div>
       </div>
     );
@@ -204,21 +207,21 @@ const AdminUsers: React.FC = () => {
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: 'var(--space-4)'
+            gap: 'var(--space-2)'
           }}>
             <Link to="/admin" style={{ textDecoration: 'none' }}>
               <button style={{
                 background: 'transparent',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 color: '#fff',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}>
-                ← Back to Dashboard
+                ← {t('admin.backToDashboard')}
               </button>
             </Link>
             <h1 style={{ 
@@ -227,32 +230,39 @@ const AdminUsers: React.FC = () => {
               fontWeight: 'var(--font-bold)',
               color: '#667eea'
             }}>
-              User Management
+              {t('admin.userManagement')}
             </h1>
           </div>
-          <button
-            onClick={openCreateModal}
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-6)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            + Add User
-          </button>
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--space-3)',
+            alignItems: 'center'
+          }}>
+            <LanguageSwitcher />
+            <button
+              onClick={openCreateModal}
+              style={{
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-3) var(--space-6)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--font-semibold)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              + {t('admin.addUser')}
+            </button>
+          </div>
         </header>
 
         <div style={{ 
@@ -263,7 +273,7 @@ const AdminUsers: React.FC = () => {
           <div style={{ 
             background: '#ff5e62', 
             color: '#fff', 
-            padding: 'var(--space-4)', 
+            padding: 'var(--space-2)', 
             borderRadius: 'var(--radius-lg)', 
             marginBottom: 'var(--space-6)',
             fontFamily: 'var(--font-primary)',
@@ -278,9 +288,9 @@ const AdminUsers: React.FC = () => {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
       background: '#232733',
-      color: '#fff'
+      color: '#fff',
+      flex: 1
     }}>
       {/* Header */}
       <header style={{ 
@@ -289,60 +299,93 @@ const AdminUsers: React.FC = () => {
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 'var(--space-4)'
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 'var(--space-4)'
+          gap: 'var(--space-2)',
+          flexShrink: 0
         }}>
           <Link to="/admin" style={{ textDecoration: 'none' }}>
             <button style={{
-              background: 'transparent',
+              background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-3) var(--space-4)',
               color: '#fff',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-medium)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
-              ← Back to Dashboard
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            >
+              <span style={{ fontSize: '16px' }}>←</span>
+              {t('admin.backToDashboard')}
             </button>
           </Link>
           <h1 style={{ 
             fontFamily: 'var(--font-heading)',
             fontSize: 'var(--text-2xl)',
             fontWeight: 'var(--font-bold)',
-            color: '#667eea'
+            color: '#667eea',
+            whiteSpace: 'nowrap'
           }}>
-            User Management
+            {t('admin.userManagement')}
           </h1>
         </div>
-        <button
-          onClick={openCreateModal}
-          style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-3) var(--space-6)',
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 'var(--font-semibold)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          + Add User
-        </button>
+        <div style={{ 
+          display: 'flex', 
+          gap: 'var(--space-4)',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          minWidth: 0
+        }}>
+          <div style={{ flexShrink: 0, minWidth: '160px' }}>
+            <LanguageSwitcher />
+          </div>
+          <button
+            onClick={openCreateModal}
+            style={{
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-6)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-semibold)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              flexShrink: 0
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            + {t('admin.addUser')}
+          </button>
+        </div>
       </header>
 
       <div style={{ 
@@ -354,12 +397,12 @@ const AdminUsers: React.FC = () => {
         <div style={{ 
           marginBottom: 'var(--space-6)',
           display: 'flex',
-          gap: 'var(--space-4)',
+          gap: 'var(--space-2)',
           alignItems: 'center'
         }}>
           <input
             type="text"
-            placeholder="Search users by username or email..."
+            placeholder={t('admin.searchUsersPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -367,7 +410,7 @@ const AdminUsers: React.FC = () => {
               background: '#181a20',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
+              padding: 'var(--space-3) var(--space-2)',
               color: '#fff',
               fontFamily: 'var(--font-primary)',
               fontSize: 'var(--text-sm)',
@@ -387,7 +430,7 @@ const AdminUsers: React.FC = () => {
           <div style={{ 
             background: '#ff5e62', 
             color: '#fff', 
-            padding: 'var(--space-4)', 
+            padding: 'var(--space-2)', 
             borderRadius: 'var(--radius-lg)', 
             marginBottom: 'var(--space-6)',
             fontFamily: 'var(--font-primary)',
@@ -416,54 +459,54 @@ const AdminUsers: React.FC = () => {
                   background: 'rgba(255, 255, 255, 0.05)'
                 }}>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    User
+                    {t('admin.user')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Role
+                    {t('admin.role')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Status
+                    {t('admin.status')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Created
+                    {t('admin.created')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'center',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Actions
+                    {t('admin.actions')}
                   </th>
                 </tr>
               </thead>
@@ -472,7 +515,7 @@ const AdminUsers: React.FC = () => {
                   <tr key={user._id} style={{ 
                     borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                   }}>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <div>
                         <div style={{ 
                           fontFamily: 'var(--font-heading)',
@@ -500,7 +543,7 @@ const AdminUsers: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <span style={{ 
                         background: user.role === 'admin' ? '#ff7a00' : '#667eea',
                         color: '#fff',
@@ -514,7 +557,7 @@ const AdminUsers: React.FC = () => {
                         {user.role}
                       </span>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <button
                         onClick={() => handleToggleStatus(user)}
                         style={{
@@ -530,10 +573,10 @@ const AdminUsers: React.FC = () => {
                           transition: 'all 0.2s ease'
                         }}
                       >
-                        {user.isActive ? 'Active' : 'Inactive'}
+                        {user.isActive ? t('admin.active') : t('admin.inactive')}
                       </button>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <div style={{ 
                         fontFamily: 'var(--font-primary)',
                         fontSize: 'var(--text-xs)',
@@ -542,7 +585,7 @@ const AdminUsers: React.FC = () => {
                         {formatDate(user.createdAt)}
                       </div>
                     </td>
-                    <td style={{ padding: 'var(--space-4)', textAlign: 'center' }}>
+                    <td style={{ padding: 'var(--space-2)', textAlign: 'center' }}>
                       <div style={{ 
                         display: 'flex', 
                         gap: 'var(--space-2)', 
@@ -562,7 +605,7 @@ const AdminUsers: React.FC = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          Edit
+                          {t('admin.edit')}
                         </button>
                         <button
                           onClick={() => openDeleteModal(user)}
@@ -578,7 +621,7 @@ const AdminUsers: React.FC = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          Delete
+                          {t('admin.delete')}
                         </button>
                       </div>
                     </td>
@@ -605,24 +648,24 @@ const AdminUsers: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage === 1 ? 0.5 : 1
               }}
             >
-              Previous
+              {t('admin.previous')}
             </button>
             <span style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-2) var(--space-2)',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
               color: '#d1d5db'
             }}>
-              Page {currentPage} of {totalPages}
+              {t('admin.page')} {currentPage} {t('admin.of')} {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
@@ -632,14 +675,14 @@ const AdminUsers: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 opacity: currentPage === totalPages ? 0.5 : 1
               }}
             >
-              Next
+              {t('admin.next')}
             </button>
           </div>
         )}
@@ -675,10 +718,10 @@ const AdminUsers: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#667eea'
             }}>
-              Create New User
+              {t('admin.createNewUser')}
             </h2>
             <form onSubmit={handleCreateUser}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <div>
                   <label style={{ 
                     display: 'block',
@@ -688,7 +731,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Username *
+                    {t('admin.username')} *
                   </label>
                   <input
                     type="text"
@@ -718,7 +761,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Email *
+                    {t('admin.email')} *
                   </label>
                   <input
                     type="email"
@@ -748,7 +791,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Password *
+                    {t('admin.password')} *
                   </label>
                   <input
                     type="password"
@@ -778,7 +821,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Phone
+                    {t('admin.phone')}
                   </label>
                   <input
                     type="tel"
@@ -807,7 +850,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Role
+                    {t('admin.role')}
                   </label>
                   <select
                     value={formData.role}
@@ -833,7 +876,7 @@ const AdminUsers: React.FC = () => {
               </div>
               <div style={{ 
                 display: 'flex', 
-                gap: 'var(--space-4)', 
+                gap: 'var(--space-2)', 
                 marginTop: 'var(--space-6)'
               }}>
                 <button
@@ -851,7 +894,7 @@ const AdminUsers: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Create User
+                  {t('admin.createUser')}
                 </button>
                 <button
                   type="button"
@@ -868,7 +911,7 @@ const AdminUsers: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Cancel
+                  {t('admin.cancel')}
                 </button>
               </div>
             </form>
@@ -906,10 +949,10 @@ const AdminUsers: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#4facfe'
             }}>
-              Edit User: {selectedUser.username}
+              {t('admin.editUser')}: {selectedUser.username}
             </h2>
             <form onSubmit={handleUpdateUser}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <div>
                   <label style={{ 
                     display: 'block',
@@ -919,7 +962,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Username *
+                    {t('admin.username')} *
                   </label>
                   <input
                     type="text"
@@ -949,7 +992,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Email *
+                    {t('admin.email')} *
                   </label>
                   <input
                     type="email"
@@ -979,7 +1022,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Phone
+                    {t('admin.phone')}
                   </label>
                   <input
                     type="tel"
@@ -1008,7 +1051,7 @@ const AdminUsers: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Role
+                    {t('admin.role')}
                   </label>
                   <select
                     value={formData.role || 'user'}
@@ -1051,13 +1094,13 @@ const AdminUsers: React.FC = () => {
                         accentColor: '#4facfe'
                       }}
                     />
-                    Active
+                    {t('admin.active')}
                   </label>
                 </div>
               </div>
               <div style={{ 
                 display: 'flex', 
-                gap: 'var(--space-4)', 
+                gap: 'var(--space-2)', 
                 marginTop: 'var(--space-6)'
               }}>
                 <button
@@ -1075,7 +1118,7 @@ const AdminUsers: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Update User
+                  {t('admin.updateUser')}
                 </button>
                 <button
                   type="button"
@@ -1092,7 +1135,7 @@ const AdminUsers: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Cancel
+                  {t('admin.cancel')}
                 </button>
               </div>
             </form>
@@ -1130,18 +1173,18 @@ const AdminUsers: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#ff5e62'
             }}>
-              Delete User: {selectedUser.username}
+              {t('admin.deleteUser')}: {selectedUser.username}
             </h2>
             <p style={{ 
               fontFamily: 'var(--font-primary)',
               fontSize: 'var(--text-sm)',
               color: '#d1d5db'
             }}>
-              Are you sure you want to delete this user? This action cannot be undone.
+              {t('admin.deleteUserConfirm')}
             </p>
             <div style={{ 
               display: 'flex', 
-              gap: 'var(--space-4)', 
+              gap: 'var(--space-2)', 
               marginTop: 'var(--space-6)'
             }}>
               <button
@@ -1160,7 +1203,7 @@ const AdminUsers: React.FC = () => {
                   flex: 1
                 }}
               >
-                Delete User
+                {t('admin.deleteUser')}
               </button>
               <button
                 type="button"
@@ -1177,7 +1220,7 @@ const AdminUsers: React.FC = () => {
                   flex: 1
                 }}
               >
-                Cancel
+                {t('admin.cancel')}
               </button>
             </div>
           </div>

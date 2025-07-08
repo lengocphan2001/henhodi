@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService, User, Girl } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 interface DashboardStats {
   totalUsers: number;
@@ -13,6 +15,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,10 +38,10 @@ const AdminDashboard: React.FC = () => {
       if (response.success && response.data) {
         setStats(response.data);
       } else {
-        setError(response.message || 'Failed to load dashboard stats');
+        setError(response.message || t('admin.failedToLoadStats'));
       }
     } catch (err) {
-      setError('Failed to load dashboard statistics');
+      setError(t('admin.failedToLoadStatistics'));
       console.error('Dashboard stats error:', err);
     } finally {
       setLoading(false);
@@ -65,7 +68,7 @@ const AdminDashboard: React.FC = () => {
           fontSize: 'var(--text-xl)',
           textAlign: 'center'
         }}>
-          Loading Dashboard...
+          {t('admin.loadingDashboard')}
         </div>
       </div>
     );
@@ -94,9 +97,9 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
       background: '#232733',
-      color: '#fff'
+      color: '#fff',
+      flex: 1
     }}>
       {/* Header */}
       <header style={{ 
@@ -105,80 +108,65 @@ const AdminDashboard: React.FC = () => {
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 'var(--space-4)'
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 'var(--space-4)'
+          gap: 'var(--space-2)',
+          flexShrink: 0
         }}>
           <div style={{ 
             width: '40px', 
             height: '40px', 
             background: 'linear-gradient(135deg, #00c3ff, #ffb347, #ff5e62)', 
-            borderRadius: '50%' 
+            borderRadius: '50%',
+            flexShrink: 0
           }}></div>
           <h1 style={{ 
             fontFamily: 'var(--font-heading)',
             fontSize: 'var(--text-2xl)',
             fontWeight: 'var(--font-bold)',
-            color: '#ff7a00'
+            color: '#ff7a00',
+            whiteSpace: 'nowrap'
           }}>
-            Admin Dashboard
+            {t('admin.dashboard')}
           </h1>
         </div>
         <div style={{ 
           display: 'flex', 
-          gap: 'var(--space-3)',
-          alignItems: 'center'
+          gap: 'var(--space-4)',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          minWidth: 0
         }}>
+          <div style={{ flexShrink: 0, minWidth: '160px' }}>
+            <LanguageSwitcher />
+          </div>
           <span style={{ 
             fontFamily: 'var(--font-primary)',
             fontSize: 'var(--text-sm)',
-            color: '#d1d5db'
+            color: '#d1d5db',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}>
-            Welcome, {apiService.getUser()?.username}
+            {t('admin.welcome')}, {apiService.getUser()?.username}
           </span>
           <button
             onClick={handleLogout}
-            style={{
-              background: '#ff5e62',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-4)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#ff4757';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#ff5e62';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
+            className="pretty-button danger"
+            style={{ flexShrink: 0 }}
           >
-            Logout
+            {t('admin.logout')}
           </button>
         </div>
       </header>
 
-      <div style={{ 
-        maxWidth: 'var(--container-xl)', 
-        margin: '0 auto', 
-        padding: 'var(--space-6)'
-      }}>
+      <div className="responsive-container">
         {/* Navigation Cards */}
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: 'var(--space-6)',
-          marginBottom: 'var(--space-8)'
-        }}>
+        <div className="dashboard-grid">
           <Link to="/admin/users" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'linear-gradient(135deg, #667eea, #764ba2)', 
@@ -209,14 +197,14 @@ const AdminDashboard: React.FC = () => {
                 fontWeight: 'var(--font-bold)',
                 marginBottom: 'var(--space-2)'
               }}>
-                User Management
+                {t('admin.userManagement')}
               </h3>
               <p style={{ 
                 fontFamily: 'var(--font-primary)',
                 fontSize: 'var(--text-sm)',
                 opacity: 0.9
               }}>
-                Manage users, roles, and permissions
+                {t('admin.manageUsersRoles')}
               </p>
             </div>
           </Link>
@@ -251,14 +239,14 @@ const AdminDashboard: React.FC = () => {
                 fontWeight: 'var(--font-bold)',
                 marginBottom: 'var(--space-2)'
               }}>
-                Girl Management
+                {t('admin.girlManagement')}
               </h3>
               <p style={{ 
                 fontFamily: 'var(--font-primary)',
                 fontSize: 'var(--text-sm)',
                 opacity: 0.9
               }}>
-                Manage girls, profiles, and information
+                {t('admin.manageGirlsProfiles')}
               </p>
             </div>
           </Link>
@@ -293,14 +281,14 @@ const AdminDashboard: React.FC = () => {
                 fontWeight: 'var(--font-bold)',
                 marginBottom: 'var(--space-2)'
               }}>
-                Review Management
+                {t('admin.reviewManagement')}
               </h3>
               <p style={{ 
                 fontFamily: 'var(--font-primary)',
                 fontSize: 'var(--text-sm)',
                 opacity: 0.9
               }}>
-                Manage reviews and ratings
+                {t('admin.manageReviewsRatings')}
               </p>
             </div>
           </Link>
@@ -335,14 +323,14 @@ const AdminDashboard: React.FC = () => {
                 fontWeight: 'var(--font-bold)',
                 marginBottom: 'var(--space-2)'
               }}>
-                View Site
+                {t('admin.viewSite')}
               </h3>
               <p style={{ 
                 fontFamily: 'var(--font-primary)',
                 fontSize: 'var(--text-sm)',
                 opacity: 0.9
               }}>
-                Go to main website
+                {t('admin.goToMainWebsite')}
               </p>
             </div>
           </Link>
@@ -358,13 +346,13 @@ const AdminDashboard: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#ff7a00'
             }}>
-              Dashboard Statistics
+              {t('admin.dashboardStatistics')}
             </h2>
 
             <div style={{ 
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 'var(--space-4)',
+              gap: 'var(--space-2)',
               marginBottom: 'var(--space-8)'
             }}>
               <div style={{ 
@@ -393,7 +381,7 @@ const AdminDashboard: React.FC = () => {
                   fontSize: 'var(--text-sm)',
                   color: '#d1d5db'
                 }}>
-                  Total Users
+                  {t('admin.totalUsers')}
                 </div>
               </div>
 
@@ -423,7 +411,7 @@ const AdminDashboard: React.FC = () => {
                   fontSize: 'var(--text-sm)',
                   color: '#d1d5db'
                 }}>
-                  Total Girls
+                  {t('admin.totalGirls')}
                 </div>
               </div>
 
@@ -453,7 +441,7 @@ const AdminDashboard: React.FC = () => {
                   fontSize: 'var(--text-sm)',
                   color: '#d1d5db'
                 }}>
-                  Total Reviews
+                  {t('admin.totalReviews')}
                 </div>
               </div>
 
@@ -483,7 +471,7 @@ const AdminDashboard: React.FC = () => {
                   fontSize: 'var(--text-sm)',
                   color: '#d1d5db'
                 }}>
-                  Active Items
+                  {t('admin.activeItems')}
                 </div>
               </div>
             </div>
@@ -505,10 +493,10 @@ const AdminDashboard: React.FC = () => {
                   fontFamily: 'var(--font-heading)',
                   fontSize: 'var(--text-lg)',
                   fontWeight: 'var(--font-semibold)',
-                  marginBottom: 'var(--space-4)',
+                  marginBottom: 'var(--space-2)',
                   color: '#667eea'
                 }}>
-                  Recent Users
+                  {t('admin.recentUsers')}
                 </h3>
                 {stats.recentUsers.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -546,7 +534,7 @@ const AdminDashboard: React.FC = () => {
                           fontFamily: 'var(--font-heading)',
                           fontWeight: 'var(--font-medium)'
                         }}>
-                          {user.isActive ? 'Active' : 'Inactive'}
+                          {user.isActive ? t('admin.active') : t('admin.inactive')}
                         </span>
                       </div>
                     ))}
@@ -557,9 +545,9 @@ const AdminDashboard: React.FC = () => {
                     fontFamily: 'var(--font-primary)',
                     fontSize: 'var(--text-sm)',
                     textAlign: 'center',
-                    padding: 'var(--space-4)'
+                    padding: 'var(--space-2)'
                   }}>
-                    No recent users
+                    {t('admin.noRecentUsers')}
                   </div>
                 )}
               </div>
@@ -575,10 +563,10 @@ const AdminDashboard: React.FC = () => {
                   fontFamily: 'var(--font-heading)',
                   fontSize: 'var(--text-lg)',
                   fontWeight: 'var(--font-semibold)',
-                  marginBottom: 'var(--space-4)',
+                  marginBottom: 'var(--space-2)',
                   color: '#f093fb'
                 }}>
-                  Recent Girls
+                  {t('admin.recentGirls')}
                 </h3>
                 {stats.recentGirls.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -630,9 +618,9 @@ const AdminDashboard: React.FC = () => {
                     fontFamily: 'var(--font-primary)',
                     fontSize: 'var(--text-sm)',
                     textAlign: 'center',
-                    padding: 'var(--space-4)'
+                    padding: 'var(--space-2)'
                   }}>
-                    No recent girls
+                    {t('admin.noRecentGirls')}
                   </div>
                 )}
               </div>

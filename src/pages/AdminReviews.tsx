@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService, Review, PaginatedResponse } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AdminReviews: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +31,10 @@ const AdminReviews: React.FC = () => {
         setReviews(response.data.data);
         setTotalPages(response.data.totalPages);
       } else {
-        setError(response.message || 'Failed to load reviews');
+        setError(response.message || t('admin.failedToLoadReviews'));
       }
     } catch (err) {
-      setError('Failed to load reviews');
+      setError(t('admin.failedToLoadReviews'));
       console.error('Load reviews error:', err);
     } finally {
       setLoading(false);
@@ -39,17 +42,17 @@ const AdminReviews: React.FC = () => {
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) return;
+    if (!window.confirm(t('admin.deleteReviewConfirm'))) return;
 
     try {
       const response = await apiService.deleteReview(reviewId);
       if (response.success) {
         loadReviews();
       } else {
-        setError(response.message || 'Failed to delete review');
+        setError(response.message || t('admin.failedToDeleteReview'));
       }
     } catch (err) {
-      setError('Failed to delete review');
+      setError(t('admin.failedToDeleteReview'));
       console.error('Delete review error:', err);
     }
   };
@@ -87,7 +90,7 @@ const AdminReviews: React.FC = () => {
           fontSize: 'var(--text-xl)',
           textAlign: 'center'
         }}>
-          Loading Reviews...
+          {t('admin.loadingReviews')}
         </div>
       </div>
     );
@@ -95,9 +98,9 @@ const AdminReviews: React.FC = () => {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
       background: '#232733',
-      color: '#fff'
+      color: '#fff',
+      flex: 1
     }}>
       {/* Header */}
       <header style={{ 
@@ -111,21 +114,37 @@ const AdminReviews: React.FC = () => {
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 'var(--space-4)'
+          gap: 'var(--space-2)'
         }}>
           <Link to="/admin" style={{ textDecoration: 'none' }}>
             <button style={{
-              background: 'transparent',
+              background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-3) var(--space-4)',
               color: '#fff',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-medium)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
-              ← Back to Dashboard
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            >
+              <span style={{ fontSize: '16px' }}>←</span>
+              {t('admin.backToDashboard')}
             </button>
           </Link>
           <h1 style={{ 
@@ -134,9 +153,10 @@ const AdminReviews: React.FC = () => {
             fontWeight: 'var(--font-bold)',
             color: '#4facfe'
           }}>
-            Review Management
+            {t('admin.reviewManagement')}
           </h1>
         </div>
+        <LanguageSwitcher />
       </header>
 
       <div style={{ 
@@ -156,17 +176,17 @@ const AdminReviews: React.FC = () => {
             fontFamily: 'var(--font-heading)',
             fontSize: 'var(--text-lg)',
             fontWeight: 'var(--font-semibold)',
-            marginBottom: 'var(--space-4)',
+            marginBottom: 'var(--space-2)',
             color: '#4facfe'
           }}>
-            Review Management Dashboard
+            {t('admin.reviewManagementDashboard')}
           </h2>
           <p style={{
             fontFamily: 'var(--font-primary)',
             fontSize: 'var(--text-sm)',
             color: '#d1d5db'
           }}>
-            Manage user reviews and ratings. You can view, search, and delete reviews as needed.
+            {t('admin.reviewManagementDescription')}
           </p>
         </div>
 
@@ -175,7 +195,7 @@ const AdminReviews: React.FC = () => {
           <div style={{ 
             background: '#ff5e62', 
             color: '#fff', 
-            padding: 'var(--space-4)', 
+            padding: 'var(--space-2)', 
             borderRadius: 'var(--radius-lg)', 
             marginBottom: 'var(--space-6)',
             fontFamily: 'var(--font-heading)',
@@ -196,7 +216,7 @@ const AdminReviews: React.FC = () => {
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 'var(--space-4)'
+            gap: 'var(--space-2)'
           }}>
             <div>
               <label style={{ 
@@ -207,11 +227,11 @@ const AdminReviews: React.FC = () => {
                 fontWeight: 'var(--font-semibold)',
                 color: '#d1d5db'
               }}>
-                Search Reviews
+                {t('admin.searchReviews')}
               </label>
               <input
                 type="text"
-                placeholder="Search by comment..."
+                placeholder={t('admin.searchReviewsPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -236,11 +256,11 @@ const AdminReviews: React.FC = () => {
                 fontWeight: 'var(--font-semibold)',
                 color: '#d1d5db'
               }}>
-                Filter by Girl ID
+                {t('admin.filterByGirlId')}
               </label>
               <input
                 type="text"
-                placeholder="Enter girl ID to filter..."
+                placeholder={t('admin.filterByGirlIdPlaceholder')}
                 value={girlFilter}
                 onChange={(e) => setGirlFilter(e.target.value)}
                 style={{
@@ -278,64 +298,64 @@ const AdminReviews: React.FC = () => {
                   background: 'rgba(255, 255, 255, 0.05)'
                 }}>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    User
+                    {t('admin.user')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    Girl ID
+                    {t('admin.girlId')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    Rating
+                    {t('admin.rating')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    Comment
+                    {t('admin.comment')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    Date
+                    {t('admin.date')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#4facfe'
                   }}>
-                    Actions
+                    {t('admin.actions')}
                   </th>
                 </tr>
               </thead>
@@ -344,7 +364,7 @@ const AdminReviews: React.FC = () => {
                   <tr key={review._id} style={{ 
                     borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                   }}>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <div>
                         <div style={{ 
                           fontFamily: 'var(--font-heading)',
@@ -364,7 +384,7 @@ const AdminReviews: React.FC = () => {
                       </div>
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       fontFamily: 'var(--font-primary)',
                       fontSize: 'var(--text-sm)',
                       color: '#d1d5db'
@@ -372,7 +392,7 @@ const AdminReviews: React.FC = () => {
                       {review.girlId}
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 'var(--space-1)'
@@ -389,7 +409,7 @@ const AdminReviews: React.FC = () => {
                       </span>
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       maxWidth: '300px'
                     }}>
                       <div style={{
@@ -404,14 +424,14 @@ const AdminReviews: React.FC = () => {
                       </div>
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       fontFamily: 'var(--font-primary)',
                       fontSize: 'var(--text-sm)',
                       color: '#d1d5db'
                     }}>
                       {formatDate(review.createdAt)}
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                         <button
                           onClick={() => handleDeleteReview(review._id)}
@@ -454,7 +474,7 @@ const AdminReviews: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
@@ -466,7 +486,7 @@ const AdminReviews: React.FC = () => {
             <span style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-2) var(--space-2)',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
               color: '#d1d5db'
@@ -481,7 +501,7 @@ const AdminReviews: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
@@ -504,7 +524,7 @@ const AdminReviews: React.FC = () => {
           }}>
             <div style={{ 
               fontSize: 'var(--text-4xl)', 
-              marginBottom: 'var(--space-4)',
+              marginBottom: 'var(--space-2)',
               color: '#4facfe'
             }}>
               ⭐

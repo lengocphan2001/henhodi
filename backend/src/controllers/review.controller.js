@@ -3,17 +3,19 @@ import * as Review from '../models/review.model.js';
 export const getAll = async (req, res) => {
   try {
     const { page = 1, limit = 10, girlId } = req.query;
-    const offset = (page - 1) * limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
     
-    const reviews = await Review.getAllReviews(limit, offset, girlId);
+    const reviews = await Review.getAllReviews(limitNum, offset, girlId);
     const total = await Review.getTotalReviews(girlId);
     
     res.json({
       data: reviews,
       total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      totalPages: Math.ceil(total / limit)
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

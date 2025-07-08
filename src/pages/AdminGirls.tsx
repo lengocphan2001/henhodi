@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService, Girl, CreateGirlRequest, UpdateGirlRequest, PaginatedResponse } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AdminGirls: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [girls, setGirls] = useState<Girl[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,31 +43,27 @@ const AdminGirls: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getGirls(currentPage, 10, searchTerm);
-      console.log('loadGirls - response:', response);
+      console.log('LoadGirls response:', response);
       if (response.success && response.data && Array.isArray(response.data.data)) {
-        console.log('Loaded girls:', response.data.data);
-        console.log('First girl _id:', response.data.data[0]?._id);
-        console.log('First girl _id type:', typeof response.data.data[0]?._id);
-        console.log('First girl full object:', response.data.data[0]);
-        
-        // Check if all girls have _id
-        const girlsWithoutId = response.data.data.filter(girl => !girl._id);
-        if (girlsWithoutId.length > 0) {
-          console.error('Girls without _id:', girlsWithoutId);
-        }
-        
+        console.log('Girls data:', response.data.data);
+        // Log each girl's image info
+        response.data.data.forEach((girl, index) => {
+          console.log(`Girl ${index + 1}:`, {
+            id: girl._id,
+            name: girl.name,
+            img: girl.img,
+            img_url: (girl as any).img_url // Log the raw img_url field
+          });
+        });
         setGirls(response.data.data);
         setTotalPages(response.data.totalPages);
-      } else if (response.success && response.message === 'Data not modified') {
-        // Handle 304 response - data hasn't changed, keep current state
-        console.log('Data not modified, keeping current state');
       } else {
         setGirls([]);
-        setError(response.message || 'Failed to load girls');
+        setError(response.message || t('admin.failedToLoadGirls'));
       }
     } catch (err) {
       setGirls([]);
-      setError('Failed to load girls');
+      setError(t('admin.failedToLoadGirls'));
       console.error('Load girls error:', err);
     } finally {
       setLoading(false);
@@ -103,51 +102,24 @@ const AdminGirls: React.FC = () => {
     }
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage) return null;
-    
-    try {
-      setUploadingImage(true);
-      
-      // Create FormData for the image
-      const formData = new FormData();
-      formData.append('image', selectedImage);
-      
-      // Upload to a temporary endpoint that just returns the image URL
-      const response = await fetch('http://localhost:5000/api/upload/image', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
-      });
-      
-      const data = await response.json();
-      if (data.success && data.data) {
-        return data.data.url;
-      }
-      return null;
-    } catch (err) {
-      console.error('Upload error:', err);
-      setError('Failed to upload image');
-      return null;
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const uploadDetailImages = async (girlId: string): Promise<string[]> => {
     console.log('uploadDetailImages called with girlId:', girlId);
     console.log('uploadDetailImages - typeof girlId:', typeof girlId);
     console.log('uploadDetailImages - girlId === "undefined":', girlId === 'undefined');
+    console.log('uploadDetailImages - girlId === "null":', girlId === 'null');
+    console.log('uploadDetailImages - girlId === "":', girlId === '');
+    console.log('uploadDetailImages - selectedDetailImages.length:', selectedDetailImages.length);
     
-    if (!girlId || girlId === 'undefined' || girlId === 'null') {
+    if (!girlId || girlId === 'undefined' || girlId === 'null' || girlId === '') {
       console.error('Invalid girlId:', girlId);
       setError('Invalid girl ID for detail image upload');
       return [];
     }
     
-    if (selectedDetailImages.length === 0) return [];
+    if (selectedDetailImages.length === 0) {
+      console.log('No detail images selected, skipping upload');
+      return [];
+    }
     
     try {
       setUploadingDetailImages(true);
@@ -156,15 +128,25 @@ const AdminGirls: React.FC = () => {
       for (let i = 0; i < selectedDetailImages.length; i++) {
         const file = selectedDetailImages[i];
         console.log(`Uploading detail image ${i + 1}/${selectedDetailImages.length} for girl ${girlId}`);
+        console.log('File info:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+        
         const response = await apiService.uploadDetailImage(girlId, file, i);
+        console.log('Upload response:', response);
         
         if (response.success && response.data) {
           uploadedUrls.push(response.data.url);
+          console.log('Successfully uploaded detail image:', response.data.url);
         } else {
           console.error('Failed to upload detail image:', response.message);
+          setError(`Failed to upload detail image ${i + 1}: ${response.message}`);
         }
       }
       
+      console.log('All detail images uploaded:', uploadedUrls);
       return uploadedUrls;
     } catch (err) {
       console.error('Upload detail images error:', err);
@@ -213,7 +195,7 @@ const AdminGirls: React.FC = () => {
       rating: 0,
       isActive: true,
       info: {
-        'Người đánh': '',
+        'Người đánh giá': '',
         'ZALO': '',
         'Giá 1 lần': '',
         'Giá phòng': '',
@@ -243,6 +225,8 @@ const AdminGirls: React.FC = () => {
           [fieldName]: value
         } as Girl['info']
       }));
+    } else if (name === 'rating') {
+      setFormData({ ...formData, rating: Number(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -253,33 +237,39 @@ const AdminGirls: React.FC = () => {
     setError('');
     
     try {
-      // Upload image first if selected
-      let imageUrl = '';
-      if (selectedImage) {
-        const uploadedUrl = await uploadImage();
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        } else {
-          setError('Failed to upload image');
-          return;
-        }
-      } else {
-        // Use placeholder if no image selected
-        imageUrl = 'https://via.placeholder.com/300x400?text=No+Image';
-      }
-
+      // Create girl first with placeholder image
       const girlData = {
         ...formData,
-        img: imageUrl
+        img: 'https://via.placeholder.com/300x400?text=No+Image' // Start with placeholder
       } as CreateGirlRequest;
 
+      console.log('Creating girl with data:', girlData);
       const response = await apiService.createGirl(girlData);
-      if (response.success) {
-        // Upload detail images if any were selected
-        if (selectedDetailImages.length > 0 && response.data) {
-          await uploadDetailImages(String(response.data._id));
+      if (response.success && response.data) {
+        const createdGirlId = response.data._id || response.data.id;
+        console.log('Girl created with ID:', createdGirlId);
+        console.log('Created girl data:', response.data);
+        
+        // Upload main image if selected
+        if (selectedImage) {
+          console.log('Uploading main image for new girl');
+          const uploadedUrl = await apiService.uploadGirlImage(String(createdGirlId), selectedImage);
+          console.log('Upload response:', uploadedUrl);
+          if (!uploadedUrl.success) {
+            console.error('Failed to upload main image:', uploadedUrl.message);
+            setError('Girl created but failed to upload main image');
+            return;
+          }
+          console.log('Image uploaded successfully, URL:', uploadedUrl.data?.url);
         }
         
+        // Upload detail images if any were selected
+        if (selectedDetailImages.length > 0) {
+          console.log('Uploading detail images for new girl');
+          await uploadDetailImages(String(createdGirlId));
+        }
+        
+        console.log('All uploads completed, reloading girls list...');
         setShowCreateModal(false);
         setSelectedImage(null);
         setImagePreview(null);
@@ -298,13 +288,14 @@ const AdminGirls: React.FC = () => {
   const openEditModal = (girl: Girl) => {
     console.log('openEditModal - girl:', girl);
     console.log('openEditModal - girl._id:', girl._id);
+    console.log('openEditModal - girl.id:', girl.id);
     console.log('openEditModal - typeof girl._id:', typeof girl._id);
     
     setSelectedGirl(girl);
     const formDataWithInfo = { 
       ...girl,
       info: girl.info || {
-        'Người đánh': '',
+        'Người đánh giá': '',
         'ZALO': '',
         'Giá 1 lần': '',
         'Giá phòng': '',
@@ -325,7 +316,13 @@ const AdminGirls: React.FC = () => {
     setShowEditModal(true);
     
     // Load detail images for this girl
-    loadDetailImages(String(girl._id));
+    const girlId = girl._id || girl.id;
+    if (girlId) {
+      console.log('openEditModal - loading detail images for girlId:', girlId);
+      loadDetailImages(String(girlId));
+    } else {
+      console.error('openEditModal - no valid girl ID found');
+    }
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -345,6 +342,8 @@ const AdminGirls: React.FC = () => {
         };
         return newFormData;
       });
+    } else if (name === 'rating') {
+      setFormData({ ...formData, rating: Number(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -357,19 +356,25 @@ const AdminGirls: React.FC = () => {
     
     console.log('handleUpdateGirl - selectedGirl:', selectedGirl);
     console.log('handleUpdateGirl - selectedGirl._id:', selectedGirl._id);
+    console.log('handleUpdateGirl - selectedGirl.id:', selectedGirl.id);
     console.log('handleUpdateGirl - selectedDetailImages.length:', selectedDetailImages.length);
     
-    if (!selectedGirl._id) {
-      console.error('selectedGirl._id is undefined or null');
+    // Get the girl ID, trying both _id and id properties
+    const girlId = selectedGirl._id || selectedGirl.id;
+    
+    if (!girlId) {
+      console.error('selectedGirl._id and selectedGirl.id are both undefined or null');
       setError('Invalid girl ID for update');
       return;
     }
+    
+    console.log('handleUpdateGirl - using girlId:', girlId);
     
     try {
       // Upload image first if selected
       let imageUrl = formData.img;
       if (selectedImage) {
-        const uploadedUrl = await apiService.uploadGirlImage(String(selectedGirl._id), selectedImage);
+        const uploadedUrl = await apiService.uploadGirlImage(String(girlId), selectedImage);
         if (uploadedUrl.success && uploadedUrl.data) {
           imageUrl = uploadedUrl.data.url;
         } else {
@@ -383,12 +388,12 @@ const AdminGirls: React.FC = () => {
         img: imageUrl
       } as UpdateGirlRequest;
 
-      const response = await apiService.updateGirl(selectedGirl._id, girlData);
+      const response = await apiService.updateGirl(String(girlId), girlData);
       if (response.success) {
         // Upload detail images if any were selected
         if (selectedDetailImages.length > 0) {
-          console.log('Uploading detail images for girl ID:', selectedGirl._id);
-          await uploadDetailImages(String(selectedGirl._id));
+          console.log('Uploading detail images for girl ID:', girlId);
+          await uploadDetailImages(String(girlId));
         }
         
         setShowEditModal(false);
@@ -469,7 +474,7 @@ const AdminGirls: React.FC = () => {
           fontSize: 'var(--text-xl)',
           textAlign: 'center'
         }}>
-          Loading Girls...
+          {t('admin.loadingGirls')}
         </div>
       </div>
     );
@@ -493,21 +498,21 @@ const AdminGirls: React.FC = () => {
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: 'var(--space-4)'
+            gap: 'var(--space-2)'
           }}>
             <Link to="/admin" style={{ textDecoration: 'none' }}>
               <button style={{
                 background: 'transparent',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 color: '#fff',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}>
-                ← Back to Dashboard
+                ← {t('admin.backToDashboard')}
               </button>
             </Link>
             <h1 style={{ 
@@ -516,32 +521,39 @@ const AdminGirls: React.FC = () => {
               fontWeight: 'var(--font-bold)',
               color: '#667eea'
             }}>
-              Girl Management
+              {t('admin.girlManagement')}
             </h1>
           </div>
-          <button
-            onClick={openCreateModal}
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-6)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            + Add Girl
-          </button>
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--space-3)',
+            alignItems: 'center'
+          }}>
+            <LanguageSwitcher />
+            <button
+              onClick={openCreateModal}
+              style={{
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-3) var(--space-6)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--font-semibold)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              + {t('admin.addGirl')}
+            </button>
+          </div>
         </header>
 
         <div style={{ 
@@ -552,7 +564,7 @@ const AdminGirls: React.FC = () => {
           <div style={{ 
             background: '#ff5e62', 
             color: '#fff', 
-            padding: 'var(--space-4)', 
+            padding: 'var(--space-2)', 
             borderRadius: 'var(--radius-lg)', 
             marginBottom: 'var(--space-6)',
             fontFamily: 'var(--font-primary)',
@@ -567,9 +579,9 @@ const AdminGirls: React.FC = () => {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
       background: '#232733',
-      color: '#fff'
+      color: '#fff',
+      flex: 1
     }}>
       {/* Header */}
       <header style={{ 
@@ -578,60 +590,92 @@ const AdminGirls: React.FC = () => {
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 'var(--space-4)'
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 'var(--space-4)'
+          gap: 'var(--space-2)',
+          flexShrink: 0
         }}>
           <Link to="/admin" style={{ textDecoration: 'none' }}>
             <button style={{
-              background: 'transparent',
+              background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-3) var(--space-4)',
               color: '#fff',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-medium)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
-              ← Back to Dashboard
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            >
+              <span style={{ fontSize: '16px' }}>←</span>
+              {t('admin.backToDashboard')}
             </button>
           </Link>
           <h1 style={{ 
             fontFamily: 'var(--font-heading)',
             fontSize: 'var(--text-2xl)',
             fontWeight: 'var(--font-bold)',
-            color: '#667eea'
+            color: '#667eea',
+            whiteSpace: 'nowrap'
           }}>
-            Girl Management
+            {t('admin.girlManagement')}
           </h1>
         </div>
-        <button
-          onClick={openCreateModal}
-          style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-3) var(--space-6)',
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 'var(--font-semibold)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          + Add Girl
-        </button>
+        <div style={{ 
+          display: 'flex', 
+          gap: 'var(--space-4)',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          minWidth: 0
+        }}>
+          <div style={{ flexShrink: 0, minWidth: '160px' }}>
+            <LanguageSwitcher />
+          </div>
+          <button
+            onClick={openCreateModal}
+            style={{
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-6)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-semibold)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              flexShrink: 0
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            + {t('admin.addGirl')}
+          </button>
+        </div>
       </header>
 
       <div style={{ 
@@ -643,12 +687,12 @@ const AdminGirls: React.FC = () => {
         <div style={{ 
           marginBottom: 'var(--space-6)',
           display: 'flex',
-          gap: 'var(--space-4)',
+          gap: 'var(--space-2)',
           alignItems: 'center'
         }}>
           <input
             type="text"
-            placeholder="Search girls by name..."
+            placeholder={t('admin.searchGirlsPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -656,7 +700,7 @@ const AdminGirls: React.FC = () => {
               background: '#181a20',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
+              padding: 'var(--space-3) var(--space-2)',
               color: '#fff',
               fontFamily: 'var(--font-primary)',
               fontSize: 'var(--text-sm)',
@@ -676,7 +720,7 @@ const AdminGirls: React.FC = () => {
           <div style={{ 
             background: '#ff5e62', 
             color: '#fff', 
-            padding: 'var(--space-4)', 
+            padding: 'var(--space-2)', 
             borderRadius: 'var(--radius-lg)', 
             marginBottom: 'var(--space-6)',
             fontFamily: 'var(--font-primary)',
@@ -705,64 +749,64 @@ const AdminGirls: React.FC = () => {
                   background: 'rgba(255, 255, 255, 0.05)'
                 }}>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Girl
+                    {t('admin.girl')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Area
+                    {t('admin.area')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Price
+                    {t('admin.price')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Rating
+                    {t('admin.rating')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'left',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Status
+                    {t('admin.status')}
                   </th>
                   <th style={{ 
-                    padding: 'var(--space-4)', 
+                    padding: 'var(--space-2)', 
                     textAlign: 'center',
                     fontFamily: 'var(--font-heading)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 'var(--font-semibold)',
                     color: '#667eea'
                   }}>
-                    Actions
+                    {t('admin.actions')}
                   </th>
                 </tr>
               </thead>
@@ -771,7 +815,7 @@ const AdminGirls: React.FC = () => {
                   <tr key={girl._id} style={{ 
                     borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                   }}>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                         <img 
                           src={girl.img} 
@@ -803,7 +847,7 @@ const AdminGirls: React.FC = () => {
                       </div>
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       fontFamily: 'var(--font-primary)',
                       fontSize: 'var(--text-sm)',
                       color: '#d1d5db'
@@ -811,7 +855,7 @@ const AdminGirls: React.FC = () => {
                       {girl.area}
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       fontFamily: 'var(--font-heading)',
                       fontSize: 'var(--text-sm)',
                       fontWeight: 'var(--font-semibold)',
@@ -820,7 +864,7 @@ const AdminGirls: React.FC = () => {
                       {girl.price}
                     </td>
                     <td style={{ 
-                      padding: 'var(--space-4)',
+                      padding: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 'var(--space-1)'
@@ -835,7 +879,7 @@ const AdminGirls: React.FC = () => {
                         {girl.rating}
                       </span>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
                       <button
                         onClick={() => handleToggleStatus(girl)}
                         style={{
@@ -851,10 +895,10 @@ const AdminGirls: React.FC = () => {
                           transition: 'all 0.2s ease'
                         }}
                       >
-                        {girl.isActive ? 'Active' : 'Inactive'}
+                        {girl.isActive ? t('admin.active') : t('admin.inactive')}
                       </button>
                     </td>
-                    <td style={{ padding: 'var(--space-4)', textAlign: 'center' }}>
+                    <td style={{ padding: 'var(--space-2)', textAlign: 'center' }}>
                       <div style={{ 
                         display: 'flex', 
                         gap: 'var(--space-2)', 
@@ -879,7 +923,7 @@ const AdminGirls: React.FC = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          Edit
+                          {t('admin.edit')}
                         </button>
                         <button
                           onClick={() => openDeleteModal(girl)}
@@ -895,7 +939,7 @@ const AdminGirls: React.FC = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          Delete
+                          {t('admin.delete')}
                         </button>
                       </div>
                     </td>
@@ -922,24 +966,24 @@ const AdminGirls: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage === 1 ? 0.5 : 1
               }}
             >
-              Previous
+              {t('admin.previous')}
             </button>
             <span style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              padding: 'var(--space-2) var(--space-4)',
+              padding: 'var(--space-2) var(--space-2)',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
               color: '#d1d5db'
             }}>
-              Page {currentPage} of {totalPages}
+              {t('admin.page')} {currentPage} {t('admin.of')} {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
@@ -949,14 +993,14 @@ const AdminGirls: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-4)',
+                padding: 'var(--space-2) var(--space-2)',
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-sm)',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 opacity: currentPage === totalPages ? 0.5 : 1
               }}
             >
-              Next
+              {t('admin.next')}
             </button>
           </div>
         )}
@@ -992,10 +1036,10 @@ const AdminGirls: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#667eea'
             }}>
-              Create New Girl
+              {t('admin.createNewGirl')}
             </h2>
             <form onSubmit={handleCreateGirl}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <div>
                   <label style={{ 
                     display: 'block',
@@ -1005,7 +1049,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Name *
+                    {t('admin.name')} *
                   </label>
                   <input
                     type="text"
@@ -1035,7 +1079,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Area *
+                    {t('admin.area')} *
                   </label>
                   <input
                     type="text"
@@ -1065,7 +1109,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Price *
+                    {t('admin.price')} *
                   </label>
                   <input
                     type="text"
@@ -1095,7 +1139,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Phone
+                    {t('admin.phone')}
                   </label>
                   <input
                     type="tel"
@@ -1124,7 +1168,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Zalo
+                    {t('admin.zalo')}
                   </label>
                   <input
                     type="text"
@@ -1153,7 +1197,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Image
+                    {t('admin.image')}
                   </label>
                   <input
                     type="file"
@@ -1266,13 +1310,13 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Người đánh
+                    Người đánh giá
                   </label>
                   <input
                     type="text"
-                    value={formData.info?.['Người đánh'] || ''}
+                    value={formData.info?.['Người đánh giá'] || ''}
                     onChange={handleCreateChange}
-                    name="info.Người đánh"
+                    name="info.Người đánh giá"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -1469,7 +1513,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Description
+                    {t('admin.description')}
                   </label>
                   <textarea
                     value={formData.description}
@@ -1490,10 +1534,42 @@ const AdminGirls: React.FC = () => {
                     }}
                   />
                 </div>
+                <div>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: 'var(--space-2)',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#d1d5db'
+                  }}>
+                    {t('admin.rating')}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    value={formData.rating}
+                    onChange={handleCreateChange}
+                    name="rating"
+                    style={{
+                      width: '100%',
+                      background: '#232733',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-3)',
+                      color: '#fff',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
               <div style={{ 
                 display: 'flex', 
-                gap: 'var(--space-4)', 
+                gap: 'var(--space-2)', 
                 marginTop: 'var(--space-6)'
               }}>
                 <button
@@ -1511,7 +1587,7 @@ const AdminGirls: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Create Girl
+                  {t('admin.createGirl')}
                 </button>
                 <button
                   type="button"
@@ -1528,7 +1604,7 @@ const AdminGirls: React.FC = () => {
                     flex: 1
                   }}
                 >
-                  Cancel
+                  {t('admin.cancel')}
                 </button>
               </div>
             </form>
@@ -1566,10 +1642,10 @@ const AdminGirls: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#4facfe'
             }}>
-              Edit Girl: {selectedGirl.name}
+              {t('admin.editGirl')}: {selectedGirl.name}
             </h2>
             <form onSubmit={handleUpdateGirl}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 <div>
                   <label style={{ 
                     display: 'block',
@@ -1579,7 +1655,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Name *
+                    {t('admin.name')} *
                   </label>
                   <input
                     type="text"
@@ -1609,7 +1685,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Area *
+                    {t('admin.area')} *
                   </label>
                   <input
                     type="text"
@@ -1900,13 +1976,13 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Người đánh
+                    Người đánh giá
                   </label>
                   <input
                     type="text"
-                    value={formData.info?.['Người đánh'] || ''}
+                    value={formData.info?.['Người đánh giá'] || ''}
                     onChange={handleEditChange}
-                    name="info.Người đánh"
+                    name="info.Người đánh giá"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -2103,7 +2179,7 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Description
+                    {t('admin.description')}
                   </label>
                   <textarea
                     value={formData.description || ''}
@@ -2148,10 +2224,42 @@ const AdminGirls: React.FC = () => {
                     Active
                   </label>
                 </div>
+                <div>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: 'var(--space-2)',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#d1d5db'
+                  }}>
+                    {t('admin.rating')}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    value={formData.rating}
+                    onChange={handleEditChange}
+                    name="rating"
+                    style={{
+                      width: '100%',
+                      background: '#232733',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-3)',
+                      color: '#fff',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
               <div style={{ 
                 display: 'flex', 
-                gap: 'var(--space-4)', 
+                gap: 'var(--space-2)', 
                 marginTop: 'var(--space-6)'
               }}>
                 <button
@@ -2224,18 +2332,18 @@ const AdminGirls: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#ff5e62'
             }}>
-              Delete Girl: {selectedGirl.name}
+              {t('admin.deleteGirl')}: {selectedGirl.name}
             </h2>
             <p style={{ 
               fontFamily: 'var(--font-primary)',
               fontSize: 'var(--text-sm)',
               color: '#d1d5db'
             }}>
-              Are you sure you want to delete this girl? This action cannot be undone.
+              {t('admin.deleteGirlConfirm')}
             </p>
             <div style={{ 
               display: 'flex', 
-              gap: 'var(--space-4)', 
+              gap: 'var(--space-2)', 
               marginTop: 'var(--space-6)'
             }}>
               <button
@@ -2254,7 +2362,7 @@ const AdminGirls: React.FC = () => {
                   flex: 1
                 }}
               >
-                Delete Girl
+                {t('admin.deleteGirl')}
               </button>
               <button
                 type="button"
@@ -2271,7 +2379,7 @@ const AdminGirls: React.FC = () => {
                   flex: 1
                 }}
               >
-                Cancel
+                {t('admin.cancel')}
               </button>
             </div>
           </div>

@@ -90,7 +90,7 @@
   font-size: var(--text-4xl);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-2);
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
   background: linear-gradient(135deg, #ff7a00, #ff5e62);
@@ -199,8 +199,8 @@
   background: #232733;
   border: none;
   border-radius: 10px;
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
+  padding: var(--space-2);
+  margin-bottom: var(--space-2);
   color: #fff;
   font-family: var(--font-primary);
   font-size: var(--text-base);
@@ -228,7 +228,7 @@
   color: #fff;
   border: none;
   border-radius: 24px;
-  padding: var(--space-4) 0;
+  padding: var(--space-2) 0;
   font-family: var(--font-heading);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
@@ -255,7 +255,7 @@
 .switchText {
   color: #d1d5db;
   font-size: var(--text-sm);
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   text-align: center;
 }
 
@@ -284,13 +284,13 @@
 
 @media (max-width: 900px) {
   .header {
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-2);
   }
   
   .container {
     flex-direction: column;
     gap: var(--space-8);
-    padding: var(--space-4);
+    padding: var(--space-2);
     padding-top: 100px;
   }
   
@@ -337,7 +337,7 @@
   }
   
   .leftPanel, .rightPanel {
-    padding: var(--space-4);
+    padding: var(--space-2);
   }
   
   .rightPanel {
@@ -355,13 +355,13 @@
   }
   
   .infoBox {
-    padding: var(--space-4);
-    margin-bottom: var(--space-4);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
   }
   
   .infoTitle {
     font-size: var(--text-base);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
   }
   
   .form {
@@ -370,7 +370,7 @@
   
   .formTitle {
     font-size: var(--text-base);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
   }
   
   .input {
@@ -428,7 +428,7 @@
   }
   
   .rightPanel {
-    padding: var(--space-4);
+    padding: var(--space-2);
   }
   
   .title {
@@ -448,7 +448,7 @@
   }
   
   .form {
-    padding: var(--space-4) 0 0 0;
+    padding: var(--space-2) 0 0 0;
   }
   
   .formTitle {
@@ -486,7 +486,7 @@
   .container {
     padding-top: 80px;
     min-height: auto;
-    gap: var(--space-4);
+    gap: var(--space-2);
   }
   
   .leftPanel, .rightPanel {
@@ -500,7 +500,7 @@
   
   .subtitle {
     font-size: var(--text-sm);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
   }
   
   .infoBox {
@@ -509,6 +509,6 @@
   }
   
   .form {
-    padding: var(--space-4) 0 0 0;
+    padding: var(--space-2) 0 0 0;
   }
 } 

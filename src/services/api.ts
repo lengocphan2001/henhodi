@@ -67,6 +67,7 @@ export interface UpdateUserRequest {
 // Girl Types
 export interface Girl {
   _id: string;
+  id?: string | number;
   name: string;
   area: string;
   price: string;
@@ -79,7 +80,7 @@ export interface Girl {
   createdAt: string;
   updatedAt: string;
   info: {
-    'Người đánh': string;
+    'Người đánh giá': string;
     'ZALO': string;
     'Giá 1 lần': string;
     'Giá phòng': string;
@@ -103,7 +104,7 @@ export interface CreateGirlRequest {
   phone?: string;
   description?: string;
   info: {
-    'Người đánh': string;
+    'Người đánh giá': string;
     'ZALO': string;
     'Giá 1 lần': string;
     'Giá phòng': string;
@@ -127,7 +128,7 @@ export interface UpdateGirlRequest {
   description?: string;
   isActive?: boolean;
   info?: Partial<{
-    'Người đánh': string;
+    'Người đánh giá': string;
     'ZALO': string;
     'Giá 1 lần': string;
     'Giá phòng': string;
@@ -154,6 +155,7 @@ export interface Review {
       fullName?: string;
     };
   };
+  phone?: string;
 }
 
 export interface CreateReviewRequest {
@@ -406,12 +408,20 @@ class ApiService {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await this.request<{ url: string }>(`/girls/${girlId}/image`, {
+      const response = await fetch(`${this.baseURL}/girls/${girlId}/image`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
         body: formData,
       });
       
-      return response;
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+      
+      return data;
     } catch (error) {
       console.error('Upload girl image error:', error);
       return {
