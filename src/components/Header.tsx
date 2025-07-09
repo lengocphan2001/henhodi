@@ -58,10 +58,15 @@ const Header: React.FC = () => {
         zIndex: 10 
       }}>
         <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoCircle}></div>
-            <span className={styles.logoText}>HEHODI</span>
-          </div>
+          <img 
+            src="/assets/logo.png" 
+            alt="HEHODI Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto',
+              borderRadius: '8px'
+            }} 
+          />
         </Link>
         <div style={{ color: '#fff' }}>{t('common.loading')}</div>
       </header>
@@ -86,10 +91,15 @@ const Header: React.FC = () => {
       {/* Left: Logo */}
       <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
         <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoCircle}></div>
-            <span className={styles.logoText}>HEHODI</span>
-          </div>
+          <img 
+            src="/assets/logo.png" 
+            alt="HEHODI Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto',
+              borderRadius: '8px'
+            }} 
+          />
         </Link>
       </div>
       {/* Right: Actions */}

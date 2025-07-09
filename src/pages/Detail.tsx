@@ -126,10 +126,15 @@ const Detail: React.FC = () => {
         gap: 'var(--space-4)'
       }}>
         <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoCircle}></div>
-            <span className={styles.logoText}>HEHODI</span>
-          </div>
+          <img 
+            src="/assets/logo.png" 
+            alt="HEHODI Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto',
+              borderRadius: '8px'
+            }} 
+          />
         </Link>
         <div style={{ flexShrink: 0, minWidth: '160px' }}>
           <LanguageSwitcher />

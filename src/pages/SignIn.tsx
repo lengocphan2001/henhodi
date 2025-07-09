@@ -76,10 +76,15 @@ const SignIn: React.FC = () => {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoCircle}></div>
-            <span className={styles.logoText}>HEHODI</span>
-          </div>
+          <img 
+            src="/assets/logo.png" 
+            alt="HEHODI Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto',
+              borderRadius: '8px'
+            }} 
+          />
         </Link>
         <LanguageSwitcher />
       </header>

@@ -118,22 +118,17 @@ const AdminDashboard: React.FC = () => {
           gap: 'var(--space-2)',
           flexShrink: 0
         }}>
-          <div style={{ 
-            width: '40px', 
-            height: '40px', 
-            background: 'linear-gradient(135deg, #00c3ff, #ffb347, #ff5e62)', 
-            borderRadius: '50%',
-            flexShrink: 0
-          }}></div>
-          <h1 style={{ 
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-2xl)',
-            fontWeight: 'var(--font-bold)',
-            color: '#ff7a00',
-            whiteSpace: 'nowrap'
-          }}>
-            {t('admin.dashboard')}
-          </h1>
+          <img 
+            src="/assets/logo.png" 
+            alt="HEHODI Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto',
+              borderRadius: '8px',
+              flexShrink: 0
+            }} 
+          />
+          
         </div>
         <div style={{ 
           display: 'flex', 
