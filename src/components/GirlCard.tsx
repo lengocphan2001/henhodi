@@ -227,7 +227,15 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             e.currentTarget.style.transform = 'scale(1)';
           }}
         >
-          <span style={{ fontSize: '16px' }}>💬</span>
+          <img 
+            src="/assets/zalo.png" 
+            alt="Zalo" 
+            style={{ 
+              width: '32px', 
+              height: '32px',
+              objectFit: 'contain'
+            }} 
+          />
           {t('girlCard.meetClickHere')}
         </button>
       </div>

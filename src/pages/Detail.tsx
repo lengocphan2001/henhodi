@@ -317,7 +317,15 @@ const Detail: React.FC = () => {
             }}
             onClick={handleZaloClick}
             >
-              <span style={{ fontSize: '16px' }}>💬</span>
+              <img 
+                  src="/assets/zalo.png" 
+                  alt="Zalo" 
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    objectFit: 'contain'
+                  }} 
+                />
               {t('detail.meetGirlClickHere')}
             </button>
           </div>
