@@ -177,11 +177,12 @@ const Detail: React.FC = () => {
           {t('detail.backToList')}
         </button>
         <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          display: 'flex',
+          flexWrap: 'wrap',
           gap: 'var(--space-8)', 
           alignItems: 'flex-start', 
-          marginBottom: 'var(--space-8)'
+          marginBottom: 'var(--space-8)',
+          justifyContent: 'center'
         }}>
           {/* Left: Main image and info */}
           <div style={{ 
