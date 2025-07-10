@@ -110,12 +110,12 @@ const Detail: React.FC = () => {
       if (res.success && res.data) {
         setReviews([res.data, ...reviews]);
         // Fetch user details for the new review
-        if (res.data.userId) {
+        if (res.data && res.data.userId) {
           const userRes = await apiService.getUserById(res.data.userId);
           if (userRes.success && userRes.data) {
-            setUserMap(prev => ({
+            setUserMap((prev: Record<string, User>) => ({
               ...prev,
-              [res.data.userId]: userRes.data as User
+              [res.data!.userId]: userRes.data as User
             }));
           }
         }
