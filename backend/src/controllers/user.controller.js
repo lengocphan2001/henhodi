@@ -45,7 +45,7 @@ export const getOne = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone } = req.body;
     const existingUser = await User.getUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -54,7 +54,7 @@ export const register = async (req, res) => {
     if (existingUsername) {
       return res.status(400).json({ message: 'Username already taken' });
     }
-    const user = await User.createUser({ username, email, password });
+    const user = await User.createUser({ username, email, password, phone });
     const userWithId = { ...user, _id: user.id };
     const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
     res.status(201).json({ user: userWithId, token });
