@@ -67,7 +67,8 @@
     "registerFailed": "Registration failed",
     "registerFailedTryAgain": "Registration failed. Please try again.",
     "passwordMinLength": "Password must be at least 6 characters",
-    "invalidEmail": "Invalid email"
+    "invalidEmail": "Invalid email",
+    "phone": "Phone number"
   },
   "footer": {
     "brand": "Black Phu Quoc",

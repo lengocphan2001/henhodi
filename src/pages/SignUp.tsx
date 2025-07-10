@@ -12,7 +12,8 @@ const SignUp: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    username: ''
+    username: '',
+    phone: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +29,7 @@ const SignUp: React.FC = () => {
   };
 
   const validateForm = () => {
-    if (!formData.email || !formData.password || !formData.confirmPassword || !formData.username) {
+    if (!formData.email || !formData.password || !formData.confirmPassword || !formData.username || !formData.phone) {
       setError(t('auth.fillAllFields'));
       return false;
     }
@@ -66,7 +67,8 @@ const SignUp: React.FC = () => {
       const response = await apiService.register({
         email: formData.email,
         password: formData.password,
-        username: formData.username
+        username: formData.username,
+        phone: formData.phone
       });
 
       if (response.success) {
@@ -154,6 +156,15 @@ const SignUp: React.FC = () => {
               name="email"
               placeholder={t('auth.email')} 
               value={formData.email}
+              onChange={handleInputChange}
+              disabled={loading}
+            />
+            <input 
+              className={styles.input} 
+              type="tel" 
+              name="phone"
+              placeholder={t('auth.phone')} 
+              value={formData.phone}
               onChange={handleInputChange}
               disabled={loading}
             />

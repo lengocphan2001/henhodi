@@ -67,7 +67,8 @@
     "registerFailed": "Đăng ký thất bại",
     "registerFailedTryAgain": "Đăng ký thất bại. Vui lòng thử lại.",
     "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
-    "invalidEmail": "Email không hợp lệ"
+    "invalidEmail": "Email không hợp lệ",
+    "phone": "Số điện thoại"
   },
   "footer": {
     "brand": "Black Phú Quốc",
