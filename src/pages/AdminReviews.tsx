@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiService, Review, PaginatedResponse, Girl } from '../services/api';
+import { apiService, Review, PaginatedResponse, Girl, User } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AdminReviews: React.FC = () => {
@@ -15,6 +15,7 @@ const AdminReviews: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [girlFilter, setGirlFilter] = useState('');
   const [girlMap, setGirlMap] = useState<Record<string, Girl>>({});
+  const [userMap, setUserMap] = useState<Record<string, User>>({});
 
   useEffect(() => {
     if (!apiService.isAdmin()) {
@@ -34,13 +35,23 @@ const AdminReviews: React.FC = () => {
         // Fetch all unique girls for this page
         const uniqueGirlIds = Array.from(new Set(response.data.data.map(r => r.girlId)));
         const girlResults = await Promise.all(uniqueGirlIds.map(id => apiService.getGirlById(id)));
-        const map: Record<string, Girl> = {};
+        const girlMapTemp: Record<string, Girl> = {};
         uniqueGirlIds.forEach((id, idx) => {
           if (girlResults[idx].success && girlResults[idx].data) {
-            map[id] = girlResults[idx].data as Girl;
+            girlMapTemp[id] = girlResults[idx].data as Girl;
           }
         });
-        setGirlMap(map);
+        setGirlMap(girlMapTemp);
+        // Fetch all unique users for this page
+        const uniqueUserIds = Array.from(new Set(response.data.data.map(r => r.userId)));
+        const userResults = await Promise.all(uniqueUserIds.map(id => apiService.getUserById(id)));
+        const userMapTemp: Record<string, User> = {};
+        uniqueUserIds.forEach((id, idx) => {
+          if (userResults[idx].success && userResults[idx].data) {
+            userMapTemp[id] = userResults[idx].data as User;
+          }
+        });
+        setUserMap(userMapTemp);
       } else {
         setError(response.message || t('admin.failedToLoadReviews'));
       }
@@ -374,21 +385,22 @@ const AdminReviews: React.FC = () => {
               <tbody>
                 {reviews.map((review) => {
                   const girl = girlMap[review.girlId];
+                  const user = userMap[review.userId];
                   return (
                     <tr key={review._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                       <td style={{ padding: 'var(--space-2)' }}>
                         <div>
                           <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-sm)', fontWeight: 'var(--font-semibold)', color: '#fff' }}>
-                            {review.user?.username || 'Unknown User'}
+                            {user?.username || review.user?.username || 'Unknown User'}
                           </div>
                           <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>
-                            {review.user?.profile?.fullName || 'No name provided'}
+                            {user?.fullName || user?.profile?.fullName || review.user?.profile?.fullName || 'No name provided'}
                           </div>
-                          {review.user?.email && (
-                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Email: {review.user.email}</div>
+                          {user?.email && (
+                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Email: {user.email}</div>
                           )}
-                          {review.user?.phone && (
-                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Phone: {review.user.phone}</div>
+                          {user?.phone && (
+                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Phone: {user.phone}</div>
                           )}
                         </div>
                       </td>
