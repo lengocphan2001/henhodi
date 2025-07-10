@@ -11,6 +11,7 @@ const Header: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -29,24 +30,35 @@ const Header: React.FC = () => {
       }
     };
 
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
     checkAuth();
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleLogout = async () => {
     try {
       await apiService.logout();
       setUser(null);
+      setIsMobileMenuOpen(false);
       navigate('/signin');
     } catch (error) {
       console.error('Logout error:', error);
       // Force logout even if API call fails
       apiService.logout();
       setUser(null);
+      setIsMobileMenuOpen(false);
       navigate('/signin');
     }
   };
 
   const handleAdminClick = () => {
+    setIsMobileMenuOpen(false);
     navigate('/admin');
   };
 
@@ -54,168 +66,294 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   if (loading) {
     return (
-      <header className={styles.header} style={{ 
-        background: '#232733', 
-        borderBottom: '1px solid #232733', 
-        position: 'relative', 
-        zIndex: 10 
+      <header style={{ 
+        background: '#181a20', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+        position: 'sticky', 
+        top: 0,
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '64px',
+        padding: '0 var(--space-4)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}>
-        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <img 
-            src="/assets/logo.png" 
-            alt="HEHODI Logo" 
-            style={{ 
-              height: '40px', 
-              width: 'auto',
-              borderRadius: '8px'
-            }} 
-          />
-        </Link>
-        <div style={{ color: '#fff' }}>{t('common.loading')}</div>
+        {!isMobile && (
+          <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/assets/logo.png" 
+              alt="HEHODI Logo" 
+              style={{ 
+                height: '32px', 
+                width: 'auto',
+                borderRadius: '6px'
+              }} 
+            />
+          </Link>
+        )}
+        <div style={{ color: '#fff', fontSize: '14px' }}>{t('common.loading')}</div>
       </header>
     );
   }
 
   return (
-    <header
-      className={styles.header}
-      style={{
-        background: '#232733',
-        borderBottom: '1px solid #232733',
-        position: 'relative',
-        zIndex: 10,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '72px',
-        padding: '0 var(--space-6)',
-        flexWrap: 'wrap'
-      }}
-    >
-      {/* Left: Logo */}
-      <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-          <img 
-            src="/assets/logo.png" 
-            alt="HEHODI Logo" 
-            style={{ 
-              height: '40px', 
-              width: 'auto',
-              borderRadius: '8px'
-            }} 
-          />
-        </Link>
-      </div>
-
-      {/* Mobile Menu Button */}
-      <div style={{ display: 'none' }}>
-        <button
-          onClick={toggleMobileMenu}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#fff',
-            fontSize: '24px',
-            cursor: 'pointer',
-            padding: '8px',
-            minHeight: '44px',
-            minWidth: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? '✕' : '☰'}
-        </button>
-      </div>
-
-      {/* Desktop Actions */}
-      <div
+    <>
+      <header
         style={{
+          background: '#181a20',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
-          gap: 'var(--space-3)',
-          minWidth: 0,
-          flexWrap: 'wrap'
+          justifyContent: isMobile ? 'flex-end' : 'space-between',
+          height: '64px',
+          padding: '0 var(--space-4)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <div style={{ flexShrink: 0, minWidth: '160px' }}>
-          <LanguageSwitcher />
-        </div>
-        {user ? (
-          <>
+        {/* Left: Logo (hidden on mobile) */}
+        {!isMobile && (
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+            <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <img 
+                src="/assets/logo.png" 
+                alt="HEHODI Logo" 
+                style={{ 
+                  height: '32px', 
+                  width: 'auto',
+                  borderRadius: '6px'
+                }} 
+              />
+            </Link>
+          </div>
+        )}
+
+        {/* Desktop Actions */}
+        {!isMobile && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+              minWidth: 0,
+              flexWrap: 'wrap'
+            }}
+          >
+            <div style={{ flexShrink: 0, minWidth: '140px' }}>
+              <LanguageSwitcher />
+            </div>
+            {user ? (
+              <>
+                {user.role === 'admin' && (
+                  <span style={{ 
+                    background: 'linear-gradient(135deg, #ff5e62, #ffb347)', 
+                    padding: '4px 8px', 
+                    borderRadius: '12px', 
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#fff',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}>
+                    Admin
+                  </span>
+                )}
+                {user.role === 'admin' && (
+                  <button 
+                    onClick={handleAdminClick}
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {t('header.manage')}
+                  </button>
+                )}
+                <button 
+                  onClick={handleLogout}
+                  style={{
+                    background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  {t('header.logout')}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signup" style={{ textDecoration: 'none' }}>
+                  <button 
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {t('header.signUp')}
+                  </button>
+                </Link>
+                <Link to="/signin" style={{ textDecoration: 'none' }}>
+                  <button 
+                    style={{
+                      background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {t('header.signIn')}
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Mobile: Hamburger menu button always visible */}
+        {isMobile && (
+          <button
+            onClick={toggleMobileMenu}
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '20px',
+              cursor: 'pointer',
+              padding: '8px',
+              minHeight: '40px',
+              minWidth: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              marginLeft: 'auto'
+            }}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
+        )}
+
+        {/* Mobile: Show user status (optional, can remove if not needed) */}
+        {/* {isMobile && user && (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            fontSize: '14px',
+            color: '#fff',
+            marginLeft: '8px'
+          }}>
             {user.role === 'admin' && (
               <span style={{ 
-                background: '#ff5e62', 
-                padding: '2px 8px', 
-                borderRadius: '12px', 
-                fontSize: '12px',
-                marginLeft: '4px',
+                background: 'linear-gradient(135deg, #ff5e62, #ffb347)', 
+                padding: '2px 6px', 
+                borderRadius: '8px', 
+                fontSize: '10px',
                 fontWeight: 600,
-                whiteSpace: 'nowrap',
-                flexShrink: 1
+                color: '#fff'
               }}>
                 Admin
               </span>
             )}
-            {user.role === 'admin' && (
-              <button 
-                className="pretty-button header"
-                onClick={handleAdminClick}
-                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
-              >
-                {t('header.manage')}
-              </button>
-            )}
-            <button 
-              className="pretty-button header danger"
-              onClick={handleLogout}
-              style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
-            >
-              {t('header.logout')}
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="signup">
-              <button 
-                className="pretty-button header"
-                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
-              >
-                {t('header.signUp')}
-              </button>
-            </Link>
-            <Link to="/signin">
-              <button 
-                className="pretty-button header danger"
-                style={{ whiteSpace: 'nowrap', flexShrink: 1 }}
-              >
-                {t('header.signIn')}
-              </button>
-            </Link>
-          </>
-        )}
-      </div>
+            <span style={{ 
+              color: '#d1d5db',
+              fontSize: '12px',
+              maxWidth: '80px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {user.username}
+            </span>
+          </div>
+        )} */}
+      </header>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
           style={{
             position: 'fixed',
-            top: '72px',
+            top: '64px',
             left: 0,
             right: 0,
             bottom: 0,
-            background: '#232733',
-            zIndex: 1000,
+            background: '#181a20',
+            zIndex: 999,
             padding: 'var(--space-4)',
             display: 'flex',
             flexDirection: 'column',
             gap: 'var(--space-4)',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
           <div style={{ 
@@ -235,58 +373,106 @@ const Header: React.FC = () => {
             {user ? (
               <>
                 {user.role === 'admin' && (
-                  <div style={{ textAlign: 'center', padding: 'var(--space-2)' }}>
-                    <span style={{ 
-                      background: '#ff5e62', 
-                      padding: '4px 12px', 
-                      borderRadius: '12px', 
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#fff'
-                    }}>
-                      Admin
-                    </span>
-                  </div>
-                )}
-                {user.role === 'admin' && (
                   <button 
-                    className="pretty-button"
-                    onClick={() => {
-                      handleAdminClick();
-                      setIsMobileMenuOpen(false);
+                    onClick={handleAdminClick}
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      width: '100%',
+                      minHeight: '48px'
                     }}
-                    style={{ width: '100%', maxWidth: 'none' }}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.98)';
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     {t('header.manage')}
                   </button>
                 )}
                 <button 
-                  className="pretty-button danger"
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
+                  onClick={handleLogout}
+                  style={{
+                    background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    width: '100%',
+                    minHeight: '48px'
                   }}
-                  style={{ width: '100%', maxWidth: 'none' }}
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
                 >
                   {t('header.logout')}
                 </button>
               </>
             ) : (
               <>
-                <Link to="signup" style={{ textDecoration: 'none' }}>
+                <Link to="/signup" style={{ textDecoration: 'none' }}>
                   <button 
-                    className="pretty-button"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ width: '100%', maxWidth: 'none' }}
+                    onClick={closeMobileMenu}
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      width: '100%',
+                      minHeight: '48px'
+                    }}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.98)';
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     {t('header.signUp')}
                   </button>
                 </Link>
                 <Link to="/signin" style={{ textDecoration: 'none' }}>
                   <button 
-                    className="pretty-button danger"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ width: '100%', maxWidth: 'none' }}
+                    onClick={closeMobileMenu}
+                    style={{
+                      background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      width: '100%',
+                      minHeight: '48px'
+                    }}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.98)';
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     {t('header.signIn')}
                   </button>
@@ -296,7 +482,7 @@ const Header: React.FC = () => {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
 
