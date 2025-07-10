@@ -12,12 +12,14 @@ const CardGrid: React.FC<CardGridProps> = ({ girls }) => {
       style={{
         maxWidth: 'var(--container-xl)',
         margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        display: 'flex',
+        flexWrap: 'wrap',
         gap: 'var(--space-6)',
         marginBottom: 'var(--space-12)',
         padding: '0 var(--space-6)',
-        minHeight: '480px'
+        minHeight: '480px',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
       }}
     >
       {girls.map((girl, idx) => (

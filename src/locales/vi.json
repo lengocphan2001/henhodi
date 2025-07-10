@@ -122,7 +122,7 @@
     "addReview": "Thêm đánh giá",
     "noReviews": "Chưa có đánh giá nào",
     "backToList": "Quay lại danh sách",
-    "quickPrice": "Tẩu nhanh",
+    "quickPrice": "Tàu nhanh",
     "meetGirlClickHere": "Hẹn gặp bé click vào đây",
     "checkerReviews": "Checker đánh giá",
     "enterYourReview": "Nhập đánh giá của bạn vào đây",
@@ -293,6 +293,6 @@
   },
   "girlCard": {
     "quickDeal": "Tẩu nhanh",
-    "meetClickHere": "Hẹn gặp bé, click vào đây"
+    "meetClickHere": "Gặp bé, click vào đây"
   }
 } 
