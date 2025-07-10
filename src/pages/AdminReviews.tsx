@@ -102,6 +102,62 @@ const AdminReviews: React.FC = () => {
       color: '#fff',
       flex: 1
     }}>
+      {/* Header */}
+      <header style={{ 
+        background: '#181a20', 
+        padding: 'var(--space-6)', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 'var(--space-2)'
+        }}>
+          <Link to="/admin" style={{ textDecoration: 'none' }}>
+            <button style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-4)',
+              color: '#fff',
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-medium)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            >
+              <span style={{ fontSize: '16px' }}>←</span>
+              {t('admin.backToDashboard')}
+            </button>
+          </Link>
+          <h1 style={{ 
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 'var(--font-bold)',
+            color: '#4facfe'
+          }}>
+            {t('admin.reviewManagement')}
+          </h1>
+        </div>
+        <LanguageSwitcher />
+      </header>
       {/* Info Section */}
       <div style={{ 
         background: '#181a20', 
