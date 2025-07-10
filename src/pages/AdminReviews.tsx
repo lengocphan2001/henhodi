@@ -37,7 +37,7 @@ const AdminReviews: React.FC = () => {
         const map: Record<string, Girl> = {};
         uniqueGirlIds.forEach((id, idx) => {
           if (girlResults[idx].success && girlResults[idx].data) {
-            map[id] = girlResults[idx].data;
+            map[id] = girlResults[idx].data as Girl;
           }
         });
         setGirlMap(map);
