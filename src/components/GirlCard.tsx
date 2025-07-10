@@ -122,7 +122,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
           fontFamily: 'var(--font-primary)', 
           fontSize: 'var(--text-sm)', 
           lineHeight: 'var(--leading-normal)',
-          letter-spacing: 'var(--tracking-normal)',
+          letterSpacing: 'var(--tracking-normal)',
           marginBottom: 'var(--space-2)'
         }}>
           {area}
