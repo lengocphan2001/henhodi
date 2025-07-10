@@ -179,7 +179,7 @@ const InfoSection: React.FC = () => {
                 fontWeight: 'var(--font-semibold)',
                 color: '#ff7a00'
               }}>
-                {t('infoSection.phoneNumber')}
+                {t('infoSection.phoneNumber2')}
               </span>
             </div>
           </div>
