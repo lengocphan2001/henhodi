@@ -19,7 +19,6 @@ const Layout: React.FC<LayoutProps> = ({ children, showFooter = true }) => {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        paddingTop: '64px'
       }}>
         {children}
       </main>

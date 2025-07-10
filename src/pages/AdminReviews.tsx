@@ -158,392 +158,400 @@ const AdminReviews: React.FC = () => {
         </div>
         <LanguageSwitcher />
       </header>
-      {/* Info Section */}
-      <div style={{ 
-        background: '#181a20', 
-        borderRadius: 'var(--radius-2xl)', 
+      {/* Main Content Wrapper */}
+      <div style={{
+        maxWidth: 'var(--container-xl)',
+        margin: '0 auto',
         padding: 'var(--space-6)',
-        marginBottom: 'var(--space-6)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        marginTop: 'var(--space-6)'
       }}>
-        <h2 style={{
-          fontFamily: 'var(--font-heading)',
-          fontSize: 'var(--text-lg)',
-          fontWeight: 'var(--font-semibold)',
-          marginBottom: 'var(--space-2)',
-          color: '#4facfe'
-        }}>
-          {t('admin.reviewManagementDashboard')}
-        </h2>
-        <p style={{
-          fontFamily: 'var(--font-primary)',
-          fontSize: 'var(--text-sm)',
-          color: '#d1d5db'
-        }}>
-          {t('admin.reviewManagementDescription')}
-        </p>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div style={{ 
-          background: '#ff5e62', 
-          color: '#fff', 
-          padding: 'var(--space-2)', 
-          borderRadius: 'var(--radius-lg)', 
-          marginBottom: 'var(--space-6)',
-          fontFamily: 'var(--font-heading)',
-          fontSize: 'var(--text-sm)'
-        }}>
-          {error}
-        </div>
-      )}
-
-      {/* Search and Filters */}
-      <div style={{ 
-        background: '#181a20', 
-        borderRadius: 'var(--radius-2xl)', 
-        padding: 'var(--space-6)',
-        marginBottom: 'var(--space-6)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'var(--space-2)'
-        }}>
-          <div>
-            <label style={{ 
-              display: 'block',
-              marginBottom: 'var(--space-2)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              color: '#d1d5db'
-            }}>
-              {t('admin.searchReviews')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('admin.searchReviewsPlaceholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                background: '#232733',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-3)',
-                color: '#fff',
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                outline: 'none'
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ 
-              display: 'block',
-              marginBottom: 'var(--space-2)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              color: '#d1d5db'
-            }}>
-              {t('admin.filterByGirlId')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('admin.filterByGirlIdPlaceholder')}
-              value={girlFilter}
-              onChange={(e) => setGirlFilter(e.target.value)}
-              style={{
-                width: '100%',
-                background: '#232733',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-3)',
-                color: '#fff',
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                outline: 'none'
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Reviews Table */}
-      <div style={{ 
-        background: '#181a20', 
-        borderRadius: 'var(--radius-2xl)', 
-        overflow: 'hidden',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <div style={{ 
-          overflowX: 'auto'
-        }}>
-          <table style={{ 
-            width: '100%', 
-            borderCollapse: 'collapse'
-          }}>
-            <thead>
-              <tr style={{ 
-                background: 'rgba(255, 255, 255, 0.05)'
-              }}>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.user')}
-                </th>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.girlId')}
-                </th>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.rating')}
-                </th>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.comment')}
-                </th>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.date')}
-                </th>
-                <th style={{ 
-                  padding: 'var(--space-2)', 
-                  textAlign: 'left',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--font-semibold)',
-                  color: '#4facfe'
-                }}>
-                  {t('admin.actions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {reviews.map((review) => (
-                <tr key={review._id} style={{ 
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
-                }}>
-                  <td style={{ padding: 'var(--space-2)' }}>
-                    <div>
-                      <div style={{ 
-                        fontFamily: 'var(--font-heading)',
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 'var(--font-semibold)',
-                        color: '#fff'
-                      }}>
-                        {review.user?.username || 'Unknown User'}
-                      </div>
-                      <div style={{ 
-                        fontFamily: 'var(--font-primary)',
-                        fontSize: 'var(--text-xs)',
-                        color: '#d1d5db'
-                      }}>
-                        {review.user?.profile?.fullName || 'No name provided'}
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ 
-                    padding: 'var(--space-2)',
-                    fontFamily: 'var(--font-primary)',
-                    fontSize: 'var(--text-sm)',
-                    color: '#d1d5db'
-                  }}>
-                    {review.girlId}
-                  </td>
-                  <td style={{ 
-                    padding: 'var(--space-2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-1)'
-                  }}>
-                    {renderStars(review.rating)}
-                    <span style={{ 
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 'var(--font-semibold)',
-                      color: '#fff',
-                      marginLeft: 'var(--space-2)'
-                    }}>
-                      {review.rating}
-                    </span>
-                  </td>
-                  <td style={{ 
-                    padding: 'var(--space-2)',
-                    maxWidth: '300px'
-                  }}>
-                    <div style={{
-                      fontFamily: 'var(--font-primary)',
-                      fontSize: 'var(--text-sm)',
-                      color: '#d1d5db',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {review.comment}
-                    </div>
-                  </td>
-                  <td style={{ 
-                    padding: 'var(--space-2)',
-                    fontFamily: 'var(--font-primary)',
-                    fontSize: 'var(--text-sm)',
-                    color: '#d1d5db'
-                  }}>
-                    {formatDate(review.createdAt)}
-                  </td>
-                  <td style={{ padding: 'var(--space-2)' }}>
-                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                      <button
-                        onClick={() => handleDeleteReview(review._id)}
-                        style={{
-                          background: '#ff5e62',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 'var(--radius-lg)',
-                          padding: 'var(--space-2) var(--space-3)',
-                          fontFamily: 'var(--font-heading)',
-                          fontSize: 'var(--text-xs)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: 'var(--space-2)', 
-          marginTop: 'var(--space-6)' 
-        }}>
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            style={{
-              background: currentPage === 1 ? '#374151' : '#4facfe',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-2)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-              opacity: currentPage === 1 ? 0.5 : 1
-            }}
-          >
-            Previous
-          </button>
-          <span style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: 'var(--space-2) var(--space-2)',
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-sm)',
-            color: '#d1d5db'
-          }}>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            style={{
-              background: currentPage === totalPages ? '#374151' : '#4facfe',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-2)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-              opacity: currentPage === totalPages ? 0.5 : 1
-            }}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {reviews.length === 0 && !loading && (
+        {/* Info Section */}
         <div style={{ 
           background: '#181a20', 
           borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-12)', 
-          textAlign: 'center',
+          padding: 'var(--space-6)',
+          marginBottom: 'var(--space-6)',
           border: '1px solid rgba(255, 255, 255, 0.1)'
         }}>
-          <div style={{ 
-            fontSize: 'var(--text-4xl)', 
+          <h2 style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 'var(--font-semibold)',
             marginBottom: 'var(--space-2)',
             color: '#4facfe'
           }}>
-            ⭐
-          </div>
-          <h3 style={{ 
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-xl)',
-            fontWeight: 'var(--font-semibold)',
-            marginBottom: 'var(--space-2)',
-            color: '#fff'
-          }}>
-            No Reviews Found
-          </h3>
-          <p style={{ 
+            {t('admin.reviewManagementDashboard')}
+          </h2>
+          <p style={{
             fontFamily: 'var(--font-primary)',
             fontSize: 'var(--text-sm)',
             color: '#d1d5db'
           }}>
-            There are no reviews matching your current filters.
+            {t('admin.reviewManagementDescription')}
           </p>
         </div>
-      )}
+
+        {/* Error Display */}
+        {error && (
+          <div style={{ 
+            background: '#ff5e62', 
+            color: '#fff', 
+            padding: 'var(--space-2)', 
+            borderRadius: 'var(--radius-lg)', 
+            marginBottom: 'var(--space-6)',
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-sm)'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* Search and Filters */}
+        <div style={{ 
+          background: '#181a20', 
+          borderRadius: 'var(--radius-2xl)', 
+          padding: 'var(--space-6)',
+          marginBottom: 'var(--space-6)',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 'var(--space-2)'
+          }}>
+            <div>
+              <label style={{ 
+                display: 'block',
+                marginBottom: 'var(--space-2)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--font-semibold)',
+                color: '#d1d5db'
+              }}>
+                {t('admin.searchReviews')}
+              </label>
+              <input
+                type="text"
+                placeholder={t('admin.searchReviewsPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: '#232733',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3)',
+                  color: '#fff',
+                  fontFamily: 'var(--font-primary)',
+                  fontSize: 'var(--text-sm)',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ 
+                display: 'block',
+                marginBottom: 'var(--space-2)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--font-semibold)',
+                color: '#d1d5db'
+              }}>
+                {t('admin.filterByGirlId')}
+              </label>
+              <input
+                type="text"
+                placeholder={t('admin.filterByGirlIdPlaceholder')}
+                value={girlFilter}
+                onChange={(e) => setGirlFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: '#232733',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3)',
+                  color: '#fff',
+                  fontFamily: 'var(--font-primary)',
+                  fontSize: 'var(--text-sm)',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Table */}
+        <div style={{ 
+          background: '#181a20', 
+          borderRadius: 'var(--radius-2xl)', 
+          overflow: 'hidden',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <div style={{ 
+            overflowX: 'auto'
+          }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse'
+            }}>
+              <thead>
+                <tr style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)'
+                }}>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.user')}
+                  </th>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.girlId')}
+                  </th>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.rating')}
+                  </th>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.comment')}
+                  </th>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.date')}
+                  </th>
+                  <th style={{ 
+                    padding: 'var(--space-2)', 
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#4facfe'
+                  }}>
+                    {t('admin.actions')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {reviews.map((review) => (
+                  <tr key={review._id} style={{ 
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <td style={{ padding: 'var(--space-2)' }}>
+                      <div>
+                        <div style={{ 
+                          fontFamily: 'var(--font-heading)',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 'var(--font-semibold)',
+                          color: '#fff'
+                        }}>
+                          {review.user?.username || 'Unknown User'}
+                        </div>
+                        <div style={{ 
+                          fontFamily: 'var(--font-primary)',
+                          fontSize: 'var(--text-xs)',
+                          color: '#d1d5db'
+                        }}>
+                          {review.user?.profile?.fullName || 'No name provided'}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ 
+                      padding: 'var(--space-2)',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      color: '#d1d5db'
+                    }}>
+                      {review.girlId}
+                    </td>
+                    <td style={{ 
+                      padding: 'var(--space-2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-1)'
+                    }}>
+                      {renderStars(review.rating)}
+                      <span style={{ 
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 'var(--font-semibold)',
+                        color: '#fff',
+                        marginLeft: 'var(--space-2)'
+                      }}>
+                        {review.rating}
+                      </span>
+                    </td>
+                    <td style={{ 
+                      padding: 'var(--space-2)',
+                      maxWidth: '300px'
+                    }}>
+                      <div style={{
+                        fontFamily: 'var(--font-primary)',
+                        fontSize: 'var(--text-sm)',
+                        color: '#d1d5db',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {review.comment}
+                      </div>
+                    </td>
+                    <td style={{ 
+                      padding: 'var(--space-2)',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      color: '#d1d5db'
+                    }}>
+                      {formatDate(review.createdAt)}
+                    </td>
+                    <td style={{ padding: 'var(--space-2)' }}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                        <button
+                          onClick={() => handleDeleteReview(review._id)}
+                          style={{
+                            background: '#ff5e62',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 'var(--radius-lg)',
+                            padding: 'var(--space-2) var(--space-3)',
+                            fontFamily: 'var(--font-heading)',
+                            fontSize: 'var(--text-xs)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: 'var(--space-2)', 
+            marginTop: 'var(--space-6)' 
+          }}>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              style={{
+                background: currentPage === 1 ? '#374151' : '#4facfe',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-2) var(--space-2)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.5 : 1
+              }}
+            >
+              Previous
+            </button>
+            <span style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              padding: 'var(--space-2) var(--space-2)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-sm)',
+              color: '#d1d5db'
+            }}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                background: currentPage === totalPages ? '#374151' : '#4facfe',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-2) var(--space-2)',
+                fontFamily: 'var(--font-heading)',
+                fontSize: 'var(--text-sm)',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.5 : 1
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {reviews.length === 0 && !loading && (
+          <div style={{ 
+            background: '#181a20', 
+            borderRadius: 'var(--radius-2xl)', 
+            padding: 'var(--space-12)', 
+            textAlign: 'center',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <div style={{ 
+              fontSize: 'var(--text-4xl)', 
+              marginBottom: 'var(--space-2)',
+              color: '#4facfe'
+            }}>
+              ⭐
+            </div>
+            <h3 style={{ 
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-xl)',
+              fontWeight: 'var(--font-semibold)',
+              marginBottom: 'var(--space-2)',
+              color: '#fff'
+            }}>
+              No Reviews Found
+            </h3>
+            <p style={{ 
+              fontFamily: 'var(--font-primary)',
+              fontSize: 'var(--text-sm)',
+              color: '#d1d5db'
+            }}>
+              There are no reviews matching your current filters.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
