@@ -127,18 +127,7 @@ const InfoSection: React.FC = () => {
               borderRadius: 'var(--radius-lg)',
               border: '1px solid rgba(255, 122, 0, 0.2)'
             }}>
-              <div style={{ 
-                width: '24px', 
-                height: '24px', 
-                background: 'linear-gradient(135deg, #00c3ff, #ffb347)', 
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                color: '#fff',
-                fontWeight: 'bold'
-              }}>
+              
                 <img 
                   src="/assets/zalo.png" 
                   alt="Zalo" 
@@ -148,7 +137,7 @@ const InfoSection: React.FC = () => {
                     objectFit: 'contain'
                   }} 
                 />
-              </div>
+              
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-lg)', 
@@ -167,18 +156,7 @@ const InfoSection: React.FC = () => {
               borderRadius: 'var(--radius-lg)',
               border: '1px solid rgba(255, 122, 0, 0.2)'
             }}>
-              <div style={{ 
-                width: '24px', 
-                height: '24px', 
-                background: 'linear-gradient(135deg, #00c3ff, #ffb347)', 
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                color: '#fff',
-                fontWeight: 'bold'
-              }}>
+              
                 <img 
                   src="/assets/zalo.png" 
                   alt="Zalo" 
@@ -188,7 +166,7 @@ const InfoSection: React.FC = () => {
                     objectFit: 'contain'
                   }} 
                 />
-              </div>
+              
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'var(--text-lg)', 
