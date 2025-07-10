@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiService, Review, PaginatedResponse } from '../services/api';
+import { apiService, Review, PaginatedResponse, Girl } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AdminReviews: React.FC = () => {
@@ -14,6 +14,7 @@ const AdminReviews: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [girlFilter, setGirlFilter] = useState('');
+  const [girlMap, setGirlMap] = useState<Record<string, Girl>>({});
 
   useEffect(() => {
     if (!apiService.isAdmin()) {
@@ -30,6 +31,16 @@ const AdminReviews: React.FC = () => {
       if (response.success && response.data) {
         setReviews(response.data.data);
         setTotalPages(response.data.totalPages);
+        // Fetch all unique girls for this page
+        const uniqueGirlIds = Array.from(new Set(response.data.data.map(r => r.girlId)));
+        const girlResults = await Promise.all(uniqueGirlIds.map(id => apiService.request<Girl>(`/girls/${id}`)));
+        const map: Record<string, Girl> = {};
+        uniqueGirlIds.forEach((id, idx) => {
+          if (girlResults[idx].success && girlResults[idx].data) {
+            map[id] = girlResults[idx].data;
+          }
+        });
+        setGirlMap(map);
       } else {
         setError(response.message || t('admin.failedToLoadReviews'));
       }
@@ -361,102 +372,80 @@ const AdminReviews: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {reviews.map((review) => (
-                  <tr key={review._id} style={{ 
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
-                  }}>
-                    <td style={{ padding: 'var(--space-2)' }}>
-                      <div>
-                        <div style={{ 
-                          fontFamily: 'var(--font-heading)',
-                          fontSize: 'var(--text-sm)',
-                          fontWeight: 'var(--font-semibold)',
-                          color: '#fff'
-                        }}>
-                          {review.user?.username || 'Unknown User'}
+                {reviews.map((review) => {
+                  const girl = girlMap[review.girlId];
+                  return (
+                    <tr key={review._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: 'var(--space-2)' }}>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-sm)', fontWeight: 'var(--font-semibold)', color: '#fff' }}>
+                            {review.user?.username || 'Unknown User'}
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>
+                            {review.user?.profile?.fullName || 'No name provided'}
+                          </div>
+                          {review.user?.email && (
+                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Email: {review.user.email}</div>
+                          )}
+                          {review.user?.phone && (
+                            <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-xs)', color: '#d1d5db' }}>Phone: {review.user.phone}</div>
+                          )}
                         </div>
-                        <div style={{ 
-                          fontFamily: 'var(--font-primary)',
-                          fontSize: 'var(--text-xs)',
-                          color: '#d1d5db'
-                        }}>
-                          {review.user?.profile?.fullName || 'No name provided'}
+                      </td>
+                      <td style={{ padding: 'var(--space-2)', fontFamily: 'var(--font-primary)', fontSize: 'var(--text-sm)', color: '#d1d5db' }}>
+                        {girl ? (
+                          <div>
+                            <div style={{ fontWeight: 600 }}>{girl.name}</div>
+                            <div style={{ fontSize: '12px' }}>ID: {girl._id || girl.id}</div>
+                            {girl.phone && <div style={{ fontSize: '12px' }}>Phone: {girl.phone}</div>}
+                            {girl.zalo && <div style={{ fontSize: '12px' }}>Zalo: {girl.zalo}</div>}
+                            {girl.price && <div style={{ fontSize: '12px' }}>Price: {girl.price}</div>}
+                            {girl.area && <div style={{ fontSize: '12px' }}>Area: {girl.area}</div>}
+                          </div>
+                        ) : (
+                          review.girlId
+                        )}
+                      </td>
+                      <td style={{ padding: 'var(--space-2)', display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+                        {renderStars(review.rating)}
+                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-sm)', fontWeight: 'var(--font-semibold)', color: '#fff', marginLeft: 'var(--space-2)' }}>
+                          {review.rating}
+                        </span>
+                      </td>
+                      <td style={{ padding: 'var(--space-2)', maxWidth: '300px' }}>
+                        <div style={{ fontFamily: 'var(--font-primary)', fontSize: 'var(--text-sm)', color: '#d1d5db', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {review.comment}
                         </div>
-                      </div>
-                    </td>
-                    <td style={{ 
-                      padding: 'var(--space-2)',
-                      fontFamily: 'var(--font-primary)',
-                      fontSize: 'var(--text-sm)',
-                      color: '#d1d5db'
-                    }}>
-                      {review.girlId}
-                    </td>
-                    <td style={{ 
-                      padding: 'var(--space-2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-1)'
-                    }}>
-                      {renderStars(review.rating)}
-                      <span style={{ 
-                        fontFamily: 'var(--font-heading)',
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 'var(--font-semibold)',
-                        color: '#fff',
-                        marginLeft: 'var(--space-2)'
-                      }}>
-                        {review.rating}
-                      </span>
-                    </td>
-                    <td style={{ 
-                      padding: 'var(--space-2)',
-                      maxWidth: '300px'
-                    }}>
-                      <div style={{
-                        fontFamily: 'var(--font-primary)',
-                        fontSize: 'var(--text-sm)',
-                        color: '#d1d5db',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {review.comment}
-                      </div>
-                    </td>
-                    <td style={{ 
-                      padding: 'var(--space-2)',
-                      fontFamily: 'var(--font-primary)',
-                      fontSize: 'var(--text-sm)',
-                      color: '#d1d5db'
-                    }}>
-                      {formatDate(review.createdAt)}
-                    </td>
-                    <td style={{ padding: 'var(--space-2)' }}>
-                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                        <button
-                          onClick={() => handleDeleteReview(review._id)}
-                          style={{
-                            background: '#ff5e62',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 'var(--radius-lg)',
-                            padding: 'var(--space-2) var(--space-3)',
-                            fontFamily: 'var(--font-heading)',
-                            fontSize: 'var(--text-xs)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td style={{ padding: 'var(--space-2)', fontFamily: 'var(--font-primary)', fontSize: 'var(--text-sm)', color: '#d1d5db' }}>
+                        {formatDate(review.createdAt)}
+                      </td>
+                      <td style={{ padding: 'var(--space-2)' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                          <button
+                            onClick={() => handleDeleteReview(review._id)}
+                            style={{
+                              background: '#ff5e62',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: 'var(--radius-lg)',
+                              padding: 'var(--space-2) var(--space-3)',
+                              fontFamily: 'var(--font-heading)',
+                              fontSize: 'var(--text-xs)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
