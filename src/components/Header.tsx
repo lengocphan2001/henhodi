@@ -21,10 +21,13 @@ const Header: React.FC = () => {
           if (userData) {
             setUser(userData);
           }
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth check error:', error);
         apiService.logout();
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -37,8 +40,18 @@ const Header: React.FC = () => {
     checkAuth();
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    // Listen for login/logout events
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('henhodi-auth-change', handleAuthChange);
     
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('henhodi-auth-change', handleAuthChange);
+    };
   }, []);
 
   const handleLogout = async () => {

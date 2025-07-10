@@ -51,7 +51,8 @@ const SignIn: React.FC = () => {
         // Store token and user data
         apiService.setToken(response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        
+        // Dispatch custom event for header update
+        window.dispatchEvent(new Event('henhodi-auth-change'));
         // Redirect based on user role
         if (response.data.user.role === 'admin') {
           console.log('Redirecting to admin dashboard');
