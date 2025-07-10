@@ -132,8 +132,8 @@ const InfoSection: React.FC = () => {
                   src="/assets/zalo.png" 
                   alt="Zalo" 
                   style={{ 
-                    width: '24px', 
-                    height: '24px',
+                    width: '32px', 
+                    height: '32px',
                     objectFit: 'contain'
                   }} 
                 />
@@ -161,8 +161,8 @@ const InfoSection: React.FC = () => {
                   src="/assets/zalo.png" 
                   alt="Zalo" 
                   style={{ 
-                    width: '24px', 
-                    height: '24px',
+                    width: '32px', 
+                    height: '32px',
                     objectFit: 'contain'
                   }} 
                 />
