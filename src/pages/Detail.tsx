@@ -289,7 +289,7 @@ const Detail: React.FC = () => {
               lineHeight: 'var(--leading-tight)',
               letterSpacing: 'var(--tracking-wide)',
               textTransform: 'uppercase',
-              transition: 'all 0.2s ease',
+              transition: 'transform 0.2s ease',
               boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
               width: '100%',
               minHeight: '44px',
@@ -302,13 +302,11 @@ const Detail: React.FC = () => {
             onMouseEnter={(e) => {
               if (window.innerWidth > 768) {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
               }
             }}
             onMouseLeave={(e) => {
               if (window.innerWidth > 768) {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
               }
             }}
             onTouchStart={(e) => {
@@ -520,8 +518,7 @@ const Detail: React.FC = () => {
               display: 'flex',
               flexWrap: 'wrap',
               gap: 'var(--space-5)',
-              maxWidth: '800px',
-              justifyContent: 'center'
+              justifyContent: 'left'
             }}>
               {girl.images.map((image, index) => (
                 <img key={index} src={image} alt={`${girl.name} - ${t('detail.photo')} ${index + 1}`} style={{ 
