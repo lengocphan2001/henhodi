@@ -33,7 +33,7 @@ const AdminReviews: React.FC = () => {
         setTotalPages(response.data.totalPages);
         // Fetch all unique girls for this page
         const uniqueGirlIds = Array.from(new Set(response.data.data.map(r => r.girlId)));
-        const girlResults = await Promise.all(uniqueGirlIds.map(id => apiService.request<Girl>(`/girls/${id}`)));
+        const girlResults = await Promise.all(uniqueGirlIds.map(id => apiService.getGirlById(id)));
         const map: Record<string, Girl> = {};
         uniqueGirlIds.forEach((id, idx) => {
           if (girlResults[idx].success && girlResults[idx].data) {
