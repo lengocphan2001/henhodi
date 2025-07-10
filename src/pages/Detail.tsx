@@ -177,12 +177,11 @@ const Detail: React.FC = () => {
           {t('detail.backToList')}
         </button>
         <div style={{ 
-          display: 'flex',
-          flexWrap: 'wrap',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 'var(--space-8)', 
           alignItems: 'flex-start', 
-          marginBottom: 'var(--space-8)',
-          justifyContent: 'center'
+          marginBottom: 'var(--space-8)'
         }}>
           {/* Left: Main image and info */}
           <div style={{ 
@@ -271,7 +270,8 @@ const Detail: React.FC = () => {
                 letterSpacing: 'var(--tracking-wide)',
                 textTransform: 'uppercase',
                 boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                animation: 'colorChange 3s ease-in-out infinite'
               }}>
                 {t('detail.quickPrice')} : {girl.price}
               </span>
@@ -296,7 +296,8 @@ const Detail: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '8px',
+              animation: 'buttonColorChange 4s ease-in-out infinite'
             }}
             onMouseEnter={(e) => {
               if (window.innerWidth > 768) {
@@ -516,10 +517,11 @@ const Detail: React.FC = () => {
           </div>
           {girl.images && girl.images.length > 0 ? (
             <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              display: 'flex',
+              flexWrap: 'wrap',
               gap: 'var(--space-5)',
-              maxWidth: '800px'
+              maxWidth: '800px',
+              justifyContent: 'center'
             }}>
               {girl.images.map((image, index) => (
                 <img key={index} src={image} alt={`${girl.name} - ${t('detail.photo')} ${index + 1}`} style={{ 

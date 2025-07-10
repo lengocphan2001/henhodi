@@ -459,6 +459,57 @@ html {
   }
 }
 
+/* Color changing animations for beautiful effects */
+@keyframes colorChange {
+  0% {
+    background: linear-gradient(135deg, #ff7a00, #ff5e62);
+    box-shadow: 0 2px 8px rgba(255, 122, 0, 0.3);
+  }
+  25% {
+    background: linear-gradient(135deg, #ff5e62, #ffb347);
+    box-shadow: 0 2px 8px rgba(255, 94, 98, 0.3);
+  }
+  50% {
+    background: linear-gradient(135deg, #ffb347, #43e97b);
+    box-shadow: 0 2px 8px rgba(255, 179, 71, 0.3);
+  }
+  75% {
+    background: linear-gradient(135deg, #43e97b, #4facfe);
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.3);
+  }
+  100% {
+    background: linear-gradient(135deg, #4facfe, #ff7a00);
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+  }
+}
+
+@keyframes buttonColorChange {
+  0% {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+  20% {
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
+  }
+  40% {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+  60% {
+    background: linear-gradient(135deg, #ec4899, #f59e0b);
+    box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+  }
+  80% {
+    background: linear-gradient(135deg, #f59e0b, #10b981);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  }
+  100% {
+    background: linear-gradient(135deg, #10b981, #2563eb);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+}
+
 .responsive-container {
   max-width: var(--container-xl);
   margin: 0 auto;
