@@ -156,9 +156,11 @@ export interface Review {
   createdAt: string;
   user?: {
     username: string;
+    phone?: string;
     profile?: {
       fullName?: string;
     };
+    fullName?: string;
   };
   phone?: string;
 }
@@ -540,7 +542,67 @@ class ApiService {
       limit: limit.toString(),
       ...(girlId && { girlId }),
     });
-    return this.request<PaginatedResponse<Review>>(`/reviews?${params}`);
+    
+    // For public endpoints like reviews, don't send Authorization header
+    const url = `${this.baseURL}/reviews?${params}`;
+    
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        // Don't include Authorization header for public reviews endpoint
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      // Handle 304 Not Modified response
+      if (response.status === 304) {
+        return {
+          success: true,
+          data: undefined,
+          message: 'Data not modified'
+        };
+      }
+
+      // For other responses, try to parse JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // If response is empty or not JSON, handle gracefully
+        if (response.ok) {
+          return {
+            success: true,
+            data: undefined
+          };
+        } else {
+          throw new Error('Invalid response format');
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'API request failed');
+      }
+
+      // Handle different response formats
+      if (data.success !== undefined) {
+        // Response already has success field
+        return data;
+      } else {
+        // Response doesn't have success field, wrap it
+        return {
+          success: true,
+          data: data
+        };
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   }
 
   async createReview(reviewData: CreateReviewRequest): Promise<ApiResponse<Review>> {

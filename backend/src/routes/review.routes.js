@@ -4,7 +4,7 @@ import { authenticateToken, requireAdmin, requireUser } from '../middleware/auth
 
 const router = express.Router();
 
-// Public routes (for viewing)
+// Public routes (for viewing) - no authentication required
 router.get('/', ReviewController.getAll);
 
 // User routes (authenticated users can create reviews)

@@ -41,7 +41,11 @@ export const create = async (req, res) => {
     };
     
     const review = await Review.createReview(reviewData);
-    res.status(201).json(review);
+    
+    // Fetch the created review with user information
+    const reviewWithUser = await Review.getReviewById(review.id);
+    
+    res.status(201).json(reviewWithUser);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
