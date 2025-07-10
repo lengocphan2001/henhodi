@@ -116,7 +116,7 @@ const Main: React.FC = () => {
       background: '#232733', 
       color: 'white',
       flex: 1,
-      marginTop: 'var(--space-6)'
+      padding: 'var(--space-6)',
     }}>
       <InfoSection />
       <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
