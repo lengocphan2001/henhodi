@@ -197,7 +197,7 @@ const AdminGirls: React.FC = () => {
       info: {
         'Người đánh giá': '',
         'ZALO': '',
-        'Giá 1 lần': '',
+        'Giá qua đêm': '',
         'Giá phòng': '',
         'Năm sinh': '',
         'Khu vực': '',
@@ -297,7 +297,7 @@ const AdminGirls: React.FC = () => {
       info: girl.info || {
         'Người đánh giá': '',
         'ZALO': '',
-        'Giá 1 lần': '',
+        'Giá qua đêm': '',
         'Giá phòng': '',
         'Năm sinh': '',
         'Khu vực': '',
@@ -1326,13 +1326,13 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Giá 1 lần
+                    Giá qua đêm
                   </label>
                   <input
                     type="text"
-                    value={formData.info?.['Giá 1 lần'] || ''}
+                    value={formData.info?.['Giá qua đêm'] || ''}
                     onChange={handleCreateChange}
-                    name="info.Giá 1 lần"
+                    name="info.Giá qua đêm"
                     style={{
                       width: '100%',
                       background: '#232733',
@@ -1992,13 +1992,13 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
-                    Giá 1 lần
+                    Giá qua đêm
                   </label>
                   <input
                     type="text"
-                    value={formData.info?.['Giá 1 lần'] || ''}
+                    value={formData.info?.['Giá qua đêm'] || ''}
                     onChange={handleEditChange}
-                    name="info.Giá 1 lần"
+                    name="info.Giá qua đêm"
                     style={{
                       width: '100%',
                       background: '#232733',

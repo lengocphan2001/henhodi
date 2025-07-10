@@ -44,7 +44,7 @@ const Detail: React.FC = () => {
     info: {
       'Người đánh giá': 'Ngọc Miu',
       'ZALO': '0965209115',
-      'Giá 1 lần': '700.000 VND',
+      'Giá qua đêm': '700.000 VND',
       'Giá phòng': '150.000 VND',
       'Năm sinh': '2005',
       'Khu vực': 'Dương Đông',

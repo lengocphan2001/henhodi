@@ -139,7 +139,7 @@ export const createGirl = async (girl) => {
   const defaultInfo = {
     'Người đánh giá': '',
     'ZALO': girl.zalo || '',
-    'Giá 1 lần': girl.price || '',
+    'Giá qua đêm': girl.price || '',
     'Giá phòng': '',
     'Năm sinh': '',
     'Khu vực': girl.area || '',

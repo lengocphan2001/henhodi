@@ -87,7 +87,7 @@ export interface Girl {
   info: {
     'Người đánh giá': string;
     'ZALO': string;
-    'Giá 1 lần': string;
+    'Giá qua đêm': string;
     'Giá phòng': string;
     'Năm sinh': string;
     'Khu vực': string;
@@ -111,7 +111,7 @@ export interface CreateGirlRequest {
   info: {
     'Người đánh giá': string;
     'ZALO': string;
-    'Giá 1 lần': string;
+    'Giá qua đêm': string;
     'Giá phòng': string;
     'Năm sinh': string;
     'Khu vực': string;
@@ -135,7 +135,7 @@ export interface UpdateGirlRequest {
   info?: Partial<{
     'Người đánh giá': string;
     'ZALO': string;
-    'Giá 1 lần': string;
+    'Giá qua đêm': string;
     'Giá phòng': string;
     'Năm sinh': string;
     'Khu vực': string;

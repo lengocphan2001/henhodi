@@ -139,7 +139,15 @@ const InfoSection: React.FC = () => {
                 color: '#fff',
                 fontWeight: 'bold'
               }}>
-                Z
+                <img 
+                  src="/assets/zalo.png" 
+                  alt="Zalo" 
+                  style={{ 
+                    width: '16px', 
+                    height: '16px',
+                    objectFit: 'contain'
+                  }} 
+                />
               </div>
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
@@ -171,7 +179,15 @@ const InfoSection: React.FC = () => {
                 color: '#fff',
                 fontWeight: 'bold'
               }}>
-                Z
+                <img 
+                  src="/assets/zalo.png" 
+                  alt="Zalo" 
+                  style={{ 
+                    width: '16px', 
+                    height: '16px',
+                    objectFit: 'contain'
+                  }} 
+                />
               </div>
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
