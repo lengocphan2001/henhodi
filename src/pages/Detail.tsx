@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './SignUp.module.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { apiService, Review } from '../services/api';
+import { apiService, Review, User } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 // Type for the girl prop
@@ -56,6 +56,7 @@ const Detail: React.FC = () => {
 
   // Review state
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [userMap, setUserMap] = useState<Record<string, User>>({});
   const [newReview, setNewReview] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,16 @@ const Detail: React.FC = () => {
         console.log('Review API response:', res);
         if (res.success && res.data) {
           setReviews(res.data.data);
+        // Fetch user details for each review
+        const uniqueUserIds = Array.from(new Set(res.data.data.map((r: Review) => r.userId)));
+        const userResults = await Promise.all(uniqueUserIds.map(id => apiService.getUserById(id)));
+        const userMapTemp: Record<string, User> = {};
+        uniqueUserIds.forEach((id, idx) => {
+          if (userResults[idx].success && userResults[idx].data) {
+            userMapTemp[id] = userResults[idx].data as User;
+          }
+        });
+        setUserMap(userMapTemp);
         }
       } catch (err) {
         setError(t('detail.cannotLoadReviews'));
@@ -98,6 +109,16 @@ const Detail: React.FC = () => {
       });
       if (res.success && res.data) {
         setReviews([res.data, ...reviews]);
+        // Fetch user details for the new review
+        if (res.data.userId) {
+          const userRes = await apiService.getUserById(res.data.userId);
+          if (userRes.success && userRes.data) {
+            setUserMap(prev => ({
+              ...prev,
+              [res.data.userId]: userRes.data as User
+            }));
+          }
+        }
         setNewReview('');
       } else {
         setError(res.message || t('detail.submitReviewFailed'));
@@ -398,7 +419,7 @@ const Detail: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#6fa3ff'
                   }}>
-                    {maskPhone(c.phone)}:
+                    {maskPhone(userMap[c.userId]?.phone)}:
                   </span> {c.comment}
                 </div>
               ))}
