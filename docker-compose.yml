@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Frontend
+  frontend:
+    build: .
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost/api
+    networks:
+      - henho-network
+
+  # Backend API
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_USER=henhodi_user
+      - DB_PASSWORD=henhodi_password
+      - DB_NAME=henhodi_db
+      - JWT_SECRET=your_jwt_secret_here
+      - PORT=3000
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - henho-network
+
+  # Database
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=henhodi_db
+      - MYSQL_USER=henhodi_user
+      - MYSQL_PASSWORD=henhodi_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/setup-database.js:/docker-entrypoint-initdb.d/setup-database.js
+    networks:
+      - henho-network
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - henho-network
+
+volumes:
+  mysql_data:
+
+networks:
+  henho-network:
+    driver: bridge 
