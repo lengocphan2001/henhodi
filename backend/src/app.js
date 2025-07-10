@@ -17,13 +17,11 @@ const __dirname = dirname(__filename);
 
 app.use(cors());
 
-// Apply JSON parsing only to routes that need it (not file uploads)
 app.use('/api/users', express.json({ limit: '50mb' }));
 app.use('/api/reviews', express.json({ limit: '50mb' }));
 
-// For girls routes, let multer handle file uploads and only apply JSON to non-file routes
+
 app.use('/api/girls', (req, res, next) => {
-  // Skip JSON parsing for file upload routes
   if ((req.path.includes('/detail-images') && req.method === 'POST') || 
       (req.path.includes('/image') && req.method === 'POST')) {
     next();
@@ -34,16 +32,15 @@ app.use('/api/girls', (req, res, next) => {
 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Routes
+
 app.use('/api/girls', girlRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/upload', uploadRoutes);
 
-// Health check endpoint
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -54,15 +51,12 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize database and start server
 const startServer = async () => {
   try {
     console.log('🚀 Starting Henhodi API Server...');
     
-    // Initialize database (creates tables and default admin user)
     await initialize();
     
-    // Start the server
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`🌐 API available at http://localhost:${PORT}/api`);
