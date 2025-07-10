@@ -106,7 +106,7 @@ const SignIn: React.FC = () => {
             </div>
             <div className={styles.zaloRow}>
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>0965209115</span>
+              <span className={styles.phone}>0375221547</span>
             </div>
           </div>
         </div>
