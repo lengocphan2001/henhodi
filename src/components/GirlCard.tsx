@@ -179,7 +179,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
             whiteSpace: 'nowrap'
           }}>
-            Tẩu nhanh : {price}
+            {t('girlCard.quickDeal')}: {price}
           </span>
         </div>
         
@@ -227,8 +227,8 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             e.currentTarget.style.transform = 'scale(1)';
           }}
         >
-          <span style={{ fontSize: '16px' }}>💬</span>
-          Hẹn gặp bé click vào đây
+          <span style={{ fontSize: '16px' }}>��</span>
+          {t('girlCard.meetClickHere')}
         </button>
       </div>
     </div>

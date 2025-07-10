@@ -291,5 +291,9 @@
     "reply": "Reply",
     "edit": "Edit",
     "delete": "Delete"
+  },
+  "girlCard": {
+    "quickDeal": "Quick Deal",
+    "meetClickHere": "Meet her, click here"
   }
 } 

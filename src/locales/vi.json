@@ -290,5 +290,9 @@
     "reply": "Trả lời",
     "edit": "Chỉnh sửa",
     "delete": "Xóa"
+  },
+  "girlCard": {
+    "quickDeal": "Tẩu nhanh",
+    "meetClickHere": "Hẹn gặp bé, click vào đây"
   }
 } 
