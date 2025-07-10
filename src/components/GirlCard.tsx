@@ -227,7 +227,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             e.currentTarget.style.transform = 'scale(1)';
           }}
         >
-          <span style={{ fontSize: '16px' }}>��</span>
+          <span style={{ fontSize: '16px' }}>💬</span>
           {t('girlCard.meetClickHere')}
         </button>
       </div>
