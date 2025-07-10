@@ -1,6 +1,11 @@
 // API Base Configuration
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://blackphuquoc.com/api';
 
+// Debug: Log the API URL being used
+console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🌍 Environment:', process.env.NODE_ENV);
+console.log('📡 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;
