@@ -109,6 +109,21 @@ const Detail: React.FC = () => {
     }
   };
 
+  // Handle Zalo click
+  const handleZaloClick = () => {
+    // Get Zalo number from either the zalo field or the info object
+    const zaloNumber = girl.zalo || girl.info?.ZALO;
+    
+    if (zaloNumber) {
+      // Open Zalo in a new tab
+      const zaloUrl = `https://zalo.me/${zaloNumber.replace(/\D/g, '')}`;
+      window.open(zaloUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      // Fallback: show alert if no Zalo number
+      alert(t('detail.zaloNotAvailable'));
+    }
+  };
+
   return (
     <div style={{ 
       background: '#232733', 
@@ -194,9 +209,10 @@ const Detail: React.FC = () => {
           <div style={{ 
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-1)',
+            gap: 'var(--space-2)',
             maxWidth: '400px',
-            justifySelf: 'center'
+            justifySelf: 'center',
+            width: '100%'
           }}>
             <img src={girl.img} alt={girl.name} style={{ 
               width: '100%', 
@@ -213,7 +229,8 @@ const Detail: React.FC = () => {
               fontSize: 'var(--text-xl)', 
               lineHeight: 'var(--leading-tight)',
               letterSpacing: 'var(--tracking-tight)',
-              marginBottom: 'var(--space-1)'
+              marginBottom: 'var(--space-1)',
+              wordBreak: 'break-word'
             }}>
               {girl.name}
             </div>
@@ -231,7 +248,8 @@ const Detail: React.FC = () => {
               display: 'flex', 
               alignItems: 'center', 
               gap: 'var(--space-1)', 
-              marginBottom: 'var(--space-3)'
+              marginBottom: 'var(--space-3)',
+              flexWrap: 'wrap'
             }}>
               {Array.from({ length: 5 }).map((_, i) => {
                 const full = i + 1 <= Math.floor(girl.rating);
@@ -259,7 +277,8 @@ const Detail: React.FC = () => {
             <div style={{ 
               display: 'flex', 
               gap: 'var(--space-2)', 
-              marginBottom: 'var(--space-3)'
+              marginBottom: 'var(--space-3)',
+              flexWrap: 'wrap'
             }}>
               <span style={{ 
                 background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
@@ -293,17 +312,34 @@ const Detail: React.FC = () => {
               textTransform: 'uppercase',
               transition: 'all 0.2s ease',
               boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-              width: '100%'
+              width: '100%',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+              if (window.innerWidth > 768) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+              if (window.innerWidth > 768) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+              }
             }}
+            onTouchStart={(e) => {
+              e.currentTarget.style.transform = 'scale(0.98)';
+            }}
+            onTouchEnd={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            onClick={handleZaloClick}
             >
+              <span style={{ fontSize: '16px' }}>💬</span>
               {t('detail.meetGirlClickHere')}
             </button>
           </div>
@@ -312,7 +348,8 @@ const Detail: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: 'var(--space-5)',
-            minWidth: '300px'
+            minWidth: '300px',
+            width: '100%'
           }}>
             <div style={{ 
               display: 'flex', 
@@ -343,7 +380,8 @@ const Detail: React.FC = () => {
                 fontWeight: 'var(--font-bold)', 
                 fontSize: 'var(--text-2xl)',
                 lineHeight: 'var(--leading-tight)',
-                letterSpacing: 'var(--tracking-tight)'
+                letterSpacing: 'var(--tracking-tight)',
+                wordBreak: 'break-word'
               }}>
                 {girl.name} - {girl.area} - {girl.description}
               </span>

@@ -42,7 +42,7 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+        imgUrl = `https://blackphuquoc.com/api/girls${row.id}/image`;
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -106,7 +106,7 @@ export const getGirlById = async (id) => {
     
     if (imageBuffer) {
       // There's a BLOB image, use the API endpoint
-      imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+      imgUrl = `https://blackphuquoc.com/api/girls${id}/image`;
       
     } else {
       // No image at all, use placeholder
@@ -220,7 +220,7 @@ export const updateGirlImage = async (id, imageBuffer) => {
     console.log('updateGirlImage - imageBuffer length:', imageBuffer?.length);
     
     // Update both the img field (BLOB) and img_url field with the proper URL
-    const imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+    const imgUrl = `https://blackphuquoc.com/api/girls${id}/image`;
     console.log('updateGirlImage - setting img_url to:', imgUrl);
     
     const [result] = await db.query(
@@ -290,7 +290,7 @@ export const getRecentGirls = async (limit = 5) => {
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+        imgUrl = `https://blackphuquoc.com/api/girls${row.id}/image`;
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -361,7 +361,7 @@ export const getDetailImages = async (girlId) => {
       id: row.id,
       order: row.image_order,
       createdAt: row.created_at,
-      url: `http://localhost:5000/api/girls/${girlId}/detail-images/${row.id}`
+      url: `https://blackphuquoc.com/api/girls${girlId}/detail-images/${row.id}`
     }));
   } catch (error) {
     console.error('Error getting detail images:', error);

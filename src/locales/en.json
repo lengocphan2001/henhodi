@@ -99,6 +99,15 @@
     "loadMore": "Load More",
     "failedToLoadGirls": "Failed to load girls data"
   },
+  "infoSection": {
+    "title": "Black Phu Quoc",
+    "description": "Black Phu Quoc is the most trusted call girl review site in Phu Quoc. Completely free for checkers.",
+    "disclaimer": "* Note - No minors, no young girls",
+    "contactTitle": "Contact Now",
+    "contactDescription": "Call now for consultation and booking appointments with the most beautiful girls in Phu Quoc.",
+    "zaloLabel": "Zalo",
+    "phoneNumber": "0965209115"
+  },
   "detail": {
     "backToList": "Back to List",
     "contactInfo": "Contact Information",
@@ -124,7 +133,9 @@
     "noDetailedPhotos": "No detailed photos",
     "detailedPhotosComingSoon": "Detailed photos coming soon",
     "cannotLoadReviews": "Cannot load reviews",
-    "submitReviewFailed": "Submit review failed"
+    "submitReviewFailed": "Submit review failed",
+    "zaloNotAvailable": "Zalo number not available for this girl.",
+    "openZalo": "Open Zalo"
   },
   "admin": {
     "dashboard": "Dashboard",

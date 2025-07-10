@@ -570,10 +570,13 @@ const AdminUsers: React.FC = () => {
                           fontFamily: 'var(--font-heading)',
                           fontWeight: 'var(--font-medium)',
                           cursor: 'pointer',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
                         }}
                       >
-                        {user.isActive ? t('admin.active') : t('admin.inactive')}
+                        {user.isActive ? '✅' : '❌'} {user.isActive ? t('admin.active') : t('admin.inactive')}
                       </button>
                     </td>
                     <td style={{ padding: 'var(--space-2)' }}>
@@ -602,10 +605,13 @@ const AdminUsers: React.FC = () => {
                             fontSize: 'var(--text-xs)',
                             fontFamily: 'var(--font-heading)',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
                           }}
                         >
-                          {t('admin.edit')}
+                          ✏️ {t('admin.edit')}
                         </button>
                         <button
                           onClick={() => openDeleteModal(user)}
@@ -618,10 +624,13 @@ const AdminUsers: React.FC = () => {
                             fontSize: 'var(--text-xs)',
                             fontFamily: 'var(--font-heading)',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
                           }}
                         >
-                          {t('admin.delete')}
+                          🗑️ {t('admin.delete')}
                         </button>
                       </div>
                     </td>

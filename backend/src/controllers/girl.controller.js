@@ -160,7 +160,7 @@ export const uploadDetailImage = async (req, res) => {
       success: true,
       data: {
         id: result.id,
-        url: `http://localhost:5000/api/girls/${id}/detail-images/${result.id}`
+        url: `https://blackphuquoc.com/api/girls${id}/detail-images/${result.id}`
       }
     });
   } catch (error) {

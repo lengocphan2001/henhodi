@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -49,6 +50,10 @@ const Header: React.FC = () => {
     navigate('/admin');
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   if (loading) {
     return (
       <header className={styles.header} style={{ 
@@ -85,7 +90,8 @@ const Header: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         height: '72px',
-        padding: '0 var(--space-6)'
+        padding: '0 var(--space-6)',
+        flexWrap: 'wrap'
       }}
     >
       {/* Left: Logo */}
@@ -102,13 +108,38 @@ const Header: React.FC = () => {
           />
         </Link>
       </div>
-      {/* Right: Actions */}
+
+      {/* Mobile Menu Button */}
+      <div style={{ display: 'none' }}>
+        <button
+          onClick={toggleMobileMenu}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#fff',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            minHeight: '44px',
+            minWidth: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
+      {/* Desktop Actions */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: 'var(--space-3)',
-          minWidth: 0
+          minWidth: 0,
+          flexWrap: 'wrap'
         }}
       >
         <div style={{ flexShrink: 0, minWidth: '160px' }}>
@@ -116,7 +147,6 @@ const Header: React.FC = () => {
         </div>
         {user ? (
           <>
-            
             {user.role === 'admin' && (
               <span style={{ 
                 background: '#ff5e62', 
@@ -169,6 +199,103 @@ const Header: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '72px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: '#232733',
+            zIndex: 1000,
+            padding: 'var(--space-4)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-4)',
+            overflowY: 'auto'
+          }}
+        >
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 'var(--space-3)',
+            alignItems: 'stretch'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              padding: 'var(--space-2)'
+            }}>
+              <LanguageSwitcher />
+            </div>
+            
+            {user ? (
+              <>
+                {user.role === 'admin' && (
+                  <div style={{ textAlign: 'center', padding: 'var(--space-2)' }}>
+                    <span style={{ 
+                      background: '#ff5e62', 
+                      padding: '4px 12px', 
+                      borderRadius: '12px', 
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color: '#fff'
+                    }}>
+                      Admin
+                    </span>
+                  </div>
+                )}
+                {user.role === 'admin' && (
+                  <button 
+                    className="pretty-button"
+                    onClick={() => {
+                      handleAdminClick();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    style={{ width: '100%', maxWidth: 'none' }}
+                  >
+                    {t('header.manage')}
+                  </button>
+                )}
+                <button 
+                  className="pretty-button danger"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  style={{ width: '100%', maxWidth: 'none' }}
+                >
+                  {t('header.logout')}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="signup" style={{ textDecoration: 'none' }}>
+                  <button 
+                    className="pretty-button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ width: '100%', maxWidth: 'none' }}
+                  >
+                    {t('header.signUp')}
+                  </button>
+                </Link>
+                <Link to="/signin" style={{ textDecoration: 'none' }}>
+                  <button 
+                    className="pretty-button danger"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ width: '100%', maxWidth: 'none' }}
+                  >
+                    {t('header.signIn')}
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

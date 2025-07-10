@@ -99,6 +99,15 @@
     "loadMore": "Tải thêm",
     "failedToLoadGirls": "Không thể tải dữ liệu gái gọi"
   },
+  "infoSection": {
+    "title": "Black Phú Quốc",
+    "description": "Black Phú Quốc là nơi review gái gọi uy tín nhất Phú Quốc. Hoàn toàn miễn phí cho checker.",
+    "disclaimer": "* Lưu ý - Không đáp ứng trẻ nhỏ, gái các em",
+    "contactTitle": "Liên hệ ngay",
+    "contactDescription": "Gọi ngay để được tư vấn và đặt lịch hẹn với các em gái xinh đẹp nhất Phú Quốc.",
+    "zaloLabel": "Zalo",
+    "phoneNumber": "0965209115"
+  },
   "detail": {
     "backToList": "Quay lại danh sách",
     "contactInfo": "Thông tin liên hệ",
@@ -125,7 +134,9 @@
     "detailedPhotosComingSoon": "Hình ảnh chi tiết sẽ được cập nhật sớm",
     "cannotLoadReviews": "Không thể tải đánh giá",
     "submitReviewFailed": "Gửi đánh giá thất bại",
-    "image": "Hình ảnh"
+    "image": "Hình ảnh",
+    "zaloNotAvailable": "Số Zalo không có sẵn cho bé này.",
+    "openZalo": "Mở Zalo"
   },
   "admin": {
     "dashboard": "Bảng điều khiển",

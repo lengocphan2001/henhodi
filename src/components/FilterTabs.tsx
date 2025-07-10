@@ -1,10 +1,10 @@
 import React from 'react';
 
-type FilterTabsProps = {
+interface FilterTabsProps {
   filters: string[];
   activeFilter: string;
   onFilterChange: (filter: string) => void;
-};
+}
 
 const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilterChange }) => (
   <div style={{ 
@@ -45,11 +45,15 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilter
             : 'var(--shadow-sm)',
           transform: f === activeFilter ? 'translateY(-1px)' : 'translateY(0)',
           whiteSpace: 'nowrap',
-          minWidth: 'fit-content'
+          minWidth: 'fit-content',
+          minHeight: '44px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
         onClick={() => onFilterChange(f)}
         onMouseEnter={(e) => {
-          if (f !== activeFilter) {
+          if (window.innerWidth > 768 && f !== activeFilter) {
             e.currentTarget.style.background = '#2a2d35';
             e.currentTarget.style.color = '#fff';
             e.currentTarget.style.transform = 'translateY(-1px)';
@@ -57,11 +61,21 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilter
           }
         }}
         onMouseLeave={(e) => {
-          if (f !== activeFilter) {
+          if (window.innerWidth > 768 && f !== activeFilter) {
             e.currentTarget.style.background = '#181a20';
             e.currentTarget.style.color = '#d1d5db';
             e.currentTarget.style.transform = 'translateY(0)';
             e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+          }
+        }}
+        onTouchStart={(e) => {
+          if (f !== activeFilter) {
+            e.currentTarget.style.transform = 'scale(0.98)';
+          }
+        }}
+        onTouchEnd={(e) => {
+          if (f !== activeFilter) {
+            e.currentTarget.style.transform = f === activeFilter ? 'translateY(-1px)' : 'translateY(0)';
           }
         }}
       >

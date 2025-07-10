@@ -98,8 +98,16 @@ const Footer: React.FC = () => {
                 width: '20px', 
                 height: '20px', 
                 background: 'linear-gradient(135deg, #00c3ff, #ffb347)', 
-                borderRadius: '50%' 
-              }}></div>
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: '#fff',
+                fontWeight: 'bold'
+              }}>
+                Z
+              </div>
               <span>{t('footer.zalo')}</span>
             </div>
             <div style={{ 
@@ -114,8 +122,16 @@ const Footer: React.FC = () => {
                 width: '20px', 
                 height: '20px', 
                 background: 'linear-gradient(135deg, #ff5e62, #ffb347)', 
-                borderRadius: '50%' 
-              }}></div>
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: '#fff',
+                fontWeight: 'bold'
+              }}>
+                📞
+              </div>
               <span>{t('footer.hotline')}</span>
             </div>
             <div style={{ 
@@ -130,8 +146,16 @@ const Footer: React.FC = () => {
                 width: '20px', 
                 height: '20px', 
                 background: 'linear-gradient(135deg, #43e97b, #38f9d7)', 
-                borderRadius: '50%' 
-              }}></div>
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: '#fff',
+                fontWeight: 'bold'
+              }}>
+                ✉️
+              </div>
               <span>{t('footer.email')}</span>
             </div>
           </div>

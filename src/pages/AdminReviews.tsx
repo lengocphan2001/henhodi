@@ -444,10 +444,13 @@ const AdminReviews: React.FC = () => {
                             fontFamily: 'var(--font-heading)',
                             fontSize: 'var(--text-xs)',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
                           }}
                         >
-                          Delete
+                          🗑️ Delete
                         </button>
                       </div>
                     </td>
