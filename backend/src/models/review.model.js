@@ -4,7 +4,7 @@ export const getAllReviews = async (limit = 10, offset = 0, girlId = null) => {
   limit = Number(limit) || 10;
   offset = Number(offset) || 0;
   let query = `
-    SELECT r.*, u.username, u.phone, u.profile, u.fullName
+    SELECT r.*, u.username, u.phone, u.profile
     FROM reviews r 
     LEFT JOIN users u ON r.userId = u.id
   `;
@@ -25,7 +25,7 @@ export const getAllReviews = async (limit = 10, offset = 0, girlId = null) => {
 
 export const getReviewById = async (id) => {
   const [rows] = await db.query(`
-    SELECT r.*, u.username, u.profile 
+    SELECT r.*, u.username, u.phone, u.profile
     FROM reviews r 
     LEFT JOIN users u ON r.userId = u.id 
     WHERE r.id = ?

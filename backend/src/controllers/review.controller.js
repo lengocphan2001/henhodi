@@ -10,8 +10,20 @@ export const getAll = async (req, res) => {
     const reviews = await Review.getAllReviews(limitNum, offset, girlId);
     const total = await Review.getTotalReviews(girlId);
     
+    // Process reviews to ensure proper structure
+    const processedReviews = reviews.map(review => ({
+      ...review,
+      _id: review.id,
+      createdAt: review.created_at,
+      user: review.username ? {
+        username: review.username,
+        phone: review.phone,
+        profile: review.profile ? JSON.parse(review.profile) : null
+      } : null
+    }));
+    
     res.json({
-      data: reviews,
+      data: processedReviews,
       total,
       page: pageNum,
       limit: limitNum,
@@ -45,7 +57,19 @@ export const create = async (req, res) => {
     // Fetch the created review with user information
     const reviewWithUser = await Review.getReviewById(review.id);
     
-    res.status(201).json(reviewWithUser);
+    // Process the review to match the getAll structure
+    const processedReview = {
+      ...reviewWithUser,
+      _id: reviewWithUser.id,
+      createdAt: reviewWithUser.created_at,
+      user: reviewWithUser.username ? {
+        username: reviewWithUser.username,
+        phone: reviewWithUser.phone,
+        profile: reviewWithUser.profile ? JSON.parse(reviewWithUser.profile) : null
+      } : null
+    };
+    
+    res.status(201).json(processedReview);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

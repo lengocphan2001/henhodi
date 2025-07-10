@@ -402,7 +402,7 @@ const Detail: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#6fa3ff'
                   }}>
-                    {maskPhone(c.user?.phone)}:
+                    {maskPhone(c.user?.phone || c.phone)}:
                   </span> {c.comment}
                 </div>
               ))}

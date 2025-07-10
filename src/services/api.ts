@@ -159,8 +159,9 @@ export interface Review {
     phone?: string;
     profile?: {
       fullName?: string;
+      avatar?: string;
+      address?: string;
     };
-    fullName?: string;
   };
   phone?: string;
 }
