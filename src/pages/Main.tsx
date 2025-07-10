@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './SignUp.module.css';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import InfoSection from '../components/InfoSection';
 import FilterTabs from '../components/FilterTabs';
 import CardGrid from '../components/CardGrid';
@@ -118,7 +117,6 @@ const Main: React.FC = () => {
       color: 'white',
       flex: 1
     }}>
-      <Header />
       <InfoSection />
       <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       <CardGrid girls={filteredGirls} />

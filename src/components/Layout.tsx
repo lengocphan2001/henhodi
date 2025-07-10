@@ -1,5 +1,6 @@
 import React from 'react';
 import Footer from './Footer';
+import Header from './Header';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showFooter = true }) => {
       display: 'flex',
       flexDirection: 'column'
     }}>
+      <Header />
       <main style={{ 
         flex: 1,
         display: 'flex',

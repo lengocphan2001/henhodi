@@ -602,56 +602,34 @@ const AdminGirls: React.FC = () => {
         }}>
           <Link to="/admin" style={{ textDecoration: 'none' }}>
             <button style={{
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: 'transparent',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
+              padding: 'var(--space-2) var(--space-2)',
               color: '#fff',
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-medium)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-            >
-              <span style={{ fontSize: '16px' }}>←</span>
-              {t('admin.backToDashboard')}
+              transition: 'all 0.2s ease'
+            }}>
+              ← {t('admin.backToDashboard')}
             </button>
           </Link>
           <h1 style={{ 
             fontFamily: 'var(--font-heading)',
             fontSize: 'var(--text-2xl)',
             fontWeight: 'var(--font-bold)',
-            color: '#667eea',
-            whiteSpace: 'nowrap'
+            color: '#667eea'
           }}>
             {t('admin.girlManagement')}
           </h1>
         </div>
         <div style={{ 
           display: 'flex', 
-          gap: 'var(--space-4)',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          minWidth: 0
+          gap: 'var(--space-3)',
+          alignItems: 'center'
         }}>
-          <div style={{ flexShrink: 0, minWidth: '160px' }}>
-            <LanguageSwitcher />
-          </div>
+          <LanguageSwitcher />
           <button
             onClick={openCreateModal}
             style={{
@@ -660,11 +638,11 @@ const AdminGirls: React.FC = () => {
               border: 'none',
               borderRadius: 'var(--radius-lg)',
               padding: 'var(--space-3) var(--space-6)',
+              fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-sm)',
               fontWeight: 'var(--font-semibold)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              flexShrink: 0
+              transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-1px)';

@@ -130,32 +130,6 @@ const Detail: React.FC = () => {
       flex: 1
     }}>
       {/* Header */}
-      <header style={{ 
-        background: '#181a20', 
-        padding: 'var(--space-6)', 
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 'var(--space-4)'
-      }}>
-        <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          <img 
-            src="/assets/logo.png" 
-            alt="HEHODI Logo" 
-            style={{ 
-              height: '40px', 
-              width: 'auto',
-              borderRadius: '8px'
-            }} 
-          />
-        </Link>
-        <div style={{ flexShrink: 0, minWidth: '160px' }}>
-          <LanguageSwitcher />
-        </div>
-      </header>
-
       <div style={{ 
         maxWidth: 'var(--container-xl)', 
         margin: '0 auto', 

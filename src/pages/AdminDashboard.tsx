@@ -102,63 +102,6 @@ const AdminDashboard: React.FC = () => {
       flex: 1
     }}>
       {/* Header */}
-      <header style={{ 
-        background: '#181a20', 
-        padding: 'var(--space-6)', 
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 'var(--space-4)'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 'var(--space-2)',
-          flexShrink: 0
-        }}>
-          <img 
-            src="/assets/logo.png" 
-            alt="HEHODI Logo" 
-            style={{ 
-              height: '40px', 
-              width: 'auto',
-              borderRadius: '8px',
-              flexShrink: 0
-            }} 
-          />
-          
-        </div>
-        <div style={{ 
-          display: 'flex', 
-          gap: 'var(--space-4)',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          minWidth: 0
-        }}>
-          <div style={{ flexShrink: 0, minWidth: '160px' }}>
-            <LanguageSwitcher />
-          </div>
-          <span style={{ 
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-sm)',
-            color: '#d1d5db',
-            whiteSpace: 'nowrap',
-            flexShrink: 0
-          }}>
-            {t('admin.welcome')}, {apiService.getUser()?.username}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="pretty-button danger"
-            style={{ flexShrink: 0 }}
-          >
-            {t('admin.logout')}
-          </button>
-        </div>
-      </header>
-
       <div className="responsive-container">
         {/* Navigation Cards */}
         <div className="dashboard-grid">
