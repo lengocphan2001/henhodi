@@ -674,10 +674,6 @@ html {
     max-width: 100% !important;
     margin: 0 auto;
   }
-  
-  .girl-card img {
-    height: 200px !important;
-  }
 }
 
 /* Form responsive improvements */
