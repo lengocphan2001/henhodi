@@ -138,11 +138,11 @@ export const createGirl = async (girl) => {
   // Prepare the data without the img field (BLOB field)
   const defaultInfo = {
     'Người đánh giá': '',
-    'ZALO': girl.zalo || '',
+    'ZALO': '',
     'Giá qua đêm': girl.price || '',
     'Giá phòng': '',
     'Năm sinh': '',
-    'Khu vực': girl.area || '',
+    'Khu vực': '',
     'Chiều cao': '',
     'Cân nặng': '',
     'Số đo': ''

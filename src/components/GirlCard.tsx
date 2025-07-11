@@ -201,7 +201,6 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             transition: 'all 0.2s ease',
             boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
             marginTop: 'auto',
-            minHeight: '44px',
             width: '100%',
             display: 'flex',
             alignItems: 'center',

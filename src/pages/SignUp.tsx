@@ -115,7 +115,7 @@ const SignUp: React.FC = () => {
             </div>
             <div className={styles.zaloRow}>
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>0965209115</span>
+              <span className={styles.phone}>0568369124</span>
             </div>
             <div className={styles.zaloRow}>
               <div className={styles.zaloIcon}></div>

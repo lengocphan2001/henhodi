@@ -237,9 +237,17 @@ const AdminGirls: React.FC = () => {
     setError('');
     
     try {
+      // Ensure info object has ZALO and Khu vực populated from top-level fields
+      const updatedInfo = {
+        ...formData.info,
+        'ZALO': formData.zalo || '',
+        'Khu vực': formData.area || ''
+      };
+
       // Create girl first with placeholder image
       const girlData = {
         ...formData,
+        info: updatedInfo,
         img: 'https://via.placeholder.com/300x400?text=No+Image' // Start with placeholder
       } as CreateGirlRequest;
 
@@ -371,6 +379,13 @@ const AdminGirls: React.FC = () => {
     console.log('handleUpdateGirl - using girlId:', girlId);
     
     try {
+      // Ensure info object has ZALO and Khu vực populated from top-level fields
+      const updatedInfo = {
+        ...formData.info,
+        'ZALO': formData.zalo || '',
+        'Khu vực': formData.area || ''
+      };
+
       // Upload image first if selected
       let imageUrl = formData.img;
       if (selectedImage) {
@@ -385,6 +400,7 @@ const AdminGirls: React.FC = () => {
 
       const girlData = {
         ...formData,
+        info: updatedInfo,
         img: imageUrl
       } as UpdateGirlRequest;
 
