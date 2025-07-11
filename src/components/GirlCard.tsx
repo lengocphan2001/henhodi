@@ -190,7 +190,7 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             color: '#fff', 
             border: 'none', 
             borderRadius: 'var(--radius-xl)', 
-            padding: 'var(--space-2) 0', 
+            padding: 'var(--space-3) 0', 
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-semibold)', 
             fontSize: 'var(--text-base)', 
@@ -198,25 +198,24 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
             lineHeight: 'var(--leading-tight)',
             letterSpacing: 'var(--tracking-wide)',
             textTransform: 'uppercase',
-            transition: 'all 0.2s ease',
+            transition: 'transform 0.2s ease',
             boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-            marginTop: 'auto',
             width: '100%',
+            minHeight: '44px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            gap: '8px',
+            animation: 'buttonColorChange 4s ease-in-out infinite'
           }}
           onMouseEnter={(e) => {
             if (window.innerWidth > 768) {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
             }
           }}
           onMouseLeave={(e) => {
             if (window.innerWidth > 768) {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
             }
           }}
           onTouchStart={(e) => {
