@@ -17,7 +17,6 @@ const CardGrid: React.FC<CardGridProps> = ({ girls }) => {
         gap: 'var(--space-6)',
         marginBottom: 'var(--space-12)',
         padding: '0 var(--space-6)',
-        minHeight: '480px',
         justifyContent: 'center',
         alignItems: 'flex-start'
       }}
