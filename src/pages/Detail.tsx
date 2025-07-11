@@ -230,15 +230,17 @@ const Detail: React.FC = () => {
               flexWrap: 'wrap'
             }}>
               {Array.from({ length: 5 }).map((_, i) => {
-                const full = i + 1 <= Math.floor(girl.rating);
-                const half = !full && i + 0.5 <= girl.rating;
+                const value = Number(girl.rating) || 0;
+                let star = '☆';
+                if (value >= i + 1) star = '★';
+                else if (value >= i + 0.5) star = '⯨';
                 return (
                   <span key={i} style={{ 
                     color: '#ffb347', 
                     fontSize: 'var(--text-xl)',
                     textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
                   }}>
-                    {full ? '★' : half ? '⯨' : '☆'}
+                    {star}
                   </span>
                 );
               })}
