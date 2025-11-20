@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiService, User, Girl } from '../services/api';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import AdminLayout from '../components/AdminLayout';
+import { formatPriceVND } from '../utils/formatPrice';
 
 interface DashboardStats {
   totalUsers: number;
@@ -29,6 +30,7 @@ const AdminDashboard: React.FC = () => {
     }
 
     loadDashboardStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const loadDashboardStats = async () => {
@@ -48,258 +50,69 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    apiService.logout();
-    navigate('/signin');
-  };
-
-  if (loading) {
-    return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#232733', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center' 
-      }}>
-        <div style={{ 
-          color: '#fff', 
-          fontFamily: 'var(--font-heading)',
-          fontSize: 'var(--text-xl)',
-          textAlign: 'center'
-        }}>
-          {t('admin.loadingDashboard')}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#232733', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center' 
-      }}>
-        <div style={{ 
-          color: '#ff5e62', 
-          fontFamily: 'var(--font-heading)',
-          fontSize: 'var(--text-lg)',
-          textAlign: 'center'
-        }}>
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ 
-      background: '#232733',
-      color: '#fff',
-      flex: 1
-    }}>
-      {/* Header */}
-      <div className="responsive-container">
-        {/* Navigation Cards */}
-        <div className="dashboard-grid">
-          <Link to="/admin/users" style={{ textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #667eea, #764ba2)', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              color: '#fff',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            >
-              <div style={{ 
-                fontSize: 'var(--text-3xl)', 
-                marginBottom: 'var(--space-2)'
-              }}>
-                👥
-              </div>
-              <h3 style={{ 
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-xl)',
-                fontWeight: 'var(--font-bold)',
-                marginBottom: 'var(--space-2)'
-              }}>
-                {t('admin.userManagement')}
-              </h3>
-              <p style={{ 
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                opacity: 0.9
-              }}>
-                {t('admin.manageUsersRoles')}
-              </p>
-            </div>
-          </Link>
-
-          <Link to="/admin/girls" style={{ textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #f093fb, #f5576c)', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              color: '#fff',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            >
-              <div style={{ 
-                fontSize: 'var(--text-3xl)', 
-                marginBottom: 'var(--space-2)'
-              }}>
-                💃
-              </div>
-              <h3 style={{ 
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-xl)',
-                fontWeight: 'var(--font-bold)',
-                marginBottom: 'var(--space-2)'
-              }}>
-                {t('admin.girlManagement')}
-              </h3>
-              <p style={{ 
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                opacity: 0.9
-              }}>
-                {t('admin.manageGirlsProfiles')}
-              </p>
-            </div>
-          </Link>
-
-          <Link to="/admin/reviews" style={{ textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #4facfe, #00f2fe)', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              color: '#fff',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            >
-              <div style={{ 
-                fontSize: 'var(--text-3xl)', 
-                marginBottom: 'var(--space-2)'
-              }}>
-                ⭐
-              </div>
-              <h3 style={{ 
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-xl)',
-                fontWeight: 'var(--font-bold)',
-                marginBottom: 'var(--space-2)'
-              }}>
-                {t('admin.reviewManagement')}
-              </h3>
-              <p style={{ 
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                opacity: 0.9
-              }}>
-                {t('admin.manageReviewsRatings')}
-              </p>
-            </div>
-          </Link>
-
-          <Link to="/main" style={{ textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #43e97b, #38f9d7)', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              color: '#fff',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            >
-              <div style={{ 
-                fontSize: 'var(--text-3xl)', 
-                marginBottom: 'var(--space-2)'
-              }}>
-                🏠
-              </div>
-              <h3 style={{ 
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-xl)',
-                fontWeight: 'var(--font-bold)',
-                marginBottom: 'var(--space-2)'
-              }}>
-                {t('admin.viewSite')}
-              </h3>
-              <p style={{ 
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                opacity: 0.9
-              }}>
-                {t('admin.goToMainWebsite')}
-              </p>
-            </div>
-          </Link>
+    <AdminLayout>
+      {loading && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '400px'
+        }}>
+          <div style={{ 
+            color: '#fff', 
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-xl)',
+            textAlign: 'center'
+          }}>
+            {t('admin.loadingDashboard')}
+          </div>
         </div>
+      )}
 
-        {/* Statistics */}
-        {stats && (
-          <>
-            <h2 style={{ 
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-2xl)',
-              fontWeight: 'var(--font-bold)',
-              marginBottom: 'var(--space-6)',
-              color: '#ff7a00'
-            }}>
-              {t('admin.dashboardStatistics')}
-            </h2>
+      {error && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '400px'
+        }}>
+          <div style={{ 
+            color: '#ff5e62', 
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-lg)',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        </div>
+      )}
 
+      {!loading && !error && stats && (
+        <>
+          <h1 style={{ 
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 'var(--font-bold)',
+            marginBottom: 'var(--space-6)',
+            color: '#ff7a00'
+          }}>
+            Dashboard
+          </h1>
+
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 'var(--space-3)',
+            marginBottom: 'var(--space-6)'
+          }}>
             <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 'var(--space-2)',
-              marginBottom: 'var(--space-8)'
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)', 
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-xl)', 
-                padding: 'var(--space-5)', 
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
                 <div style={{ 
                   fontSize: 'var(--text-3xl)', 
                   marginBottom: 'var(--space-2)'
@@ -323,13 +136,13 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-xl)', 
-                padding: 'var(--space-5)', 
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
+            <div style={{ 
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)', 
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
                 <div style={{ 
                   fontSize: 'var(--text-3xl)', 
                   marginBottom: 'var(--space-2)'
@@ -353,13 +166,13 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-xl)', 
-                padding: 'var(--space-5)', 
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
+            <div style={{ 
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)', 
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
                 <div style={{ 
                   fontSize: 'var(--text-3xl)', 
                   marginBottom: 'var(--space-2)'
@@ -383,13 +196,13 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-xl)', 
-                padding: 'var(--space-5)', 
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
+            <div style={{ 
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)', 
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
                 <div style={{ 
                   fontSize: 'var(--text-3xl)', 
                   marginBottom: 'var(--space-2)'
@@ -414,19 +227,19 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Recent Activity */}
+          {/* Recent Activity */}
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 'var(--space-4)'
+          }}>
+            {/* Recent Users */}
             <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-              gap: 'var(--space-6)'
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
-              {/* Recent Users */}
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-2xl)', 
-                padding: 'var(--space-6)',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
                 <h3 style={{ 
                   fontFamily: 'var(--font-heading)',
                   fontSize: 'var(--text-lg)',
@@ -443,9 +256,9 @@ const AdminDashboard: React.FC = () => {
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        padding: 'var(--space-3)',
+                        padding: 'var(--space-2)',
                         background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 'var(--radius-lg)'
+                        borderRadius: 'var(--radius-sm)'
                       }}>
                         <div>
                           <div style={{ 
@@ -490,13 +303,13 @@ const AdminDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Recent Girls */}
-              <div style={{ 
-                background: '#181a20', 
-                borderRadius: 'var(--radius-2xl)', 
-                padding: 'var(--space-6)',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
+            {/* Recent Girls */}
+            <div style={{ 
+              background: '#181a20', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: 'var(--space-4)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
                 <h3 style={{ 
                   fontFamily: 'var(--font-heading)',
                   fontSize: 'var(--text-lg)',
@@ -513,9 +326,9 @@ const AdminDashboard: React.FC = () => {
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        padding: 'var(--space-3)',
+                        padding: 'var(--space-2)',
                         background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 'var(--radius-lg)'
+                        borderRadius: 'var(--radius-sm)'
                       }}>
                         <div>
                           <div style={{ 
@@ -530,7 +343,7 @@ const AdminDashboard: React.FC = () => {
                             fontSize: 'var(--text-xs)',
                             color: '#d1d5db'
                           }}>
-                            {girl.area} • {girl.price}
+                            {girl.area} • {formatPriceVND(girl.price)}
                           </div>
                         </div>
                         <div style={{ 
@@ -562,11 +375,10 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </AdminLayout>
   );
 };
 

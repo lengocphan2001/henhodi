@@ -4,6 +4,7 @@ import styles from './SignUp.module.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { apiService, Review, User } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { formatPriceVND } from '../utils/formatPrice';
 
 // Type for the girl prop
 type Girl = {
@@ -31,6 +32,14 @@ const Detail: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [activeTab, setActiveTab] = useState<'info' | 'reviews'>('info');
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   // Get girl data from location state (passed from main page)
   const girl: Girl = location.state?.girl || {
     name: 'LYLY GÁI GỌI',
@@ -59,31 +68,82 @@ const Detail: React.FC = () => {
   const [newReview, setNewReview] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Fetch reviews on mount
+  
+  // Get stable girlId from location state
+  const girlId = React.useMemo(() => {
+    const g = location.state?.girl;
+    return g?.id || g?._id || girl.id || girl._id;
+  }, [location.state?.girl, girl.id, girl._id]);
+  
+  const girlIdStr = girlId ? girlId.toString() : null;
+  
+  // Increment view count - only once per girlId using sessionStorage
   useEffect(() => {
+    if (!girlIdStr) {
+      return;
+    }
+    
+    // Use sessionStorage to track viewed girls in this session
+    // This persists across React StrictMode double-mounts
+    const storageKey = `viewed_girl_${girlIdStr}`;
+    const hasViewed = sessionStorage.getItem(storageKey);
+    
+    if (hasViewed) {
+      // Already incremented view for this girl in this session
+      return;
+    }
+    
+    // Mark as viewed immediately (synchronously) to prevent duplicate calls
+    sessionStorage.setItem(storageKey, 'true');
+    
+    // Increment view count asynchronously
+    apiService.incrementView(girlIdStr)
+      .catch((err) => {
+        console.error('Error incrementing view:', err);
+        // Remove from sessionStorage on error so it can be retried
+        sessionStorage.removeItem(storageKey);
+      });
+  }, [girlIdStr]);
+
+  // Fetch reviews on mount - only once per girlId using sessionStorage
+  useEffect(() => {
+    if (!girlIdStr) {
+      console.log('No girlId found');
+      return;
+    }
+    
+    // Use sessionStorage to track fetched reviews in this session
+    // This persists across React StrictMode double-mounts
+    const storageKey = `reviews_fetched_${girlIdStr}`;
+    const hasFetched = sessionStorage.getItem(storageKey);
+    
+    if (hasFetched) {
+      // Already fetched reviews for this girl in this session
+      // Skip to prevent duplicate calls
+      return;
+    }
+    
+    // Mark as fetched immediately (synchronously) to prevent duplicate calls
+    sessionStorage.setItem(storageKey, 'true');
+    
     const fetchReviews = async () => {
-      const girlId = girl.id || girl._id;
-      if (!girlId) {
-        console.log('No girlId found');
-        return;
-      }
       try {
-        console.log('Fetching reviews for girlId:', girlId);
-        const res = await apiService.getReviews(girlId.toString());
+        console.log('Fetching reviews for girlId:', girlIdStr);
+        const res = await apiService.getReviews(girlIdStr);
         console.log('Review API response:', res);
         if (res.success && res.data) {
           setReviews(res.data.data);
-          // User information is now included directly in the review data
-          // No need to fetch user details separately
         }
       } catch (err) {
         setError(t('detail.cannotLoadReviews'));
         console.error('Error fetching reviews:', err);
+        // Remove from sessionStorage on error so it can be retried
+        sessionStorage.removeItem(storageKey);
       }
     };
+    
     fetchReviews();
-  }, [girl.id, girl._id]);
+  }, [girlIdStr, t]);
 
   // Submit review
   const handleSubmitReview = async () => {
@@ -137,91 +197,193 @@ const Detail: React.FC = () => {
       <div style={{ 
         maxWidth: 'var(--container-xl)', 
         margin: '0 auto', 
-        padding: 'var(--space-6)',
-        paddingTop: 'var(--space-8)'
+        padding: isMobile ? 'var(--space-3)' : 'var(--space-5)',
+        paddingTop: isMobile ? 'var(--space-4)' : 'var(--space-6)'
       }}>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ 
-            marginBottom: 'var(--space-6)', 
-            background: 'rgba(255, 255, 255, 0.05)',
-            color: '#fff', 
-            border: '1px solid rgba(255, 255, 255, 0.2)', 
-            borderRadius: 'var(--radius-lg)', 
-            padding: 'var(--space-3) var(--space-4)', 
-            fontFamily: 'var(--font-heading)',
-            fontWeight: 'var(--font-medium)', 
-            fontSize: 'var(--text-base)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
+        {/* Breadcrumb */}
+        <nav style={{ 
+          marginBottom: isMobile ? 'var(--space-4)' : 'var(--space-5)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? 'var(--space-1)' : 'var(--space-2)',
+          flexWrap: 'wrap',
+          lineHeight: '1.5'
+        }}>
+          <Link 
+            to="/"
+            style={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-1)',
+              lineHeight: '1.5'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+            }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: '1' }}>🏠</span>
+            <span>Trang chủ</span>
+          </Link>
+          <span style={{ 
+            color: 'rgba(255, 255, 255, 0.4)',
+            fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: 'var(--space-2)',
-            textTransform: 'uppercase',
-            letterSpacing: 'var(--tracking-wide)',
-            lineHeight: 'var(--leading-tight)',
-            boxShadow: 'none',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          <span style={{ fontSize: '16px' }}>←</span>
-          {t('detail.backToList')}
-        </button>
+            lineHeight: '1.5'
+          }}>
+            /
+          </span>
+          <Link 
+            to="/"
+            style={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              lineHeight: '1.5'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+            }}
+          >
+            Danh sách
+          </Link>
+          <span style={{ 
+            color: 'rgba(255, 255, 255, 0.4)',
+            fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            lineHeight: '1.5'
+          }}>
+            /
+          </span>
+          <span style={{
+            color: '#fff',
+            fontFamily: 'var(--font-heading)',
+            fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+            fontWeight: 'var(--font-medium)',
+            maxWidth: isMobile ? '150px' : '300px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            lineHeight: '1.5'
+          }}>
+            {girl.name}
+          </span>
+        </nav>
         <div style={{ 
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: 'var(--space-8)', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: isMobile ? 'var(--space-4)' : 'var(--space-6)', 
           alignItems: 'flex-start', 
-          marginBottom: 'var(--space-8)'
+          marginBottom: isMobile ? 'var(--space-5)' : 'var(--space-6)'
         }}>
           {/* Left: Main image and info */}
           <div style={{ 
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-2)',
+            gap: 'var(--space-1)',
             maxWidth: '400px',
             justifySelf: 'center',
             width: '100%'
           }}>
+            {/* HOT Badge and Title - Above image */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'start', 
+              gap: 'var(--space-3)', 
+              marginBottom: 'var(--space-2)', 
+              flexWrap: 'nowrap'
+            }}>
+              <span style={{ 
+                background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
+                color: '#fff', 
+                borderRadius: 'var(--radius-lg)', 
+                padding: 'var(--space-1) var(--space-2)', 
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 'var(--font-bold)', 
+                fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+                lineHeight: 'var(--leading-tight)',
+                letterSpacing: 'var(--tracking-wide)',
+                textTransform: 'uppercase',
+                boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
+                whiteSpace: 'nowrap'
+              }}>
+                HOT
+              </span>
+              <span style={{ 
+                color: '#ff7a00', 
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 'var(--font-bold)', 
+                fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)',
+                lineHeight: 'var(--leading-tight)',
+                letterSpacing: 'var(--tracking-tight)',
+                wordBreak: 'break-word'
+              }}>
+                {girl.name} - {girl.area} - {girl.description}
+              </span>
+            </div>
             <img src={girl.img} alt={girl.name} style={{ 
               width: '100%', 
-              height: '400px', 
+              height: isMobile ? '280px' : '360px', 
               objectFit: 'cover', 
-              borderRadius: 'var(--radius-2xl)', 
+              borderRadius: 'var(--radius-xl)', 
               marginBottom: 'var(--space-2)',
-              boxShadow: 'var(--shadow-lg)'
+              boxShadow: 'var(--shadow-md)'
             }} />
             <div style={{ 
               color: '#fff', 
               fontFamily: 'var(--font-heading)',
               fontWeight: 'var(--font-bold)', 
-              fontSize: 'var(--text-xl)', 
+              fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)', 
               lineHeight: 'var(--leading-tight)',
               letterSpacing: 'var(--tracking-tight)',
               marginBottom: 'var(--space-1)',
-              wordBreak: 'break-word'
+              wordBreak: 'break-word',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
             }}>
               {girl.name}
             </div>
             <div style={{ 
               color: '#d1d5db', 
               fontFamily: 'var(--font-primary)',
-              fontSize: 'var(--text-base)', 
+              fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)', 
               lineHeight: 'var(--leading-normal)',
               letterSpacing: 'var(--tracking-normal)',
-              marginBottom: 'var(--space-3)'
+              marginBottom: isMobile ? 'var(--space-1)' : 'var(--space-2)'
             }}>
               {girl.area}
             </div>
+            {girl.description && (
+              <div style={{ 
+                color: '#fff', 
+                fontFamily: 'var(--font-primary)',
+                fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)', 
+                lineHeight: 'var(--leading-relaxed)',
+                letterSpacing: 'var(--tracking-normal)',
+                marginBottom: isMobile ? 'var(--space-2)' : 'var(--space-3)',
+                opacity: 0.95,
+                textShadow: '0 1px 3px rgba(0, 0, 0, 0.6)'
+              }}>
+                {girl.description}
+              </div>
+            )}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -237,7 +399,7 @@ const Detail: React.FC = () => {
                 return (
                   <span key={i} style={{ 
                     color: '#ffb347', 
-                    fontSize: 'var(--text-xl)',
+                    fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)',
                     textShadow: '0 1px 2px rgba(255, 179, 71, 0.3)'
                   }}>
                     {star}
@@ -248,10 +410,10 @@ const Detail: React.FC = () => {
                 color: '#fff',
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 600,
-                fontSize: 'var(--text-base)',
-                marginLeft: '8px'
+                fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
+                marginLeft: '6px'
               }}>
-                {Number(girl.rating || 0).toFixed(2)}
+                {Number(girl.rating || 0).toFixed(1)}
               </span>
             </div>
             <div style={{ 
@@ -263,42 +425,42 @@ const Detail: React.FC = () => {
               <span style={{ 
                 background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
                 color: '#fff', 
-                borderRadius: 'var(--radius-lg)', 
-                padding: 'var(--space-2) var(--space-2)', 
+                borderRadius: 'var(--radius-md)', 
+                padding: isMobile ? 'var(--space-1) var(--space-2)' : 'var(--space-2) var(--space-3)', 
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 'var(--font-semibold)', 
-                fontSize: 'var(--text-sm)',
+                fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
                 lineHeight: 'var(--leading-tight)',
                 letterSpacing: 'var(--tracking-wide)',
                 textTransform: 'uppercase',
-                boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
+                boxShadow: '0 2px 6px rgba(255, 122, 0, 0.25)',
                 whiteSpace: 'nowrap',
                 animation: 'colorChange 3s ease-in-out infinite'
               }}>
-                {t('detail.quickPrice')} : {girl.price}
+                {t('detail.quickPrice')} : {formatPriceVND(girl.price)}
               </span>
             </div>
             <button style={{ 
               background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
               color: '#fff', 
               border: 'none', 
-              borderRadius: 'var(--radius-xl)', 
-              padding: 'var(--space-2) 0', 
+              borderRadius: 'var(--radius-lg)', 
+              padding: isMobile ? 'var(--space-2) 0' : 'var(--space-3) 0', 
               fontFamily: 'var(--font-heading)',
               fontWeight: 'var(--font-semibold)', 
-              fontSize: 'var(--text-base)', 
+              fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)', 
               cursor: 'pointer',
               lineHeight: 'var(--leading-tight)',
               letterSpacing: 'var(--tracking-wide)',
               textTransform: 'uppercase',
               transition: 'transform 0.2s ease',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
               width: '100%',
-              minHeight: '44px',
+              minHeight: isMobile ? '40px' : '44px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
+              gap: '6px',
               animation: 'buttonColorChange 4s ease-in-out infinite'
             }}
             onMouseEnter={(e) => {
@@ -323,8 +485,8 @@ const Detail: React.FC = () => {
                   src="/assets/zalo.png" 
                   alt="Zalo" 
                   style={{ 
-                    width: '32px', 
-                    height: '32px',
+                    width: isMobile ? '24px' : '28px', 
+                    height: isMobile ? '24px' : '28px',
                     objectFit: 'contain'
                   }} 
                 />
@@ -332,182 +494,360 @@ const Detail: React.FC = () => {
             </button>
           </div>
           {/* Right: Details and comments */}
-          <div style={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-5)',
-            minWidth: '300px',
-            width: '100%'
-          }}>
             <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-3)', 
-              marginBottom: 'var(--space-2)', 
-              flexWrap: 'wrap'
+              display: 'flex',
+              flexDirection: 'column',
+              gap: isMobile ? 'var(--space-3)' : 'var(--space-4)',
+              minWidth: isMobile ? 'auto' : '300px',
+              width: '100%'
             }}>
-              <span style={{ 
-                background: 'linear-gradient(135deg, #ff7a00, #ff5e62)', 
-                color: '#fff', 
-                borderRadius: 'var(--radius-lg)', 
-                padding: 'var(--space-1) var(--space-2)', 
-                fontFamily: 'var(--font-heading)',
-                fontWeight: 'var(--font-bold)', 
-                fontSize: 'var(--text-sm)',
-                lineHeight: 'var(--leading-tight)',
-                letterSpacing: 'var(--tracking-wide)',
-                textTransform: 'uppercase',
-                boxShadow: '0 2px 8px rgba(255, 122, 0, 0.3)',
-                whiteSpace: 'nowrap'
-              }}>
-                HOT
-              </span>
-              <span style={{ 
-                color: '#ff7a00', 
-                fontFamily: 'var(--font-heading)',
-                fontWeight: 'var(--font-bold)', 
-                fontSize: 'var(--text-2xl)',
-                lineHeight: 'var(--leading-tight)',
-                letterSpacing: 'var(--tracking-tight)',
-                wordBreak: 'break-word'
-              }}>
-                {girl.name} - {girl.area} - {girl.description}
-              </span>
-            </div>
-            <div style={{ 
-              background: '#181a20', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: 'var(--shadow-lg)'
-            }}>
-              <div style={{ 
-                color: '#fff', 
-                fontFamily: 'var(--font-heading)',
-                fontWeight: 'var(--font-semibold)', 
-                marginBottom: 'var(--space-2)',
-                fontSize: 'var(--text-lg)',
-                lineHeight: 'var(--leading-tight)',
-                letterSpacing: 'var(--tracking-normal)'
-              }}>
-                {t('detail.checkerReviews')}
-              </div>
-              {error && <div style={{ color: '#ff5e62', marginBottom: 'var(--space-3)' }}>{error}</div>}
-              {reviews.length === 0 && (
-                <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: 'var(--space-3)' }}>
-                  {t('detail.noReviews')}
+            {/* Mobile Tabs */}
+            {isMobile ? (
+              <>
+                {/* Tab Buttons */}
+                <div style={{
+                  display: 'flex',
+                  gap: 'var(--space-2)',
+                  marginBottom: 'var(--space-3)',
+                  background: '#181a20',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: 'var(--space-1)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)'
+                }}>
+                  <button
+                    onClick={() => setActiveTab('info')}
+                    style={{
+                      flex: 1,
+                      background: activeTab === 'info' 
+                        ? 'linear-gradient(135deg, #ff7a00, #ff5e62)' 
+                        : 'transparent',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-2)',
+                      fontFamily: 'var(--font-heading)',
+                      fontWeight: 'var(--font-semibold)',
+                      fontSize: 'var(--text-sm)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    Thông tin
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('reviews')}
+                    style={{
+                      flex: 1,
+                      background: activeTab === 'reviews' 
+                        ? 'linear-gradient(135deg, #ff7a00, #ff5e62)' 
+                        : 'transparent',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-2)',
+                      fontFamily: 'var(--font-heading)',
+                      fontWeight: 'var(--font-semibold)',
+                      fontSize: 'var(--text-sm)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    Đánh giá
+                  </button>
                 </div>
-              )}
-              {reviews.map((c, i) => (
-                <div key={c._id || i} style={{ 
-                  color: '#d1d5db', 
+
+                {/* Tab Content */}
+                {activeTab === 'info' && (
+                  <div style={{ 
+                    background: '#181a20', 
+                    borderRadius: 'var(--radius-sm)', 
+                    padding: 'var(--space-4)', 
+                    color: '#fff', 
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: 'var(--text-xs)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    boxShadow: 'var(--shadow-md)',
+                    lineHeight: 'var(--leading-relaxed)',
+                    letterSpacing: 'var(--tracking-normal)'
+                  }}>
+                    {Object.entries(girl.info || {}).map(([key, value]) => {
+                      const displayValue = (key === 'Giá qua đêm' || key === 'Giá phòng' || key === 'Giá 1 lần') 
+                        ? formatPriceVND(value as string)
+                        : value;
+                      
+                      return (
+                        <div key={key} style={{ marginBottom: 'var(--space-2)' }}>
+                          <span style={{ 
+                            fontFamily: 'var(--font-heading)',
+                            fontWeight: 'var(--font-semibold)',
+                            color: '#ff7a00'
+                          }}>
+                            {key}:
+                          </span> {displayValue}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {activeTab === 'reviews' && (
+                  <div style={{ 
+                    background: '#181a20', 
+                    borderRadius: 'var(--radius-sm)', 
+                    padding: 'var(--space-4)', 
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    boxShadow: 'var(--shadow-md)'
+                  }}>
+                    <div style={{ 
+                      color: '#fff', 
+                      fontFamily: 'var(--font-heading)',
+                      fontWeight: 'var(--font-semibold)', 
+                      marginBottom: 'var(--space-2)',
+                      fontSize: 'var(--text-lg)',
+                      lineHeight: 'var(--leading-tight)',
+                      letterSpacing: 'var(--tracking-normal)'
+                    }}>
+                      {t('detail.checkerReviews')}
+                    </div>
+                    {error && <div style={{ color: '#ff5e62', marginBottom: 'var(--space-3)' }}>{error}</div>}
+                    {reviews.length === 0 && (
+                      <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: 'var(--space-3)' }}>
+                        {t('detail.noReviews')}
+                      </div>
+                    )}
+                    {reviews.map((c, i) => (
+                      <div key={c._id || i} style={{ 
+                        color: '#d1d5db', 
+                        fontFamily: 'var(--font-primary)',
+                        fontSize: 'var(--text-xs)', 
+                        marginBottom: 'var(--space-2)',
+                        lineHeight: 'var(--leading-relaxed)',
+                        letterSpacing: 'var(--tracking-normal)'
+                      }}>
+                        <span style={{ 
+                          fontFamily: 'var(--font-heading)',
+                          fontWeight: 'var(--font-semibold)',
+                          color: '#6fa3ff'
+                        }}>
+                          {maskPhone(c.user?.phone || c.phone)}:
+                        </span> {c.comment}
+                      </div>
+                    ))}
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: 'var(--space-2)', 
+                      marginTop: 'var(--space-3)',
+                      flexWrap: 'wrap',
+                      flexDirection: 'column'
+                    }}>
+                      <input 
+                        placeholder={t('detail.enterYourReview')} 
+                        style={{ 
+                          width: '100%', 
+                          borderRadius: 'var(--radius-sm)', 
+                          border: '1px solid rgba(255, 255, 255, 0.1)', 
+                          padding: 'var(--space-2)', 
+                          fontFamily: 'var(--font-primary)',
+                          fontSize: 'var(--text-xs)',
+                          background: '#232733',
+                          color: '#fff',
+                          outline: 'none',
+                          transition: 'all 0.2s ease',
+                          lineHeight: 'var(--leading-normal)',
+                          letterSpacing: 'var(--tracking-normal)'
+                        }}
+                        value={newReview}
+                        onChange={e => setNewReview(e.target.value)}
+                        disabled={submitting}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#3b82f6';
+                          e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                      <button 
+                        style={{ 
+                          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
+                          color: '#fff', 
+                          border: 'none', 
+                          borderRadius: 'var(--radius-sm)', 
+                          padding: 'var(--space-2)', 
+                          fontFamily: 'var(--font-heading)',
+                          fontWeight: 'var(--font-semibold)', 
+                          fontSize: 'var(--text-xs)', 
+                          cursor: 'pointer',
+                          lineHeight: 'var(--leading-tight)',
+                          letterSpacing: 'var(--tracking-wide)',
+                          textTransform: 'uppercase',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                          width: '100%'
+                        }}
+                        onClick={handleSubmitReview}
+                        disabled={submitting}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+                        }}
+                      >
+                        {submitting ? t('detail.sending') : t('detail.send')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Desktop: Show both sections */}
+                <div style={{ 
+                  background: '#181a20', 
+                  borderRadius: 'var(--radius-xl)', 
+                  padding: 'var(--space-5)', 
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  boxShadow: 'var(--shadow-md)'
+                }}>
+                  <div style={{ 
+                    color: '#fff', 
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 'var(--font-semibold)', 
+                    marginBottom: 'var(--space-2)',
+                    fontSize: 'var(--text-lg)',
+                    lineHeight: 'var(--leading-tight)',
+                    letterSpacing: 'var(--tracking-normal)'
+                  }}>
+                    {t('detail.checkerReviews')}
+                  </div>
+                  {error && <div style={{ color: '#ff5e62', marginBottom: 'var(--space-3)' }}>{error}</div>}
+                  {reviews.length === 0 && (
+                    <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: 'var(--space-3)' }}>
+                      {t('detail.noReviews')}
+                    </div>
+                  )}
+                  {reviews.map((c, i) => (
+                    <div key={c._id || i} style={{ 
+                      color: '#d1d5db', 
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)', 
+                      marginBottom: 'var(--space-2)',
+                      lineHeight: 'var(--leading-relaxed)',
+                      letterSpacing: 'var(--tracking-normal)'
+                    }}>
+                      <span style={{ 
+                        fontFamily: 'var(--font-heading)',
+                        fontWeight: 'var(--font-semibold)',
+                        color: '#6fa3ff'
+                      }}>
+                        {maskPhone(c.user?.phone || c.phone)}:
+                      </span> {c.comment}
+                    </div>
+                  ))}
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: 'var(--space-3)', 
+                    marginTop: 'var(--space-2)',
+                    flexWrap: 'wrap'
+                  }}>
+                    <input 
+                      placeholder={t('detail.enterYourReview')} 
+                      style={{ 
+                        flex: 1, 
+                        borderRadius: 'var(--radius-md)', 
+                        border: '1px solid rgba(255, 255, 255, 0.1)', 
+                        padding: 'var(--space-3)', 
+                        fontFamily: 'var(--font-primary)',
+                        fontSize: 'var(--text-sm)',
+                        background: '#232733',
+                        color: '#fff',
+                        outline: 'none',
+                        transition: 'all 0.2s ease',
+                        lineHeight: 'var(--leading-normal)',
+                        letterSpacing: 'var(--tracking-normal)',
+                        minWidth: '200px'
+                      }}
+                      value={newReview}
+                      onChange={e => setNewReview(e.target.value)}
+                      disabled={submitting}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#3b82f6';
+                        e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    />
+                    <button 
+                      style={{ 
+                        background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
+                        color: '#fff', 
+                        border: 'none', 
+                        borderRadius: 'var(--radius-md)', 
+                        padding: 'var(--space-3) var(--space-5)', 
+                        fontFamily: 'var(--font-heading)',
+                        fontWeight: 'var(--font-semibold)', 
+                        fontSize: 'var(--text-sm)', 
+                        cursor: 'pointer',
+                        lineHeight: 'var(--leading-tight)',
+                        letterSpacing: 'var(--tracking-wide)',
+                        textTransform: 'uppercase',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onClick={handleSubmitReview}
+                      disabled={submitting}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+                      }}
+                    >
+                      {submitting ? t('detail.sending') : t('detail.send')}
+                    </button>
+                  </div>
+                </div>
+                <div style={{ 
+                  background: '#181a20', 
+                  borderRadius: 'var(--radius-xl)', 
+                  padding: 'var(--space-5)', 
+                  color: '#fff', 
                   fontFamily: 'var(--font-primary)',
-                  fontSize: 'var(--text-base)', 
-                  marginBottom: 'var(--space-2)',
+                  fontSize: 'var(--text-sm)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  boxShadow: 'var(--shadow-md)',
                   lineHeight: 'var(--leading-relaxed)',
                   letterSpacing: 'var(--tracking-normal)'
                 }}>
-                  <span style={{ 
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 'var(--font-semibold)',
-                    color: '#6fa3ff'
-                  }}>
-                    {maskPhone(c.user?.phone || c.phone)}:
-                  </span> {c.comment}
+                  {Object.entries(girl.info || {}).map(([key, value]) => {
+                    const displayValue = (key === 'Giá qua đêm' || key === 'Giá phòng' || key === 'Giá 1 lần') 
+                      ? formatPriceVND(value as string)
+                      : value;
+                    
+                    return (
+                      <div key={key} style={{ marginBottom: 'var(--space-2)' }}>
+                        <span style={{ 
+                          fontFamily: 'var(--font-heading)',
+                          fontWeight: 'var(--font-semibold)',
+                          color: '#ff7a00'
+                        }}>
+                          {key}:
+                        </span> {displayValue}
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-              <div style={{ 
-                display: 'flex', 
-                gap: 'var(--space-3)', 
-                marginTop: 'var(--space-2)',
-                flexWrap: 'wrap'
-              }}>
-                <input 
-                  placeholder={t('detail.enterYourReview')} 
-                  style={{ 
-                    flex: 1, 
-                    borderRadius: 'var(--radius-lg)', 
-                    border: '1px solid rgba(255, 255, 255, 0.1)', 
-                    padding: 'var(--space-3) var(--space-2)', 
-                    fontFamily: 'var(--font-primary)',
-                    fontSize: 'var(--text-base)',
-                    background: '#232733',
-                    color: '#fff',
-                    outline: 'none',
-                    transition: 'all 0.2s ease',
-                    lineHeight: 'var(--leading-normal)',
-                    letterSpacing: 'var(--tracking-normal)',
-                    minWidth: '200px'
-                  }}
-                  value={newReview}
-                  onChange={e => setNewReview(e.target.value)}
-                  disabled={submitting}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-                <button 
-                  style={{ 
-                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
-                    color: '#fff', 
-                    border: 'none', 
-                    borderRadius: 'var(--radius-lg)', 
-                    padding: 'var(--space-3) var(--space-6)', 
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 'var(--font-semibold)', 
-                    fontSize: 'var(--text-base)', 
-                    cursor: 'pointer',
-                    lineHeight: 'var(--leading-tight)',
-                    letterSpacing: 'var(--tracking-wide)',
-                    textTransform: 'uppercase',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onClick={handleSubmitReview}
-                  disabled={submitting}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
-                  }}
-                >
-                  {submitting ? t('detail.sending') : t('detail.send')}
-                </button>
-              </div>
-            </div>
-            <div style={{ 
-              background: '#181a20', 
-              borderRadius: 'var(--radius-2xl)', 
-              padding: 'var(--space-6)', 
-              color: '#fff', 
-              fontFamily: 'var(--font-primary)',
-              fontSize: 'var(--text-base)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-              boxShadow: 'var(--shadow-lg)',
-              lineHeight: 'var(--leading-relaxed)',
-              letterSpacing: 'var(--tracking-normal)'
-            }}>
-              {Object.entries(girl.info || {}).map(([key, value]) => (
-                <div key={key} style={{ marginBottom: 'var(--space-3)' }}>
-                  <span style={{ 
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 'var(--font-semibold)',
-                    color: '#ff7a00'
-                  }}>
-                    {key}:
-                  </span> {value}
-                </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         </div>
         {/* Image gallery */}
@@ -516,7 +856,7 @@ const Detail: React.FC = () => {
             color: '#fff', 
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-semibold)', 
-            fontSize: 'var(--text-xl)', 
+            fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)', 
             marginBottom: 'var(--space-2)',
             lineHeight: 'var(--leading-tight)',
             letterSpacing: 'var(--tracking-normal)'
@@ -525,37 +865,67 @@ const Detail: React.FC = () => {
           </div>
           {girl.images && girl.images.length > 0 ? (
             <div style={{ 
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 'var(--space-5)',
-              justifyContent: 'left'
+              position: 'relative',
+              width: '100%',
+              overflow: 'hidden'
             }}>
-              {girl.images.map((image, index) => (
-                <img key={index} src={image} alt={`${girl.name} - ${t('detail.photo')} ${index + 1}`} style={{ 
-                  width: '100%', 
-                  aspectRatio: '1 / 1',
-                  height: 'auto',
-                  maxWidth: '200px',
-                  objectFit: 'cover', 
-                  borderRadius: 'var(--radius-xl)',
-                  boxShadow: 'var(--shadow-lg)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-                }}
-                onClick={() => {
-                  // Open image in new tab for full view
-                  window.open(image, '_blank');
-                }}
-                />
-              ))}
+              <div style={{ 
+                display: 'flex',
+                gap: isMobile ? 'var(--space-2)' : 'var(--space-3)',
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#ff7a00 transparent',
+                paddingBottom: 'var(--space-2)'
+              }}
+              onScroll={(e) => {
+                // Smooth scroll behavior
+                e.currentTarget.scrollLeft = e.currentTarget.scrollLeft;
+              }}
+              >
+                {girl.images.map((image, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      flex: '0 0 calc(33.333% - var(--space-2))',
+                      minWidth: isMobile ? 'calc(33.333% - var(--space-2))' : 'calc(33.333% - var(--space-3))',
+                      scrollSnapAlign: 'start',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      window.open(image, '_blank');
+                    }}
+                  >
+                    <img 
+                      src={image} 
+                      alt={`${girl.name} - ${t('detail.photo')} ${index + 1}`} 
+                      style={{ 
+                        width: '100%', 
+                        aspectRatio: '1 / 1',
+                        height: 'auto',
+                        objectFit: 'cover', 
+                        borderRadius: 'var(--radius-lg)',
+                        boxShadow: 'var(--shadow-md)',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (window.innerWidth > 768) {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (window.innerWidth > 768) {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                        }
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div style={{ 

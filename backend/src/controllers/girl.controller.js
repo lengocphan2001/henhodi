@@ -123,6 +123,26 @@ export const toggleStatus = async (req, res) => {
   }
 };
 
+export const incrementView = async (req, res) => {
+  try {
+    const girl = await Girl.incrementView(req.params.id);
+    if (!girl) return res.status(404).json({ 
+      success: false, 
+      message: 'Girl not found' 
+    });
+    res.json({
+      success: true,
+      data: girl
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+};
+
 // Detail images functions
 export const uploadDetailImage = async (req, res) => {
   try {
@@ -160,7 +180,7 @@ export const uploadDetailImage = async (req, res) => {
       success: true,
       data: {
         id: result.id,
-        url: `https://blackphuquoc.com/api/girls${id}/detail-images/${result.id}`
+        url: `http://localhost:5000/api/girls${id}/detail-images/${result.id}`
       }
     });
   } catch (error) {

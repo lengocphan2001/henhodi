@@ -14,6 +14,14 @@ const Main: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<string[]>(['Full Phú Quốc']);
   const [activeFilter, setActiveFilter] = useState('Full Phú Quốc');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Handle window resize for responsive design
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch girls data from API
   useEffect(() => {
@@ -25,7 +33,9 @@ const Main: React.FC = () => {
         const response = await apiService.getGirls(1, 50, '', ''); // Get first 50 girls
         
         if (response.success && response.data && Array.isArray(response.data.data)) {
-          const girlsData = response.data.data.filter(girl => girl.isActive); // Only show active girls
+          // Show all girls (both active and inactive)
+          // Inactive girls will show "TẠM NGHỈ" banner on their card
+          const girlsData = response.data.data;
           setGirls(girlsData);
           
           // Generate filters from unique areas
@@ -45,10 +55,20 @@ const Main: React.FC = () => {
     loadGirls();
   }, []);
 
-  // Filter girls based on selected area
-  const filteredGirls = activeFilter === 'Full Phú Quốc'
+  // Filter girls based on selected area, then sort by displayOrder
+  const filteredGirls = (activeFilter === 'Full Phú Quốc'
     ? girls
-    : girls.filter(girl => girl.area === activeFilter);
+    : girls.filter(girl => girl.area === activeFilter)
+  ).sort((a, b) => {
+    // Sort by displayOrder DESC (higher number = appears first)
+    const aOrder = a.displayOrder || 0;
+    const bOrder = b.displayOrder || 0;
+    if (aOrder !== bOrder) {
+      return bOrder - aOrder; // Higher order comes first
+    }
+    // If both have same displayOrder, maintain original order
+    return 0;
+  });
 
   // Loading state
   if (loading) {
@@ -116,7 +136,10 @@ const Main: React.FC = () => {
       background: '#232733', 
       color: 'white',
       flex: 1,
-      padding: 'var(--space-6)',
+      paddingTop: isMobile ? 'var(--space-4)' : 'var(--space-6)',
+      paddingBottom: isMobile ? 'var(--space-3)' : 'var(--space-5)',
+      paddingLeft: isMobile ? 'var(--space-2)' : 'var(--space-3)',
+      paddingRight: isMobile ? 'var(--space-2)' : 'var(--space-3)',
     }}>
       <InfoSection />
       <FilterTabs filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />

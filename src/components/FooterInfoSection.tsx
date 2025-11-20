@@ -17,23 +17,6 @@ const FooterInfoSection: React.FC = () => (
     marginRight: 'var(--space-6)'
   }}>
     <div style={{ 
-      background: 'linear-gradient(135deg, #232733, #2a2d35)', 
-      color: '#ff7a00', 
-      fontFamily: 'var(--font-heading)',
-      fontWeight: 'var(--font-bold)', 
-      fontSize: 'var(--text-xl)', 
-      borderRadius: 'var(--radius-xl)', 
-      padding: 'var(--space-3) var(--space-7)', 
-      display: 'inline-block', 
-      marginBottom: 'var(--space-5)',
-      lineHeight: 'var(--leading-tight)',
-      letterSpacing: 'var(--tracking-wide)',
-      textTransform: 'uppercase',
-      boxShadow: '0 2px 8px rgba(255, 122, 0, 0.2)'
-    }}>
-      Black Phú Quốc
-    </div>
-    <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
       gap: 'var(--space-2)', 

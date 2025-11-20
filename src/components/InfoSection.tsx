@@ -3,26 +3,33 @@ import { useTranslation } from 'react-i18next';
 
 const InfoSection: React.FC = () => {
   const { t } = useTranslation();
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   return (
     <div style={{ 
       maxWidth: 'var(--container-xl)', 
       margin: '0 auto', 
-      marginBottom: 'var(--space-8)', 
-      padding: '0 var(--space-6)'
+      marginBottom: isMobile ? 'var(--space-5)' : 'var(--space-6)', 
+      padding: '0'
     }}>
       <div style={{ 
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: 'var(--space-5)',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: isMobile ? 'var(--space-3)' : 'var(--space-4)',
         alignItems: 'stretch'
       }}>
         <div style={{ 
           background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-6)', 
+          borderRadius: 'var(--radius-sm)', 
+          padding: isMobile ? 'var(--space-4)' : 'var(--space-5)', 
           color: '#fff', 
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: 'var(--shadow-md)',
           border: '1px solid rgba(255, 255, 255, 0.05)',
           transition: 'all 0.3s ease'
         }}
@@ -42,8 +49,8 @@ const InfoSection: React.FC = () => {
           <div style={{ 
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-bold)', 
-            fontSize: 'var(--text-2xl)', 
-            marginBottom: 'var(--space-3)',
+            fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)', 
+            marginBottom: isMobile ? 'var(--space-2)' : 'var(--space-3)',
             lineHeight: 'var(--leading-tight)',
             letterSpacing: 'var(--tracking-tight)'
           }}>
@@ -51,9 +58,9 @@ const InfoSection: React.FC = () => {
           </div>
           <div style={{ 
             fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-base)', 
+            fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)', 
             color: '#d1d5db', 
-            marginBottom: 'var(--space-3)',
+            marginBottom: isMobile ? 'var(--space-2)' : 'var(--space-3)',
             lineHeight: 'var(--leading-relaxed)',
             letterSpacing: 'var(--tracking-normal)'
           }}>
@@ -73,10 +80,10 @@ const InfoSection: React.FC = () => {
         
         <div style={{ 
           background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-6)', 
+          borderRadius: 'var(--radius-sm)', 
+          padding: isMobile ? 'var(--space-4)' : 'var(--space-5)', 
           color: '#fff', 
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: 'var(--shadow-md)',
           border: '1px solid rgba(255, 255, 255, 0.05)',
           transition: 'all 0.3s ease'
         }}
@@ -96,8 +103,8 @@ const InfoSection: React.FC = () => {
           <div style={{ 
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-bold)', 
-            fontSize: 'var(--text-2xl)', 
-            marginBottom: 'var(--space-3)',
+            fontSize: isMobile ? 'var(--text-lg)' : 'var(--text-xl)', 
+            marginBottom: isMobile ? 'var(--space-2)' : 'var(--space-3)',
             lineHeight: 'var(--leading-tight)',
             letterSpacing: 'var(--tracking-tight)'
           }}>
@@ -105,9 +112,9 @@ const InfoSection: React.FC = () => {
           </div>
           <div style={{ 
             fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-base)', 
+            fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)', 
             color: '#d1d5db', 
-            marginBottom: 'var(--space-3)',
+            marginBottom: isMobile ? 'var(--space-2)' : 'var(--space-3)',
             lineHeight: 'var(--leading-relaxed)',
             letterSpacing: 'var(--tracking-normal)'
           }}>
@@ -124,7 +131,7 @@ const InfoSection: React.FC = () => {
               gap: 'var(--space-2)',
               padding: 'var(--space-2)',
               background: 'rgba(255, 122, 0, 0.1)',
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: 'var(--radius-sm)',
               border: '1px solid rgba(255, 122, 0, 0.2)'
             }}>
               
@@ -140,7 +147,7 @@ const InfoSection: React.FC = () => {
               
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-lg)', 
+                fontSize: isMobile ? 'var(--text-sm)' : 'var(--text-base)', 
                 fontWeight: 'var(--font-semibold)',
                 color: '#ff7a00'
               }}>
@@ -153,7 +160,7 @@ const InfoSection: React.FC = () => {
               gap: 'var(--space-2)',
               padding: 'var(--space-2)',
               background: 'rgba(255, 122, 0, 0.1)',
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: 'var(--radius-sm)',
               border: '1px solid rgba(255, 122, 0, 0.2)'
             }}>
               
@@ -169,7 +176,7 @@ const InfoSection: React.FC = () => {
               
               <span style={{ 
                 fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-lg)', 
+                fontSize: isMobile ? 'var(--text-sm)' : 'var(--text-base)', 
                 fontWeight: 'var(--font-semibold)',
                 color: '#ff7a00'
               }}>

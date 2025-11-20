@@ -1,5 +1,5 @@
 // API Base Configuration
-const API_BASE_URL = 'https://blackphuquoc.com/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Debug: Log the API URL being used
 console.log('🔗 API Base URL:', API_BASE_URL);
@@ -82,6 +82,9 @@ export interface Girl {
   phone?: string;
   description?: string;
   isActive: boolean;
+  isPinned?: boolean;
+  displayOrder?: number;
+  viewed?: number;
   createdAt: string;
   updatedAt: string;
   info: {
@@ -97,6 +100,7 @@ export interface Girl {
   };
   images: string[];
   reviews?: Review[];
+  reviewCount?: number;
 }
 
 export interface CreateGirlRequest {
@@ -132,6 +136,8 @@ export interface UpdateGirlRequest {
   phone?: string;
   description?: string;
   isActive?: boolean;
+  isPinned?: boolean;
+  displayOrder?: number;
   info?: Partial<{
     'Người đánh giá': string;
     'ZALO': string;
@@ -537,6 +543,26 @@ class ApiService {
   }
 
   // Review Methods
+  async incrementView(girlId: string): Promise<ApiResponse<Girl>> {
+    try {
+      const response = await fetch(`${this.baseURL}/girls/${girlId}/view`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to increment view');
+      }
+      return data;
+    } catch (error) {
+      console.error('Increment view error:', error);
+      return {
+        success: false,
+        message: 'Failed to increment view',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
   async getReviews(girlId?: string, page = 1, limit = 10): Promise<ApiResponse<PaginatedResponse<Review>>> {
     const params = new URLSearchParams({
       page: page.toString(),

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiService, Girl, CreateGirlRequest, UpdateGirlRequest, PaginatedResponse } from '../services/api';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import AdminLayout from '../components/AdminLayout';
+import { formatPriceVND } from '../utils/formatPrice';
 
 const AdminGirls: React.FC = () => {
   const { t } = useTranslation();
@@ -194,6 +195,8 @@ const AdminGirls: React.FC = () => {
       img: '',
       rating: 0,
       isActive: true,
+      isPinned: false,
+      displayOrder: 0,
       info: {
         'Người đánh giá': '',
         'ZALO': '',
@@ -338,6 +341,10 @@ const AdminGirls: React.FC = () => {
     
     if (name === 'isActive' && type === 'checkbox') {
       setFormData({ ...formData, isActive: (e.target as HTMLInputElement).checked });
+    } else if (name === 'isPinned' && type === 'checkbox') {
+      setFormData({ ...formData, isPinned: (e.target as HTMLInputElement).checked });
+    } else if (name === 'displayOrder') {
+      setFormData({ ...formData, displayOrder: Number(value) || 0 });
     } else if (name.startsWith('info.')) {
       const fieldName = name.replace('info.', '');
       setFormData(prev => {
@@ -498,192 +505,71 @@ const AdminGirls: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#232733',
-        color: '#fff'
-      }}>
-        <header style={{ 
-          background: '#181a20', 
-          padding: 'var(--space-6)', 
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 'var(--space-2)'
-          }}>
-            <Link to="/admin" style={{ textDecoration: 'none' }}>
-              <button style={{
-                background: 'transparent',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-2) var(--space-2)',
-                color: '#fff',
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-sm)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}>
-                ← {t('admin.backToDashboard')}
-              </button>
-            </Link>
-            <h1 style={{ 
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-2xl)',
-              fontWeight: 'var(--font-bold)',
-              color: '#667eea'
-            }}>
-              {t('admin.girlManagement')}
-            </h1>
-          </div>
-          <div style={{ 
-            display: 'flex', 
-            gap: 'var(--space-3)',
-            alignItems: 'center'
-          }}>
-            <LanguageSwitcher />
-            <button
-              onClick={openCreateModal}
-              style={{
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-3) var(--space-6)',
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: 'var(--font-semibold)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              + {t('admin.addGirl')}
-            </button>
-          </div>
-        </header>
-
+      <AdminLayout>
         <div style={{ 
-          maxWidth: 'var(--container-xl)', 
-          margin: '0 auto', 
-          padding: 'var(--space-6)'
+          background: '#ff5e62', 
+          color: '#fff', 
+          padding: 'var(--space-2)', 
+          borderRadius: 'var(--radius-sm)', 
+          fontFamily: 'var(--font-primary)',
+          fontSize: 'var(--text-sm)'
         }}>
-          <div style={{ 
-            background: '#ff5e62', 
-            color: '#fff', 
-            padding: 'var(--space-2)', 
-            borderRadius: 'var(--radius-lg)', 
-            marginBottom: 'var(--space-6)',
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-sm)'
-          }}>
-            {error}
-          </div>
+          {error}
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div style={{ 
-      background: '#232733',
-      color: '#fff',
-      flex: 1
-    }}>
-      {/* Header */}
-      <header style={{ 
-        background: '#181a20', 
-        padding: 'var(--space-6)', 
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    <AdminLayout>
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 'var(--space-4)',
         flexWrap: 'wrap',
-        gap: 'var(--space-4)'
+        gap: 'var(--space-3)'
       }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 'var(--space-2)',
-          flexShrink: 0
+        <h1 style={{ 
+          fontFamily: 'var(--font-heading)',
+          fontSize: 'var(--text-2xl)',
+          fontWeight: 'var(--font-bold)',
+          color: '#ff7a00',
+          margin: 0
         }}>
-          <Link to="/admin" style={{ textDecoration: 'none' }}>
-            <button style={{
-              background: 'transparent',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-2) var(--space-2)',
-              color: '#fff',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
-              ← {t('admin.backToDashboard')}
-            </button>
-          </Link>
-          <h1 style={{ 
+          {t('admin.girlManagement')}
+        </h1>
+        <button
+          onClick={openCreateModal}
+          style={{
+            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            padding: 'var(--space-2) var(--space-4)',
             fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-2xl)',
-            fontWeight: 'var(--font-bold)',
-            color: '#667eea'
-          }}>
-            {t('admin.girlManagement')}
-          </h1>
-        </div>
-        <div style={{ 
-          display: 'flex', 
-          gap: 'var(--space-3)',
-          alignItems: 'center'
-        }}>
-          <LanguageSwitcher />
-          <button
-            onClick={openCreateModal}
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-6)',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            + {t('admin.addGirl')}
-          </button>
-        </div>
-      </header>
-
+            fontSize: 'var(--text-sm)',
+            fontWeight: 'var(--font-semibold)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          + {t('admin.addGirl')}
+        </button>
+      </div>
+      {/* Search Bar */}
       <div style={{ 
-        maxWidth: 'var(--container-xl)', 
-        margin: '0 auto', 
-        padding: 'var(--space-6)'
+        marginBottom: 'var(--space-4)',
+        display: 'flex',
+        gap: 'var(--space-2)',
+        alignItems: 'center'
       }}>
-        {/* Search Bar */}
-        <div style={{ 
-          marginBottom: 'var(--space-6)',
-          display: 'flex',
-          gap: 'var(--space-2)',
-          alignItems: 'center'
-        }}>
           <input
             type="text"
             placeholder={t('admin.searchGirlsPlaceholder')}
@@ -693,8 +579,8 @@ const AdminGirls: React.FC = () => {
               flex: 1,
               background: '#181a20',
               border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-2)',
+              borderRadius: 'var(--radius-sm)',
+              padding: 'var(--space-2) var(--space-3)',
               color: '#fff',
               fontFamily: 'var(--font-primary)',
               fontSize: 'var(--text-sm)',
@@ -709,28 +595,28 @@ const AdminGirls: React.FC = () => {
           />
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div style={{ 
-            background: '#ff5e62', 
-            color: '#fff', 
-            padding: 'var(--space-2)', 
-            borderRadius: 'var(--radius-lg)', 
-            marginBottom: 'var(--space-6)',
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-sm)'
-          }}>
-            {error}
-          </div>
-        )}
-
-        {/* Girls Table */}
+      {/* Error Message */}
+      {error && (
         <div style={{ 
-          background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          overflow: 'hidden',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          background: '#ff5e62', 
+          color: '#fff', 
+          padding: 'var(--space-2)', 
+          borderRadius: 'var(--radius-sm)', 
+          marginBottom: 'var(--space-4)',
+          fontFamily: 'var(--font-primary)',
+          fontSize: 'var(--text-sm)'
         }}>
+          {error}
+        </div>
+      )}
+
+      {/* Girls Table */}
+      <div style={{ 
+        background: '#181a20', 
+        borderRadius: 'var(--radius-sm)', 
+        overflow: 'hidden',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
           <div style={{ 
             overflowX: 'auto'
           }}>
@@ -855,7 +741,7 @@ const AdminGirls: React.FC = () => {
                       fontWeight: 'var(--font-semibold)',
                       color: '#ffb347'
                     }}>
-                      {girl.price}
+                      {formatPriceVND(girl.price)}
                     </td>
                     <td style={{ 
                       padding: 'var(--space-2)',
@@ -874,26 +760,38 @@ const AdminGirls: React.FC = () => {
                       </span>
                     </td>
                     <td style={{ padding: 'var(--space-2)' }}>
-                      <button
-                        onClick={() => handleToggleStatus(girl)}
-                        style={{
-                          background: girl.isActive ? '#43e97b' : '#ff5e62',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 'var(--radius-sm)',
-                          padding: 'var(--space-1) var(--space-3)',
-                          fontSize: 'var(--text-xs)',
+                      <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => handleToggleStatus(girl)}
+                          style={{
+                            background: girl.isActive ? '#43e97b' : '#ff5e62',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: 'var(--space-1) var(--space-3)',
+                            fontSize: 'var(--text-xs)',
+                            fontFamily: 'var(--font-heading)',
+                            fontWeight: 'var(--font-medium)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          {girl.isActive ? '✅' : '❌'} {girl.isActive ? t('admin.active') : t('admin.inactive')}
+                        </button>
+                        <span style={{
                           fontFamily: 'var(--font-heading)',
-                          fontWeight: 'var(--font-medium)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
+                          fontSize: 'var(--text-xs)',
+                          color: '#d1d5db',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px'
-                        }}
-                      >
-                        {girl.isActive ? '✅' : '❌'} {girl.isActive ? t('admin.active') : t('admin.inactive')}
-                      </button>
+                        }}>
+                          📍 Vị trí: {girl.displayOrder || 0}
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: 'var(--space-2)', textAlign: 'center' }}>
                       <div style={{ 
@@ -1007,7 +905,6 @@ const AdminGirls: React.FC = () => {
             </button>
           </div>
         )}
-      </div>
 
       {/* CREATE MODAL */}
       {showCreateModal && (
@@ -1221,7 +1118,7 @@ const AdminGirls: React.FC = () => {
                   {imagePreview && (
                     <div style={{ marginTop: 'var(--space-2)' }}>
                       <img 
-                        src={imagePreview} 
+                        src={imagePreview || ''} 
                         alt="Preview" 
                         style={{
                           width: '100px',
@@ -1569,6 +1466,45 @@ const AdminGirls: React.FC = () => {
                     }}
                   />
                 </div>
+                <div>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: 'var(--space-2)',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#d1d5db'
+                  }}>
+                    📍 Vị trí xuất hiện (số càng lớn, xuất hiện càng trước)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.displayOrder ?? 0}
+                    onChange={handleCreateChange}
+                    name="displayOrder"
+                    style={{
+                      width: '100%',
+                      background: '#232733',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-3)',
+                      color: '#fff',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      outline: 'none'
+                    }}
+                  />
+                  <div style={{
+                    marginTop: 'var(--space-1)',
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: 'var(--text-xs)',
+                    color: '#9ca3af',
+                    fontStyle: 'italic'
+                  }}>
+                    Gợi ý: 0 = bình thường, 1-10 = ưu tiên, 10+ = rất ưu tiên
+                  </div>
+                </div>
               </div>
               <div style={{ 
                 display: 'flex', 
@@ -1645,7 +1581,7 @@ const AdminGirls: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#4facfe'
             }}>
-              {t('admin.editGirl')}: {selectedGirl.name}
+              {t('admin.editGirl')}: {selectedGirl?.name || ''}
             </h2>
             <form onSubmit={handleUpdateGirl}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
@@ -1827,7 +1763,7 @@ const AdminGirls: React.FC = () => {
                   {imagePreview && (
                     <div style={{ marginTop: 'var(--space-2)' }}>
                       <img 
-                        src={imagePreview} 
+                        src={imagePreview || ''} 
                         alt="Preview" 
                         style={{
                           width: '100px',
@@ -2236,6 +2172,45 @@ const AdminGirls: React.FC = () => {
                     fontWeight: 'var(--font-semibold)',
                     color: '#d1d5db'
                   }}>
+                    📍 Vị trí xuất hiện (số càng lớn, xuất hiện càng trước)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.displayOrder ?? 0}
+                    onChange={handleEditChange}
+                    name="displayOrder"
+                    style={{
+                      width: '100%',
+                      background: '#232733',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-3)',
+                      color: '#fff',
+                      fontFamily: 'var(--font-primary)',
+                      fontSize: 'var(--text-sm)',
+                      outline: 'none'
+                    }}
+                  />
+                  <div style={{
+                    marginTop: 'var(--space-1)',
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: 'var(--text-xs)',
+                    color: '#9ca3af',
+                    fontStyle: 'italic'
+                  }}>
+                    Gợi ý: 0 = bình thường, 1-10 = ưu tiên, 10+ = rất ưu tiên
+                  </div>
+                </div>
+                <div>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: 'var(--space-2)',
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 'var(--font-semibold)',
+                    color: '#d1d5db'
+                  }}>
                     {t('admin.rating')}
                   </label>
                   <input
@@ -2335,7 +2310,7 @@ const AdminGirls: React.FC = () => {
               marginBottom: 'var(--space-6)',
               color: '#ff5e62'
             }}>
-              {t('admin.deleteGirl')}: {selectedGirl.name}
+              {t('admin.deleteGirl')}: {selectedGirl?.name || ''}
             </h2>
             <p style={{ 
               fontFamily: 'var(--font-primary)',
@@ -2388,7 +2363,7 @@ const AdminGirls: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 };
 

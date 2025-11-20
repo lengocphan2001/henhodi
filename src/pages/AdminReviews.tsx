@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { apiService, Review, PaginatedResponse, Girl, User } from '../services/api';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useNavigate } from 'react-router-dom';
+import { apiService, Review, Girl, User } from '../services/api';
+import AdminLayout from '../components/AdminLayout';
+import { formatPriceVND } from '../utils/formatPrice';
 
 const AdminReviews: React.FC = () => {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ const AdminReviews: React.FC = () => {
       return;
     }
     loadReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, currentPage, searchTerm, girlFilter]);
 
   const loadReviews = async () => {
@@ -119,123 +121,41 @@ const AdminReviews: React.FC = () => {
   }
 
   return (
-    <div style={{ 
-      background: '#232733',
-      color: '#fff',
-      flex: 1
-    }}>
-      {/* Header */}
-      <header style={{ 
+    <AdminLayout>
+      <h1 style={{ 
+        fontFamily: 'var(--font-heading)',
+        fontSize: 'var(--text-2xl)',
+        fontWeight: 'var(--font-bold)',
+        color: '#ff7a00',
+        marginBottom: 'var(--space-4)',
+        margin: 0
+      }}>
+        {t('admin.reviewManagement')}
+      </h1>
+
+      {/* Error Display */}
+      {error && (
+        <div style={{ 
+          background: '#ff5e62', 
+          color: '#fff', 
+          padding: 'var(--space-2)', 
+          borderRadius: 'var(--radius-sm)', 
+          marginBottom: 'var(--space-4)',
+          fontFamily: 'var(--font-heading)',
+          fontSize: 'var(--text-sm)'
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Search and Filters */}
+      <div style={{ 
         background: '#181a20', 
-        padding: 'var(--space-6)', 
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        borderRadius: 'var(--radius-sm)', 
+        padding: 'var(--space-4)',
+        marginBottom: 'var(--space-4)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 'var(--space-2)'
-        }}>
-          <Link to="/admin" style={{ textDecoration: 'none' }}>
-            <button style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
-              color: '#fff',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-medium)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-            >
-              <span style={{ fontSize: '16px' }}>←</span>
-              {t('admin.backToDashboard')}
-            </button>
-          </Link>
-          <h1 style={{ 
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-2xl)',
-            fontWeight: 'var(--font-bold)',
-            color: '#4facfe'
-          }}>
-            {t('admin.reviewManagement')}
-          </h1>
-        </div>
-        <LanguageSwitcher />
-      </header>
-      {/* Main Content Wrapper */}
-      <div style={{
-        maxWidth: 'var(--container-xl)',
-        margin: '0 auto',
-        padding: 'var(--space-6)',
-        marginTop: 'var(--space-6)'
-      }}>
-        {/* Info Section */}
-        <div style={{ 
-          background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-6)',
-          marginBottom: 'var(--space-6)',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
-        }}>
-          <h2 style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-lg)',
-            fontWeight: 'var(--font-semibold)',
-            marginBottom: 'var(--space-2)',
-            color: '#4facfe'
-          }}>
-            {t('admin.reviewManagementDashboard')}
-          </h2>
-          <p style={{
-            fontFamily: 'var(--font-primary)',
-            fontSize: 'var(--text-sm)',
-            color: '#d1d5db'
-          }}>
-            {t('admin.reviewManagementDescription')}
-          </p>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div style={{ 
-            background: '#ff5e62', 
-            color: '#fff', 
-            padding: 'var(--space-2)', 
-            borderRadius: 'var(--radius-lg)', 
-            marginBottom: 'var(--space-6)',
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'var(--text-sm)'
-          }}>
-            {error}
-          </div>
-        )}
-
-        {/* Search and Filters */}
-        <div style={{ 
-          background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
-          padding: 'var(--space-6)',
-          marginBottom: 'var(--space-6)',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
-        }}>
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -261,7 +181,7 @@ const AdminReviews: React.FC = () => {
                   width: '100%',
                   background: '#232733',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: 'var(--radius-sm)',
                   padding: 'var(--space-3)',
                   color: '#fff',
                   fontFamily: 'var(--font-primary)',
@@ -290,7 +210,7 @@ const AdminReviews: React.FC = () => {
                   width: '100%',
                   background: '#232733',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: 'var(--radius-sm)',
                   padding: 'var(--space-3)',
                   color: '#fff',
                   fontFamily: 'var(--font-primary)',
@@ -305,7 +225,7 @@ const AdminReviews: React.FC = () => {
         {/* Reviews Table */}
         <div style={{ 
           background: '#181a20', 
-          borderRadius: 'var(--radius-2xl)', 
+          borderRadius: 'var(--radius-sm)', 
           overflow: 'hidden',
           border: '1px solid rgba(255, 255, 255, 0.1)'
         }}>
@@ -411,7 +331,7 @@ const AdminReviews: React.FC = () => {
                             <div style={{ fontSize: '12px' }}>ID: {girl._id || girl.id}</div>
                             {girl.phone && <div style={{ fontSize: '12px' }}>Phone: {girl.phone}</div>}
                             {girl.zalo && <div style={{ fontSize: '12px' }}>Zalo: {girl.zalo}</div>}
-                            {girl.price && <div style={{ fontSize: '12px' }}>Price: {girl.price}</div>}
+                            {girl.price && <div style={{ fontSize: '12px' }}>Price: {formatPriceVND(girl.price)}</div>}
                             {girl.area && <div style={{ fontSize: '12px' }}>Area: {girl.area}</div>}
                           </div>
                         ) : (
@@ -440,7 +360,7 @@ const AdminReviews: React.FC = () => {
                               background: '#ff5e62',
                               color: '#fff',
                               border: 'none',
-                              borderRadius: 'var(--radius-lg)',
+                              borderRadius: 'var(--radius-sm)',
                               padding: 'var(--space-2) var(--space-3)',
                               fontFamily: 'var(--font-heading)',
                               fontSize: 'var(--text-xs)',
@@ -522,7 +442,7 @@ const AdminReviews: React.FC = () => {
         {reviews.length === 0 && !loading && (
           <div style={{ 
             background: '#181a20', 
-            borderRadius: 'var(--radius-2xl)', 
+            borderRadius: 'var(--radius-sm)', 
             padding: 'var(--space-12)', 
             textAlign: 'center',
             border: '1px solid rgba(255, 255, 255, 0.1)'
@@ -552,8 +472,7 @@ const AdminReviews: React.FC = () => {
             </p>
           </div>
         )}
-      </div>
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -24,6 +24,7 @@ const detailImageUpload = multer({
 // Public routes
 router.get('/', GirlController.getAll);
 router.get('/:id', GirlController.getOne);
+router.post('/:id/view', GirlController.incrementView);
 router.get('/:id/image', async (req, res) => {
   try {
     const imageBuffer = await Girl.getGirlImage(req.params.id);

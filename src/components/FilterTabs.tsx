@@ -6,16 +6,27 @@ interface FilterTabsProps {
   onFilterChange: (filter: string) => void;
 }
 
-const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilterChange }) => (
+const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilterChange }) => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  return (
   <div style={{ 
     maxWidth: 'var(--container-xl)', 
     margin: '0 auto', 
-    marginBottom: 'var(--space-8)', 
+    marginBottom: isMobile ? 'var(--space-5)' : 'var(--space-6)', 
     display: 'flex', 
-    gap: 'var(--space-3)', 
+    gap: isMobile ? 'var(--space-2)' : 'var(--space-3)', 
     flexWrap: 'wrap',
-    padding: '0 var(--space-6)',
-    justifyContent: 'center'
+    padding: '0',
+    justifyContent: 'center',
+    overflowX: isMobile ? 'auto' : 'visible',
+    WebkitOverflowScrolling: 'touch'
   }}>
     {filters.map((f) => (
       <button
@@ -28,28 +39,29 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilter
           border: f === activeFilter 
             ? 'none' 
             : '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: 'var(--radius-2xl)',
-          padding: 'var(--space-3) var(--space-6)',
+          borderRadius: 'var(--radius-sm)',
+          padding: isMobile ? 'var(--space-2) var(--space-4)' : 'var(--space-2) var(--space-5)',
           fontFamily: 'var(--font-heading)',
           fontWeight: f === activeFilter 
             ? 'var(--font-semibold)' 
             : 'var(--font-medium)',
-          fontSize: 'var(--text-sm)',
+          fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           lineHeight: 'var(--leading-tight)',
           letterSpacing: 'var(--tracking-wide)',
           textTransform: 'uppercase',
           boxShadow: f === activeFilter 
-            ? '0 4px 12px rgba(255, 122, 0, 0.3)' 
+            ? '0 2px 8px rgba(255, 122, 0, 0.25)' 
             : 'var(--shadow-sm)',
           transform: f === activeFilter ? 'translateY(-1px)' : 'translateY(0)',
           whiteSpace: 'nowrap',
           minWidth: 'fit-content',
-          minHeight: '44px',
+          minHeight: isMobile ? '36px' : '40px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexShrink: 0
         }}
         onClick={() => onFilterChange(f)}
         onMouseEnter={(e) => {
@@ -83,6 +95,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ filters, activeFilter, onFilter
       </button>
     ))}
   </div>
-);
+  );
+};
 
 export default FilterTabs; 

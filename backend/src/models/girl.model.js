@@ -1,7 +1,8 @@
 import db from '../db.js';
+import * as Review from './review.model.js';
 
 export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') => {
-  let query = 'SELECT id, name, area, price, rating, img_url, zalo, phone, description, isActive, info, images, created_at, updated_at FROM girls WHERE 1=1';
+  let query = 'SELECT id, name, area, price, rating, img_url, zalo, phone, description, isActive, isPinned, displayOrder, viewed, info, images, created_at, updated_at FROM girls WHERE 1=1';
   const params = [];
   
   // Add search filter
@@ -16,8 +17,8 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
     params.push(`%${area}%`);
   }
   
-  // Add ordering
-  query += ' ORDER BY created_at DESC';
+  // Add ordering - by displayOrder DESC (higher number = appears first), then by created_at DESC
+  query += ' ORDER BY displayOrder DESC, created_at DESC';
   
   // Add pagination
   const offset = (page - 1) * limit;
@@ -26,11 +27,14 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
   
   const [rows] = await db.query(query, params);
   
-  // Get detail images for each girl
+  // Get detail images and review count for each girl
   const girlsWithDetailImages = await Promise.all(rows.map(async (row) => {
     // Get detail images for this girl
     const detailImages = await getDetailImages(row.id);
     const detailImageUrls = detailImages.map(img => img.url);
+    
+    // Get review count for this girl
+    const reviewCount = await Review.getTotalReviews(row.id);
     
     // Determine the image URL
     let imgUrl;
@@ -42,7 +46,7 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `https://blackphuquoc.com/api/girls/${row.id}/image`;
+        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -55,6 +59,11 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
       img: imgUrl,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+      isActive: row.isActive === 1 || row.isActive === true,
+      isPinned: row.isPinned === 1 || row.isPinned === true,
+      displayOrder: row.displayOrder || 0,
+      viewed: row.viewed || 5000,
+      reviewCount: reviewCount || 0,
       info: parseJsonSafely(row.info, {}),
       images: detailImageUrls // Use detail image URLs instead of the JSON field
     };
@@ -84,7 +93,7 @@ export const getGirlsCount = async (search = '', area = '') => {
 };
 
 export const getGirlById = async (id) => {
-  const [rows] = await db.query('SELECT id, name, area, price, rating, img_url, zalo, phone, description, isActive, info, images, created_at, updated_at FROM girls WHERE id = ?', [id]);
+  const [rows] = await db.query('SELECT id, name, area, price, rating, img_url, zalo, phone, description, isActive, isPinned, displayOrder, viewed, info, images, created_at, updated_at FROM girls WHERE id = ?', [id]);
   if (rows.length === 0) return null;
   
   const row = rows[0];
@@ -106,7 +115,7 @@ export const getGirlById = async (id) => {
     
     if (imageBuffer) {
       // There's a BLOB image, use the API endpoint
-      imgUrl = `https://blackphuquoc.com/api/girls/${id}/image`;
+      imgUrl = `http://localhost:5000/api/girls/${id}/image`;
       
     } else {
       // No image at all, use placeholder
@@ -115,12 +124,20 @@ export const getGirlById = async (id) => {
     }
   }
   
+  // Get review count for this girl
+  const reviewCount = await Review.getTotalReviews(id);
+  
   const result = {
     ...row,
     _id: row.id,
     img: imgUrl,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    isActive: row.isActive === 1 || row.isActive === true,
+    isPinned: row.isPinned === 1 || row.isPinned === true,
+    displayOrder: row.displayOrder || 0,
+    viewed: row.viewed || 5000,
+    reviewCount: reviewCount || 0,
     info: parseJsonSafely(row.info, {}),
     images: detailImageUrls // Use detail image URLs instead of the JSON field
   };
@@ -162,6 +179,9 @@ export const createGirl = async (girl) => {
     phone: girl.phone || null,
     description: girl.description || null,
     isActive: girl.isActive !== undefined ? girl.isActive : true,
+    isPinned: girl.isPinned !== undefined ? girl.isPinned : false,
+    displayOrder: girl.displayOrder !== undefined ? girl.displayOrder : 0,
+    viewed: girl.viewed !== undefined ? girl.viewed : 5000,
     info: JSON.stringify(info),
     images: JSON.stringify(images)
   };
@@ -188,6 +208,8 @@ export const updateGirl = async (id, girl) => {
   if (girl.phone !== undefined) updateData.phone = girl.phone;
   if (girl.description !== undefined) updateData.description = girl.description;
   if (girl.isActive !== undefined) updateData.isActive = girl.isActive;
+  if (girl.isPinned !== undefined) updateData.isPinned = girl.isPinned;
+  if (girl.displayOrder !== undefined) updateData.displayOrder = girl.displayOrder;
   
   // Handle JSON fields carefully
   if (girl.info !== undefined) {
@@ -220,7 +242,7 @@ export const updateGirlImage = async (id, imageBuffer) => {
     console.log('updateGirlImage - imageBuffer length:', imageBuffer?.length);
     
     // Update both the img field (BLOB) and img_url field with the proper URL
-    const imgUrl = `https://blackphuquoc.com/api/girls/${id}/image`;
+    const imgUrl = `http://localhost:5000/api/girls/${id}/image`;
     console.log('updateGirlImage - setting img_url to:', imgUrl);
     
     const [result] = await db.query(
@@ -269,6 +291,11 @@ export const getActiveGirls = async () => {
   return rows[0].total;
 };
 
+export const incrementView = async (id) => {
+  await db.query('UPDATE girls SET viewed = viewed + 1 WHERE id = ?', [id]);
+  return getGirlById(id);
+};
+
 export const getRecentGirls = async (limit = 5) => {
   const [rows] = await db.query(
     'SELECT id, name, area, price, rating, img_url, created_at FROM girls ORDER BY created_at DESC LIMIT ?',
@@ -290,7 +317,7 @@ export const getRecentGirls = async (limit = 5) => {
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `https://blackphuquoc.com/api/girls/${row.id}/image`;
+        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -361,7 +388,7 @@ export const getDetailImages = async (girlId) => {
       id: row.id,
       order: row.image_order,
       createdAt: row.created_at,
-      url: `https://blackphuquoc.com/api/girls/${girlId}/detail-images/${row.id}`
+      url: `http://localhost:5000/api/girls/${girlId}/detail-images/${row.id}`
     }));
   } catch (error) {
     console.error('Error getting detail images:', error);

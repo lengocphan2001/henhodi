@@ -111,12 +111,57 @@ const createTables = async () => {
         phone VARCHAR(20) NULL,
         description TEXT NULL,
         isActive BOOLEAN DEFAULT TRUE,
+        isPinned BOOLEAN DEFAULT FALSE,
         info JSON NULL,
         images JSON NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+    
+    // Add isPinned column if it doesn't exist (for existing databases - migration support)
+    try {
+      await connection.execute('ALTER TABLE girls ADD COLUMN isPinned BOOLEAN DEFAULT FALSE');
+      console.log('✅ Added isPinned column to girls table');
+    } catch (error) {
+      // Column might already exist, that's okay
+      if (!error.message.includes('Duplicate column name')) {
+        console.log('ℹ️ isPinned column may already exist');
+      }
+    }
+    
+    // Add displayOrder column if it doesn't exist (new feature)
+    try {
+      await connection.execute('ALTER TABLE girls ADD COLUMN displayOrder INT DEFAULT 0');
+      console.log('✅ Added displayOrder column to girls table');
+      
+      // Migrate existing isPinned data to displayOrder
+      // If isPinned = true, set displayOrder = 1, otherwise 0
+      await connection.execute(`
+        UPDATE girls 
+        SET displayOrder = CASE WHEN isPinned = 1 THEN 1 ELSE 0 END
+        WHERE displayOrder = 0
+      `);
+      console.log('✅ Migrated isPinned data to displayOrder');
+    } catch (error) {
+      // Column might already exist, that's okay
+      if (!error.message.includes('Duplicate column name')) {
+        console.log('ℹ️ displayOrder column may already exist');
+      }
+    }
+    
+    // Add viewed column if it doesn't exist
+    try {
+      await connection.execute('ALTER TABLE girls ADD COLUMN viewed INT DEFAULT 5000');
+      console.log('✅ Added viewed column to girls table');
+      // Set default value for existing records
+      await connection.execute('UPDATE girls SET viewed = 5000 WHERE viewed IS NULL OR viewed = 0');
+      console.log('✅ Set default viewed value for existing girls');
+    } catch (error) {
+      if (!error.message.includes('Duplicate column name')) {
+        console.log('ℹ️ viewed column may already exist');
+      }
+    }
     console.log('✅ Created girls table with proper BLOB configuration');
 
     // Create detail_images table for multiple images per girl
@@ -168,6 +213,8 @@ const createIndexes = async (connection) => {
     await connection.execute('CREATE INDEX IF NOT EXISTS idx_girls_area ON girls(area)');
     await connection.execute('CREATE INDEX IF NOT EXISTS idx_girls_rating ON girls(rating)');
     await connection.execute('CREATE INDEX IF NOT EXISTS idx_girls_active ON girls(isActive)');
+    await connection.execute('CREATE INDEX IF NOT EXISTS idx_girls_pinned ON girls(isPinned)');
+    await connection.execute('CREATE INDEX IF NOT EXISTS idx_girls_display_order ON girls(displayOrder)');
     
     // Reviews indexes
     await connection.execute('CREATE INDEX IF NOT EXISTS idx_reviews_user ON reviews(userId)');

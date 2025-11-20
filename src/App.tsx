@@ -15,21 +15,22 @@ import LanguageDemo from './pages/LanguageDemo';
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/main" element={<Main />} />
-          <Route path="/detail" element={<Detail />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/girls" element={<AdminGirls />} />
-          <Route path="/admin/reviews" element={<AdminReviews />} />
-          <Route path="/demo" element={<LanguageDemo />} />
-          <Route path="/" element={<Navigate to="/main" replace />} />
-          <Route path="*" element={<Navigate to="/main" replace />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        {/* Admin routes - không dùng Layout chung */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/girls" element={<AdminGirls />} />
+        <Route path="/admin/reviews" element={<AdminReviews />} />
+        
+        {/* Public routes - dùng Layout chung */}
+        <Route path="/signin" element={<Layout><SignIn /></Layout>} />
+        <Route path="/signup" element={<Layout><SignUp /></Layout>} />
+        <Route path="/main" element={<Layout><Main /></Layout>} />
+        <Route path="/detail" element={<Layout><Detail /></Layout>} />
+        <Route path="/demo" element={<Layout><LanguageDemo /></Layout>} />
+        <Route path="/" element={<Navigate to="/main" replace />} />
+        <Route path="*" element={<Navigate to="/main" replace />} />
+      </Routes>
     </Router>
   );
 }

@@ -127,28 +127,26 @@ const Header: React.FC = () => {
           zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isMobile ? 'flex-end' : 'space-between',
-          height: '64px',
-          padding: '0 var(--space-4)',
+          justifyContent: isMobile ? 'space-between' : 'space-between',
+          height: isMobile ? '56px' : '64px',
+          padding: isMobile ? '0 var(--space-3)' : '0 var(--space-4)',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}
       >
-        {/* Left: Logo (hidden on mobile) */}
-        {!isMobile && (
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-            <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-              <img 
-                src="/assets/logo.png" 
-                alt="HEHODI Logo" 
-                style={{ 
-                  height: '32px', 
-                  width: 'auto',
-                  borderRadius: '6px'
-                }} 
-              />
-            </Link>
-          </div>
-        )}
+        {/* Left: Logo (always visible) */}
+        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+          <Link to="/main" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/assets/logo.png" 
+              alt="HEHODI Logo" 
+              style={{ 
+                height: isMobile ? '28px' : '32px', 
+                width: 'auto',
+                borderRadius: 'var(--radius-md)'
+              }} 
+            />
+          </Link>
+        </div>
 
         {/* Desktop Actions */}
         {!isMobile && (
@@ -212,9 +210,9 @@ const Header: React.FC = () => {
                     background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '14px',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: isMobile ? '6px 12px' : '8px 16px',
+                    fontSize: isMobile ? 'var(--text-xs)' : 'var(--text-sm)',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -295,13 +293,13 @@ const Header: React.FC = () => {
             style={{
               background: 'rgba(255, 255, 255, 0.1)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
+              borderRadius: 'var(--radius-lg)',
               color: '#fff',
-              fontSize: '20px',
+              fontSize: '18px',
               cursor: 'pointer',
-              padding: '8px',
-              minHeight: '40px',
-              minWidth: '40px',
+              padding: '6px',
+              minHeight: '36px',
+              minWidth: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -355,16 +353,16 @@ const Header: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            top: '64px',
+            top: '56px',
             left: 0,
             right: 0,
             bottom: 0,
             background: '#181a20',
             zIndex: 999,
-            padding: 'var(--space-4)',
+            padding: 'var(--space-3)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--space-4)',
+            gap: 'var(--space-3)',
             overflowY: 'auto',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)'
           }}
@@ -417,14 +415,14 @@ const Header: React.FC = () => {
                     background: 'linear-gradient(135deg, #ff5e62, #ffb347)',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    fontSize: '16px',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '12px',
+                    fontSize: 'var(--text-sm)',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     width: '100%',
-                    minHeight: '48px'
+                    minHeight: '44px'
                   }}
                   onTouchStart={(e) => {
                     e.currentTarget.style.transform = 'scale(0.98)';
