@@ -1,5 +1,6 @@
 // API Base Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+// Sử dụng biến môi trường REACT_APP_API_URL nếu có, nếu không thì dùng giá trị mặc định
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Debug: Log the API URL being used
 console.log('🔗 API Base URL:', API_BASE_URL);

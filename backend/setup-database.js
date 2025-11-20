@@ -31,7 +31,7 @@ const setupDatabase = async () => {
       console.error('\nEnvironment variables:');
       console.error(`   DB_HOST: ${process.env.DB_HOST || 'localhost'}`);
       console.error(`   DB_USER: ${process.env.DB_USER || 'root'}`);
-      console.error(`   DB_NAME: ${process.env.DB_NAME || 'henhodi'}`);
+      console.error(`   DB_NAME: ${process.env.DB_NAME || 'henhodi_db'}`);
       process.exit(1);
     }
     
