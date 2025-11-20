@@ -210,7 +210,13 @@ JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 PORT=3000
 NODE_ENV=production
 CORS_ORIGIN=https://blackphuquoc.com
+API_BASE_URL=https://blackphuquoc.com
 ```
+
+**⚠️ QUAN TRỌNG**: 
+- `PORT=3000` phải khớp với port trong `ecosystem.config.js` và Nginx config
+- Nếu không có PORT trong .env, backend sẽ dùng port 5000 (mặc định) và sẽ không khớp với Nginx
+- `API_BASE_URL=https://blackphuquoc.com` dùng để tạo URL cho images, phải là domain production (không phải localhost)
 
 **Lưu ý**: 
 - Thay `your_strong_password_here` bằng mật khẩu database bạn đã tạo
@@ -846,10 +852,23 @@ pm2 monit
 ### 1. Kiểm Tra Backend
 
 ```bash
+# Kiểm tra PM2 status
+pm2 status
+# Phải thấy henhodi-backend đang "online"
+
 # Kiểm tra backend có chạy không
 curl http://localhost:3000/api/health
+# Phải trả về: {"status":"OK","message":"Henhodi API is running",...}
+
+# Kiểm tra port đang listen
+sudo netstat -tlnp | grep 3000
 # hoặc
+sudo ss -tlnp | grep 3000
+# Phải thấy process đang listen trên port 3000
+
+# Test API endpoint
 curl http://localhost:3000/api/girls
+# Phải trả về JSON data hoặc error message (không phải connection refused)
 ```
 
 ### 2. Kiểm Tra Nginx
@@ -929,9 +948,64 @@ sudo kill -9 <PID>
 ```
 
 **Lỗi: Nginx 502 Bad Gateway**
-- Kiểm tra backend có đang chạy: `pm2 status`
-- Kiểm tra port trong ecosystem.config.js và nginx config phải khớp
-- Kiểm tra logs: `pm2 logs henhodi-backend`
+
+Đây là lỗi phổ biến khi Nginx không thể kết nối với backend. Các bước xử lý:
+
+```bash
+# 1. Kiểm tra backend có đang chạy không
+pm2 status
+# Phải thấy henhodi-backend đang "online"
+
+# 2. Kiểm tra backend có lắng nghe đúng port không
+sudo netstat -tlnp | grep 3000
+# hoặc
+sudo ss -tlnp | grep 3000
+# Phải thấy process đang listen trên port 3000
+
+# 3. Kiểm tra backend có thể truy cập được không
+curl http://localhost:3000/api/health
+# Phải trả về JSON response
+
+# 4. Kiểm tra file .env của backend
+cat /var/www/blackphuquoc.com/backend/.env | grep PORT
+# Phải thấy: PORT=3000
+
+# 5. Kiểm tra ecosystem.config.js
+cat /var/www/blackphuquoc.com/ecosystem.config.js | grep PORT
+# Phải thấy: PORT: 3000
+
+# 6. Kiểm tra Nginx config
+sudo grep -A 5 "location /api" /etc/nginx/sites-available/blackphuquoc.com
+# Phải thấy: proxy_pass http://localhost:3000;
+
+# 7. Kiểm tra logs của backend
+pm2 logs henhodi-backend --lines 50
+# Xem có lỗi gì không
+
+# 8. Kiểm tra logs của Nginx
+sudo tail -50 /var/log/nginx/blackphuquoc.com.error.log
+# Xem có lỗi connection refused không
+
+# 9. Nếu backend không chạy, khởi động lại
+pm2 restart henhodi-backend
+# hoặc
+pm2 delete henhodi-backend
+cd /var/www/blackphuquoc.com
+pm2 start ecosystem.config.js
+
+# 10. Nếu port không khớp, sửa lại:
+# - Sửa PORT trong backend/.env
+# - Sửa PORT trong ecosystem.config.js
+# - Restart backend: pm2 restart henhodi-backend
+```
+
+**Các nguyên nhân thường gặp:**
+
+1. **Backend không chạy**: Chạy `pm2 start ecosystem.config.js`
+2. **Port không khớp**: Backend .env, ecosystem.config.js và Nginx config phải cùng port (3000)
+3. **Backend bind sai interface**: Đã sửa trong code để bind vào `0.0.0.0`
+4. **Database connection failed**: Kiểm tra database có chạy và credentials đúng không
+5. **Backend crash**: Xem logs `pm2 logs henhodi-backend` để tìm lỗi
 
 **Lỗi: API vẫn gọi về localhost:5000 sau khi deploy**
 

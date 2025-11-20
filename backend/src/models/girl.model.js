@@ -1,5 +1,6 @@
 import db from '../db.js';
 import * as Review from './review.model.js';
+import { getApiUrl } from '../utils/url.js';
 
 export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') => {
   let query = 'SELECT id, name, area, price, rating, img_url, zalo, phone, description, isActive, isPinned, displayOrder, viewed, info, images, created_at, updated_at FROM girls WHERE 1=1';
@@ -46,7 +47,7 @@ export const getAllGirls = async (page = 1, limit = 10, search = '', area = '') 
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+        imgUrl = getApiUrl(`/api/girls/${row.id}/image`);
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -115,7 +116,7 @@ export const getGirlById = async (id) => {
     
     if (imageBuffer) {
       // There's a BLOB image, use the API endpoint
-      imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+      imgUrl = getApiUrl(`/api/girls/${id}/image`);
       
     } else {
       // No image at all, use placeholder
@@ -242,7 +243,7 @@ export const updateGirlImage = async (id, imageBuffer) => {
     console.log('updateGirlImage - imageBuffer length:', imageBuffer?.length);
     
     // Update both the img field (BLOB) and img_url field with the proper URL
-    const imgUrl = `http://localhost:5000/api/girls/${id}/image`;
+    const imgUrl = getApiUrl(`/api/girls/${id}/image`);
     console.log('updateGirlImage - setting img_url to:', imgUrl);
     
     const [result] = await db.query(
@@ -317,7 +318,7 @@ export const getRecentGirls = async (limit = 5) => {
       const imageBuffer = await getGirlImage(row.id);
       if (imageBuffer) {
         // There's a BLOB image, use the API endpoint
-        imgUrl = `http://localhost:5000/api/girls/${row.id}/image`;
+        imgUrl = getApiUrl(`/api/girls/${row.id}/image`);
       } else {
         // No image at all, use placeholder
         imgUrl = 'https://via.placeholder.com/300x400?text=No+Image';
@@ -388,7 +389,7 @@ export const getDetailImages = async (girlId) => {
       id: row.id,
       order: row.image_order,
       createdAt: row.created_at,
-      url: `http://localhost:5000/api/girls/${girlId}/detail-images/${row.id}`
+      url: getApiUrl(`/api/girls/${girlId}/detail-images/${row.id}`)
     }));
   } catch (error) {
     console.error('Error getting detail images:', error);
