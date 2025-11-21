@@ -577,23 +577,295 @@ const Detail: React.FC = () => {
                     lineHeight: 'var(--leading-relaxed)',
                     letterSpacing: 'var(--tracking-normal)'
                   }}>
-                    {Object.entries(girl.info || {}).map(([key, value]) => {
-                      const displayValue = (key === 'Giá qua đêm' || key === 'Giá phòng' || key === 'Giá 1 lần') 
-                        ? formatPriceVND(value as string)
-                        : value;
-                      
-                      return (
-                        <div key={key} style={{ marginBottom: 'var(--space-2)' }}>
-                          <span style={{ 
-                            fontFamily: 'var(--font-heading)',
-                            fontWeight: 'var(--font-semibold)',
-                            color: '#ff7a00'
-                          }}>
-                            {key}:
-                          </span> {displayValue}
-                        </div>
-                      );
-                    })}
+                    {/* Kiểm định Section */}
+                    {girl.info?.['Người đánh giá'] && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                        marginBottom: 'var(--space-4)'
+                      }}>
+                        <span style={{
+                          color: '#fff',
+                          fontFamily: 'var(--font-heading)',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 'var(--font-semibold)'
+                        }}>
+                          Kiểm định:
+                        </span>
+                        <span style={{
+                          background: '#10b981',
+                          color: '#fff',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: 'var(--radius-sm)',
+                          fontFamily: 'var(--font-heading)',
+                          fontSize: 'var(--text-xs)',
+                          fontWeight: 'var(--font-semibold)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          ✓ Uy Tín
+                        </span>
+                      </div>
+                    )}
+
+                    {/* THÔNG TIN GÁI GỌI Section */}
+                    <div style={{ marginBottom: 'var(--space-4)' }}>
+                      <div style={{
+                        color: '#fff',
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 'var(--font-bold)',
+                        marginBottom: 'var(--space-2)',
+                        textTransform: 'uppercase'
+                      }}>
+                        THÔNG TIN GÁI GỌI
+                      </div>
+                      <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        fontSize: 'var(--text-xs)',
+                        fontFamily: 'var(--font-primary)',
+                        color: '#d1d5db'
+                      }}>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)',
+                              width: '40%'
+                            }}>• Nghệ danh:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.name}</td>
+                          </tr>
+                          {(girl.zalo || girl.phone) && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Số điện thoại:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.phone}</td>
+                            </tr>
+                          )}
+                          {(girl.zalo || girl.info?.ZALO) && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• ZALO:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.info?.ZALO}</td>
+                            </tr>
+                          )}
+                          {girl.info?.TELEGRAM && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• TELEGRAM:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info.TELEGRAM}</td>
+                            </tr>
+                          )}
+                          {girl.info?.['Giá đi khách'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Giá đi khách:</td>
+                              <td style={{ padding: 'var(--space-1) 0', color: '#10b981' }}>
+                                {formatPriceVND(girl.info['Giá đi khách'])}
+                              </td>
+                            </tr>
+                          )}
+                          {girl.info?.['Giá phòng'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Giá phòng:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Giá phòng']}</td>
+                            </tr>
+                          )}
+                          {girl.info?.['Xuất xứ'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Xuất xứ:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Xuất xứ']}</td>
+                            </tr>
+                          )}
+                          {girl.info?.['Năm sinh'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Năm sinh:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Năm sinh']}</td>
+                            </tr>
+                          )}
+                          {girl.area && (
+                            <tr>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Khu vực:</td>
+                              <td style={{ padding: 'var(--space-1) 0', color: '#4facfe' }}>
+                                {girl.area}, Phú Quốc
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* NHẬN DẠNG Section */}
+                    <div style={{ marginBottom: 'var(--space-4)' }}>
+                      <div style={{
+                        color: '#fff',
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 'var(--font-bold)',
+                        marginBottom: 'var(--space-2)',
+                        textTransform: 'uppercase'
+                      }}>
+                        NHẬN DẠNG
+                      </div>
+                      <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        fontSize: 'var(--text-xs)',
+                        fontFamily: 'var(--font-primary)',
+                        color: '#d1d5db'
+                      }}>
+                        <tbody>
+                          {girl.info?.['Chiều cao'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)',
+                                width: '40%'
+                              }}>• Chiều cao:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Chiều cao']}</td>
+                            </tr>
+                          )}
+                          {girl.info?.['Cân nặng'] && (
+                            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Cân nặng:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Cân nặng']}</td>
+                            </tr>
+                          )}
+                          {girl.info?.['Số đo'] && (
+                            <tr>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ff7a00',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>• Số đo 3V:</td>
+                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Số đo']}</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* THÔNG TIN DỊCH VỤ Section */}
+                    <div>
+                      <div style={{
+                        color: '#fff',
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 'var(--font-bold)',
+                        marginBottom: 'var(--space-2)',
+                        textTransform: 'uppercase'
+                      }}>
+                        THÔNG TIN DỊCH VỤ
+                      </div>
+                      <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        fontSize: 'var(--text-xs)',
+                        fontFamily: 'var(--font-primary)',
+                        color: '#d1d5db'
+                      }}>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)',
+                              width: '40%'
+                            }}>• Dịch vụ:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Dịch vụ'] || 'Qua đêm, Bj - Hj, Hôn môi (Tùy khách), Tắm chung, Đi tour, Bao tháng'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Phân loại:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Phân loại'] || 'Cao cấp'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Mức giá:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Mức giá'] || '700 - 3 triệu'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Giờ phục vụ:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Giờ phục vụ'] || '35 phút (Bao gồm thời gian tắm và nói chuyện)'}
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Giờ làm việc:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Giờ làm việc'] || '10 giờ sáng đến hết đêm'}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Cam kết:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>
+                              {girl.info?.['Cam kết'] || 'Không công nghiệp, Không tráo hàng, Không ảnh ào, Không bom khách, Ngoan hiến, Kín đáo tuyệt đối'}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
 
@@ -835,23 +1107,295 @@ const Detail: React.FC = () => {
                   lineHeight: 'var(--leading-relaxed)',
                   letterSpacing: 'var(--tracking-normal)'
                 }}>
-                  {Object.entries(girl.info || {}).map(([key, value]) => {
-                    const displayValue = (key === 'Giá qua đêm' || key === 'Giá phòng' || key === 'Giá 1 lần') 
-                      ? formatPriceVND(value as string)
-                      : value;
-                    
-                    return (
-                      <div key={key} style={{ marginBottom: 'var(--space-2)' }}>
-                        <span style={{ 
-                          fontFamily: 'var(--font-heading)',
-                          fontWeight: 'var(--font-semibold)',
-                          color: '#ff7a00'
-                        }}>
-                          {key}:
-                        </span> {displayValue}
-                      </div>
-                    );
-                  })}
+                  {/* Kiểm định Section */}
+                  {girl.info?.['Người đánh giá'] && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      marginBottom: 'var(--space-4)'
+                    }}>
+                      <span style={{
+                        color: '#fff',
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 'var(--font-semibold)'
+                      }}>
+                        Kiểm định:
+                      </span>
+                      <span style={{
+                        background: '#10b981',
+                        color: '#fff',
+                        padding: 'var(--space-1) var(--space-2)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 'var(--font-semibold)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        ✓ Uy Tín
+                      </span>
+                    </div>
+                  )}
+
+                  {/* THÔNG TIN GÁI GỌI Section */}
+                  <div style={{ marginBottom: 'var(--space-4)' }}>
+                    <div style={{
+                      color: '#fff',
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'var(--text-base)',
+                      fontWeight: 'var(--font-bold)',
+                      marginBottom: 'var(--space-2)',
+                      textTransform: 'uppercase'
+                    }}>
+                      THÔNG TIN GÁI GỌI
+                    </div>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-primary)',
+                      color: '#d1d5db'
+                    }}>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)',
+                            width: '40%'
+                          }}>• Nghệ danh:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>{girl.name}</td>
+                        </tr>
+                        {(girl.zalo || girl.phone) && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Số điện thoại:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.phone}</td>
+                          </tr>
+                        )}
+                        {(girl.zalo || girl.info?.ZALO) && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• ZALO:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.info?.ZALO}</td>
+                          </tr>
+                        )}
+                        {girl.info?.TELEGRAM && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• TELEGRAM:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info.TELEGRAM}</td>
+                          </tr>
+                        )}
+                        {girl.info?.['Giá đi khách'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Giá đi khách:</td>
+                            <td style={{ padding: 'var(--space-1) 0', color: '#10b981' }}>
+                              {formatPriceVND(girl.info['Giá đi khách'])}
+                            </td>
+                          </tr>
+                        )}
+                        {girl.info?.['Giá phòng'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Giá phòng:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Giá phòng']}</td>
+                          </tr>
+                        )}
+                        {girl.info?.['Xuất xứ'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Xuất xứ:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Xuất xứ']}</td>
+                          </tr>
+                        )}
+                        {girl.info?.['Năm sinh'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Năm sinh:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Năm sinh']}</td>
+                          </tr>
+                        )}
+                        {girl.area && (
+                          <tr>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Khu vực:</td>
+                            <td style={{ padding: 'var(--space-1) 0', color: '#4facfe' }}>
+                              {girl.area}, Phú Quốc
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* NHẬN DẠNG Section */}
+                  <div style={{ marginBottom: 'var(--space-4)' }}>
+                    <div style={{
+                      color: '#fff',
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'var(--text-base)',
+                      fontWeight: 'var(--font-bold)',
+                      marginBottom: 'var(--space-2)',
+                      textTransform: 'uppercase'
+                    }}>
+                      NHẬN DẠNG
+                    </div>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-primary)',
+                      color: '#d1d5db'
+                    }}>
+                      <tbody>
+                        {girl.info?.['Chiều cao'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)',
+                              width: '40%'
+                            }}>• Chiều cao:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Chiều cao']}</td>
+                          </tr>
+                        )}
+                        {girl.info?.['Cân nặng'] && (
+                          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Cân nặng:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Cân nặng']}</td>
+                          </tr>
+                        )}
+                        {girl.info?.['Số đo'] && (
+                          <tr>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ff7a00',
+                              fontWeight: 'var(--font-semibold)'
+                            }}>• Số đo 3V:</td>
+                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.info['Số đo']}</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* THÔNG TIN DỊCH VỤ Section */}
+                  <div>
+                    <div style={{
+                      color: '#fff',
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'var(--text-base)',
+                      fontWeight: 'var(--font-bold)',
+                      marginBottom: 'var(--space-2)',
+                      textTransform: 'uppercase'
+                    }}>
+                      THÔNG TIN DỊCH VỤ
+                    </div>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-primary)',
+                      color: '#d1d5db'
+                    }}>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)',
+                            width: '40%'
+                          }}>• Dịch vụ:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Dịch vụ'] || 'Qua đêm, Bj - Hj, Hôn môi (Tùy khách), Tắm chung, Đi tour, Bao tháng'}
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)'
+                          }}>• Phân loại:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Phân loại'] || 'Cao cấp'}
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)'
+                          }}>• Mức giá:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Mức giá'] || '700 - 3 triệu'}
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)'
+                          }}>• Giờ phục vụ:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Giờ phục vụ'] || '35 phút (Bao gồm thời gian tắm và nói chuyện)'}
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)'
+                          }}>• Giờ làm việc:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Giờ làm việc'] || '10 giờ sáng đến hết đêm'}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ 
+                            padding: 'var(--space-1) 0',
+                            color: '#ff7a00',
+                            fontWeight: 'var(--font-semibold)'
+                          }}>• Cam kết:</td>
+                          <td style={{ padding: 'var(--space-1) 0' }}>
+                            {girl.info?.['Cam kết'] || 'Không công nghiệp, Không tráo hàng, Không ảnh ào, Không bom khách, Ngoan hiến, Kín đáo tuyệt đối'}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </>
             )}
