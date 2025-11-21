@@ -29,9 +29,16 @@ const GirlCard: React.FC<GirlCardProps> = (props) => {
     const zaloNumber = zalo || props.info?.ZALO;
     
     if (zaloNumber) {
-      // Open Zalo in a new tab
-      const zaloUrl = `https://zalo.me/${zaloNumber.replace(/\D/g, '')}`;
-      window.open(zaloUrl, '_blank', 'noopener,noreferrer');
+      // Extract only digits from the phone number
+      const phoneNumber = zaloNumber.toString().replace(/\D/g, '');
+      
+      if (phoneNumber) {
+        // Open Zalo with format: https://zalo.me/phonenumber
+        const zaloUrl = `https://zalo.me/${phoneNumber}`;
+        window.open(zaloUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        alert(t('detail.zaloNotAvailable'));
+      }
     } else {
       // Fallback: show alert if no Zalo number
       alert(t('detail.zaloNotAvailable'));

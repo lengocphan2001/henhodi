@@ -10,6 +10,20 @@ const InfoSection: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle Zalo click for contact numbers
+  const handleZaloClick = (phoneNumber: string) => {
+    if (phoneNumber) {
+      // Extract only digits from the phone number
+      const cleanNumber = phoneNumber.toString().replace(/\D/g, '');
+      
+      if (cleanNumber) {
+        // Open Zalo with format: https://zalo.me/phonenumber
+        const zaloUrl = `https://zalo.me/${cleanNumber}`;
+        window.open(zaloUrl, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
   
   return (
     <div style={{ 
@@ -125,15 +139,28 @@ const InfoSection: React.FC = () => {
             flexDirection: 'column', 
             gap: 'var(--space-2)'
           }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-2)',
-              padding: 'var(--space-2)',
-              background: 'rgba(255, 122, 0, 0.1)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid rgba(255, 122, 0, 0.2)'
-            }}>
+            <div 
+              onClick={() => handleZaloClick(t('infoSection.phoneNumber'))}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                background: 'rgba(255, 122, 0, 0.1)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid rgba(255, 122, 0, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.2)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
               
                 <img 
                   src="/assets/zalo.png" 
@@ -154,15 +181,28 @@ const InfoSection: React.FC = () => {
                 {t('infoSection.phoneNumber')}
               </span>
             </div>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-2)',
-              padding: 'var(--space-2)',
-              background: 'rgba(255, 122, 0, 0.1)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid rgba(255, 122, 0, 0.2)'
-            }}>
+            <div 
+              onClick={() => handleZaloClick(t('infoSection.phoneNumber2'))}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                background: 'rgba(255, 122, 0, 0.1)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid rgba(255, 122, 0, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.2)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 122, 0, 0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
               
                 <img 
                   src="/assets/zalo.png" 
