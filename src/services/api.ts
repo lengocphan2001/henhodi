@@ -659,6 +659,20 @@ class ApiService {
     return this.request('/users/dashboard/stats');
   }
 
+  // Settings
+  async getSettings(): Promise<ApiResponse<Record<string, string>>> {
+    return this.request('/settings', {
+      method: 'GET',
+    });
+  }
+
+  async updateSettings(settings: Record<string, string>): Promise<ApiResponse<Record<string, string>>> {
+    return this.request('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
   // Utility Methods
   setToken(token: string) {
     this.token = token;

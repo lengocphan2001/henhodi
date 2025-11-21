@@ -1,15 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { apiService } from '../services/api';
 import styles from '../pages/SignUp.module.css';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [settings, setSettings] = useState<{ 
+    zalo?: string; 
+    hotline?: string; 
+    email?: string;
+    service1?: string;
+    service2?: string;
+    service3?: string;
+    service4?: string;
+  }>({});
   
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Load settings
+    const loadSettings = async () => {
+      try {
+        const response = await apiService.getSettings();
+        if (response.success && response.data) {
+          setSettings(response.data);
+        }
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+      }
+    };
+    loadSettings();
+    
+    // Listen for settings update events
+    const handleSettingsUpdate = () => {
+      loadSettings();
+    };
+    window.addEventListener('settings-updated', handleSettingsUpdate);
+    
+    return () => {
+      window.removeEventListener('settings-updated', handleSettingsUpdate);
+    };
   }, []);
 
   return (
@@ -97,7 +132,7 @@ const Footer: React.FC = () => {
               }}>
                 Z
               </div>
-              <span>{t('footer.zalo')}</span>
+              <span>Zalo: {settings.zalo || t('footer.zalo').replace('Zalo: ', '')}</span>
             </div>
             <div style={{ 
               display: 'flex', 
@@ -121,7 +156,7 @@ const Footer: React.FC = () => {
               }}>
                 📞
               </div>
-              <span>{t('footer.hotline')}</span>
+              <span>Hotline: {settings.hotline || t('footer.hotline').replace('Hotline: ', '')}</span>
             </div>
             <div style={{ 
               display: 'flex', 
@@ -145,7 +180,7 @@ const Footer: React.FC = () => {
               }}>
                 ✉️
               </div>
-              <span>{t('footer.email')}</span>
+              <span>Email: {settings.email || t('footer.email').replace('Email: ', '')}</span>
             </div>
           </div>
         </div>
@@ -177,7 +212,7 @@ const Footer: React.FC = () => {
             onMouseEnter={(e) => e.currentTarget.style.color = '#ff7a00'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#d1d5db'}
             >
-              {t('footer.service1')}
+              {settings.service1 || t('footer.service1')}
             </span>
             <span style={{ 
             color: '#d1d5db', 
@@ -189,7 +224,7 @@ const Footer: React.FC = () => {
             onMouseEnter={(e) => e.currentTarget.style.color = '#ff7a00'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#d1d5db'}
             >
-              {t('footer.service2')}
+              {settings.service2 || t('footer.service2')}
             </span>
             <span style={{ 
             color: '#d1d5db', 
@@ -201,7 +236,7 @@ const Footer: React.FC = () => {
             onMouseEnter={(e) => e.currentTarget.style.color = '#ff7a00'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#d1d5db'}
             >
-              {t('footer.service3')}
+              {settings.service3 || t('footer.service3')}
             </span>
             <span style={{ 
             color: '#d1d5db', 
@@ -213,7 +248,7 @@ const Footer: React.FC = () => {
             onMouseEnter={(e) => e.currentTarget.style.color = '#ff7a00'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#d1d5db'}
             >
-              {t('footer.service4')}
+              {settings.service4 || t('footer.service4')}
             </span>
           </div>
         </div>

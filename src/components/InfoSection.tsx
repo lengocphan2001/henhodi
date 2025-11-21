@@ -1,14 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { apiService } from '../services/api';
 
 const InfoSection: React.FC = () => {
   const { t } = useTranslation();
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [settings, setSettings] = useState<{ phoneNumber?: string; phoneNumber2?: string; phoneNumber3?: string }>({});
   
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Load settings for phone numbers
+    const loadSettings = async () => {
+      try {
+        const response = await apiService.getSettings();
+        if (response.success && response.data) {
+          setSettings({
+            phoneNumber: response.data.zalo || '0568369124',
+            phoneNumber2: response.data.zalo2 || '0375221547',
+            phoneNumber3: response.data.zalo3 || ''
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+        // Use defaults if API fails
+        setSettings({
+          phoneNumber: '0568369124',
+          phoneNumber2: '0375221547',
+          phoneNumber3: ''
+        });
+      }
+    };
+    loadSettings();
+    
+    // Listen for settings update events
+    const handleSettingsUpdate = () => {
+      loadSettings();
+    };
+    window.addEventListener('settings-updated', handleSettingsUpdate);
+    
+    return () => {
+      window.removeEventListener('settings-updated', handleSettingsUpdate);
+    };
   }, []);
 
   // Handle Zalo click for contact numbers
@@ -178,7 +215,7 @@ const InfoSection: React.FC = () => {
                 fontWeight: 'var(--font-semibold)',
                 color: '#ff7a00'
               }}>
-                {t('infoSection.phoneNumber')}
+                {settings.phoneNumber || t('infoSection.phoneNumber')}
               </span>
             </div>
             <div 
@@ -220,9 +257,51 @@ const InfoSection: React.FC = () => {
                 fontWeight: 'var(--font-semibold)',
                 color: '#ff7a00'
               }}>
-                {t('infoSection.phoneNumber2')}
+                {settings.phoneNumber2 || t('infoSection.phoneNumber2')}
               </span>
             </div>
+            {settings.phoneNumber3 && (
+              <div 
+                onClick={() => handleZaloClick(settings.phoneNumber3 || '')}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 'var(--space-2)',
+                  padding: 'var(--space-2)',
+                  background: 'rgba(255, 122, 0, 0.1)',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid rgba(255, 122, 0, 0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 122, 0, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 122, 0, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <img 
+                  src="/assets/zalo.png" 
+                  alt="Zalo" 
+                  style={{ 
+                    width: '32px', 
+                    height: '32px',
+                    objectFit: 'contain'
+                  }} 
+                />
+                <span style={{ 
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: isMobile ? 'var(--text-sm)' : 'var(--text-base)', 
+                  fontWeight: 'var(--font-semibold)',
+                  color: '#ff7a00'
+                }}>
+                  {settings.phoneNumber3}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

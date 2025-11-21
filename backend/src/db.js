@@ -192,6 +192,46 @@ const createTables = async () => {
     `);
     console.log('✅ Created reviews table');
 
+    // Create settings table for site configuration
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        key_name VARCHAR(255) NOT NULL UNIQUE,
+        value TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Created settings table');
+
+    // Insert default settings if they don't exist
+    const defaultSettings = [
+      { key: 'zalo', value: '0568369124' },
+      { key: 'zalo2', value: '0375221547' },
+      { key: 'zalo3', value: '' },
+      { key: 'hotline', value: '0375221547' },
+      { key: 'email', value: 'contact@blackphuquoc.com' },
+      { key: 'service1', value: 'Gái Gọi Phú Quốc' },
+      { key: 'service2', value: 'Massage Phú Quốc' },
+      { key: 'service3', value: 'Karaoke Phú Quốc' },
+      { key: 'service4', value: 'Bar Phú Quốc' }
+    ];
+
+    for (const setting of defaultSettings) {
+      try {
+        await connection.execute(
+          'INSERT INTO settings (key_name, value) VALUES (?, ?)',
+          [setting.key, setting.value]
+        );
+      } catch (error) {
+        // Setting already exists, skip
+        if (!error.message.includes('Duplicate entry')) {
+          console.log(`ℹ️ Could not insert setting ${setting.key}:`, error.message);
+        }
+      }
+    }
+    console.log('✅ Initialized default settings');
+
     // Create indexes for better performance
     await createIndexes(connection);
     

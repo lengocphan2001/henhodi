@@ -33,6 +33,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/users', label: 'Users', icon: '👥' },
     { path: '/admin/girls', label: 'Girls', icon: '💃' },
     { path: '/admin/reviews', label: 'Reviews', icon: '⭐' },
+    { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
   ];
 
   const isActive = (path: string) => {

@@ -7,6 +7,7 @@ import girlRoutes from './routes/girl.routes.js';
 import userRoutes from './routes/user.routes.js';
 import reviewRoutes from './routes/review.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import settingsRoutes from './routes/settings.routes.js';
 import { initialize } from './db.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -17,8 +18,13 @@ const __dirname = dirname(__filename);
 
 app.use(cors());
 
+// Parse JSON body for all API routes first
+app.use(express.json({ limit: '50mb' }));
+
+// Route-specific JSON parsers (for backward compatibility)
 app.use('/api/users', express.json({ limit: '50mb' }));
 app.use('/api/reviews', express.json({ limit: '50mb' }));
+app.use('/api/settings', express.json({ limit: '50mb' }));
 
 
 app.use('/api/girls', (req, res, next) => {
@@ -39,6 +45,7 @@ app.use('/api/girls', girlRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/settings', settingsRoutes);
 
 
 app.get('/api/health', (req, res) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -14,6 +14,7 @@ const SignIn: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState<{ zalo?: string; zalo2?: string }>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -23,6 +24,50 @@ const SignIn: React.FC = () => {
     }));
     // Clear error when user starts typing
     if (error) setError('');
+  };
+
+  useEffect(() => {
+    // Load settings for Zalo numbers
+    const loadSettings = async () => {
+      try {
+        const response = await apiService.getSettings();
+        if (response.success && response.data) {
+          setSettings({
+            zalo: response.data.zalo || '0568369124',
+            zalo2: response.data.zalo2 || '0375221547'
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+        // Use defaults if API fails
+        setSettings({
+          zalo: '0568369124',
+          zalo2: '0375221547'
+        });
+      }
+    };
+    loadSettings();
+    
+    // Listen for settings update events
+    const handleSettingsUpdate = () => {
+      loadSettings();
+    };
+    window.addEventListener('settings-updated', handleSettingsUpdate);
+    
+    return () => {
+      window.removeEventListener('settings-updated', handleSettingsUpdate);
+    };
+  }, []);
+
+  // Handle Zalo click
+  const handleZaloClick = (phoneNumber: string) => {
+    if (phoneNumber) {
+      const cleanNumber = phoneNumber.toString().replace(/\D/g, '');
+      if (cleanNumber) {
+        const zaloUrl = `https://zalo.me/${cleanNumber}`;
+        window.open(zaloUrl, '_blank', 'noopener,noreferrer');
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,13 +145,21 @@ const SignIn: React.FC = () => {
               <span role="img" aria-label="thumbs up" className={styles.emoji}>👍</span>
               <span>{t('auth.premiumCallGirls')}</span>
             </div>
-            <div className={styles.zaloRow}>
+            <div 
+              className={styles.zaloRow}
+              onClick={() => handleZaloClick(settings.zalo || '0568369124')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>0568369124</span>
+              <span className={styles.phone}>{settings.zalo || '0568369124'}</span>
             </div>
-            <div className={styles.zaloRow}>
+            <div 
+              className={styles.zaloRow}
+              onClick={() => handleZaloClick(settings.zalo2 || '0375221547')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>0375221547</span>
+              <span className={styles.phone}>{settings.zalo2 || '0375221547'}</span>
             </div>
           </div>
         </div>

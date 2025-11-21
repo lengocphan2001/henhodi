@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminGirls from './pages/AdminGirls';
 import AdminReviews from './pages/AdminReviews';
+import AdminSettings from './pages/AdminSettings';
 import LanguageDemo from './pages/LanguageDemo';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/girls" element={<AdminGirls />} />
         <Route path="/admin/reviews" element={<AdminReviews />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
         
         {/* Public routes - dùng Layout chung */}
         <Route path="/signin" element={<Layout><SignIn /></Layout>} />
