@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
   const { t } = useTranslation();
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const [settings, setSettings] = useState<{ 
-    zalo?: string; 
+    footerZalo?: string; 
     hotline?: string; 
     email?: string;
     service1?: string;
@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
               }}>
                 Z
               </div>
-              <span>Zalo: {settings.zalo || t('footer.zalo').replace('Zalo: ', '')}</span>
+              <span>Zalo: {settings.footerZalo || t('footer.zalo').replace('Zalo: ', '')}</span>
             </div>
             <div style={{ 
               display: 'flex', 

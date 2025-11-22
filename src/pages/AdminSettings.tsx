@@ -8,6 +8,7 @@ interface SiteSettings {
   zalo: string;
   zalo2: string;
   zalo3: string;
+  footerZalo: string;
   hotline: string;
   email: string;
   service1: string;
@@ -24,6 +25,7 @@ const AdminSettings: React.FC = () => {
     zalo: '',
     zalo2: '',
     zalo3: '',
+    footerZalo: '',
     hotline: '',
     email: '',
     service1: '',
@@ -56,6 +58,7 @@ const AdminSettings: React.FC = () => {
           zalo: response.data.zalo || '',
           zalo2: response.data.zalo2 || '',
           zalo3: response.data.zalo3 || '',
+          footerZalo: response.data.footerZalo || '',
           hotline: response.data.hotline || '',
           email: response.data.email || '',
           service1: response.data.service1 || '',
@@ -101,6 +104,7 @@ const AdminSettings: React.FC = () => {
           zalo: response.data.zalo || '',
           zalo2: response.data.zalo2 || '',
           zalo3: response.data.zalo3 || '',
+          footerZalo: response.data.footerZalo || '',
           hotline: response.data.hotline || '',
           email: response.data.email || '',
           service1: response.data.service1 || '',
@@ -303,6 +307,44 @@ const AdminSettings: React.FC = () => {
               type="text"
               value={settings.zalo3}
               onChange={(e) => handleInputChange('zalo3', e.target.value)}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: '#232733',
+                color: '#fff',
+                fontFamily: 'var(--font-primary)',
+                fontSize: 'var(--text-sm)',
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#ff7a00';
+                e.target.style.boxShadow = '0 0 0 2px rgba(255, 122, 0, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{
+              display: 'block',
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 'var(--font-semibold)',
+              marginBottom: 'var(--space-2)',
+              color: '#d1d5db'
+            }}>
+              Zalo Footer
+            </label>
+            <input
+              type="text"
+              value={settings.footerZalo}
+              onChange={(e) => handleInputChange('footerZalo', e.target.value)}
               style={{
                 width: '100%',
                 padding: 'var(--space-3)',

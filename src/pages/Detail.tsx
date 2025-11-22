@@ -1418,30 +1418,25 @@ const Detail: React.FC = () => {
             <div style={{ 
               position: 'relative',
               width: '100%',
-              overflow: 'hidden'
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#ff7a00 transparent'
             }}>
               <div style={{ 
                 display: 'flex',
                 gap: isMobile ? 'var(--space-2)' : 'var(--space-3)',
-                overflowX: 'auto',
-                overflowY: 'hidden',
-                scrollSnapType: 'x mandatory',
-                WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#ff7a00 transparent',
-                paddingBottom: 'var(--space-2)'
-              }}
-              onScroll={(e) => {
-                // Smooth scroll behavior
-                e.currentTarget.scrollLeft = e.currentTarget.scrollLeft;
-              }}
-              >
+                paddingBottom: 'var(--space-2)',
+                scrollSnapType: 'x mandatory'
+              }}>
                 {girl.images.map((image, index) => (
                   <div
                     key={index}
                     style={{
-                      flex: '0 0 calc(33.333% - var(--space-2))',
-                      minWidth: isMobile ? 'calc(33.333% - var(--space-2))' : 'calc(33.333% - var(--space-3))',
+                      flexShrink: 0,
+                      width: isMobile ? 'calc(33.333% - var(--space-2))' : 'calc(33.333% - var(--space-3))',
+                      minWidth: isMobile ? '120px' : '200px',
                       scrollSnapAlign: 'start',
                       cursor: 'pointer'
                     }}
