@@ -61,16 +61,16 @@ const SignUp: React.FC = () => {
         const response = await apiService.getSettings();
         if (response.success && response.data) {
           setSettings({
-            zalo: response.data.zalo || '0568369124',
-            zalo2: response.data.zalo2 || '0375221547'
+            zalo: response.data.zalo || '',
+            zalo2: response.data.zalo2 || ''
           });
         }
       } catch (err) {
         console.error('Failed to load settings:', err);
         // Use defaults if API fails
         setSettings({
-          zalo: '0568369124',
-          zalo2: '0375221547'
+          zalo: '',
+          zalo2: ''
         });
       }
     };
@@ -160,19 +160,19 @@ const SignUp: React.FC = () => {
             </div>
             <div 
               className={styles.zaloRow}
-              onClick={() => handleZaloClick(settings.zalo || '0568369124')}
+              onClick={() => handleZaloClick(settings.zalo || '')}
               style={{ cursor: 'pointer' }}
             >
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>{settings.zalo || '0568369124'}</span>
+              <span className={styles.phone}>{settings.zalo || ''}</span>
             </div>
             <div 
               className={styles.zaloRow}
-              onClick={() => handleZaloClick(settings.zalo2 || '0375221547')}
+              onClick={() => handleZaloClick(settings.zalo2 || '')}
               style={{ cursor: 'pointer' }}
             >
               <div className={styles.zaloIcon}></div>
-              <span className={styles.phone}>{settings.zalo2 || '0375221547'}</span>
+              <span className={styles.phone}>{settings.zalo2 || ''}</span>
             </div>
           </div>
         </div>

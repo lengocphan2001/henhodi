@@ -206,10 +206,10 @@ const createTables = async () => {
 
     // Insert default settings if they don't exist
     const defaultSettings = [
-      { key: 'zalo', value: '0568369124' },
-      { key: 'zalo2', value: '0375221547' },
+      { key: 'zalo', value: '' },
+      { key: 'zalo2', value: '' },
       { key: 'zalo3', value: '' },
-      { key: 'hotline', value: '0375221547' },
+      { key: 'hotline', value: '' },
       { key: 'email', value: 'contact@blackphuquoc.com' },
       { key: 'service1', value: 'Gái Gọi Phú Quốc' },
       { key: 'service2', value: 'Massage Phú Quốc' },

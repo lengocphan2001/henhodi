@@ -20,8 +20,8 @@ const InfoSection: React.FC = () => {
         const response = await apiService.getSettings();
         if (response.success && response.data) {
           setSettings({
-            phoneNumber: response.data.zalo || '0568369124',
-            phoneNumber2: response.data.zalo2 || '0375221547',
+            phoneNumber: response.data.zalo || '',
+            phoneNumber2: response.data.zalo2 || '',
             phoneNumber3: response.data.zalo3 || ''
           });
         }
@@ -29,8 +29,8 @@ const InfoSection: React.FC = () => {
         console.error('Failed to load settings:', err);
         // Use defaults if API fails
         setSettings({
-          phoneNumber: '0568369124',
-          phoneNumber2: '0375221547',
+          phoneNumber: '',
+          phoneNumber2: '',
           phoneNumber3: ''
         });
       }
