@@ -646,7 +646,16 @@ const Detail: React.FC = () => {
                                 color: '#ff7a00',
                                 fontWeight: 'var(--font-semibold)'
                               }}>• Số điện thoại:</td>
-                              <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.phone}</td>
+                              <td style={{ 
+                                padding: 'var(--space-1) 0',
+                                color: '#ffb347',
+                                fontWeight: 'var(--font-bold)',
+                                fontSize: 'var(--text-base)',
+                                fontFamily: 'var(--font-heading)',
+                                textShadow: '0 0 8px rgba(255, 179, 71, 0.5)'
+                              }}>
+                                {girl.zalo || girl.phone}
+                              </td>
                             </tr>
                           )}
                           {(girl.zalo || girl.info?.ZALO) && (
@@ -1176,7 +1185,16 @@ const Detail: React.FC = () => {
                               color: '#ff7a00',
                               fontWeight: 'var(--font-semibold)'
                             }}>• Số điện thoại:</td>
-                            <td style={{ padding: 'var(--space-1) 0' }}>{girl.zalo || girl.phone}</td>
+                            <td style={{ 
+                              padding: 'var(--space-1) 0',
+                              color: '#ffb347',
+                              fontWeight: 'var(--font-bold)',
+                              fontSize: 'var(--text-base)',
+                              fontFamily: 'var(--font-heading)',
+                              textShadow: '0 0 8px rgba(255, 179, 71, 0.5)'
+                            }}>
+                              {girl.zalo || girl.phone}
+                            </td>
                           </tr>
                         )}
                         {(girl.zalo || girl.info?.ZALO) && (
