@@ -149,7 +149,7 @@ const FeaturedCard: React.FC<{ girl: Girl }> = ({ girl }) => {
         <div style={{
           position: 'relative',
           width: '100%',
-          height: '200px',
+          height: '240px',
           overflow: 'hidden'
         }}>
           <img 
@@ -158,7 +158,8 @@ const FeaturedCard: React.FC<{ girl: Girl }> = ({ girl }) => {
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              objectPosition: 'top center'
             }}
           />
           

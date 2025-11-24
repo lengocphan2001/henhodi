@@ -5,9 +5,6 @@ import { apiService } from '../services/api';
 import AdminLayout from '../components/AdminLayout';
 
 interface SiteSettings {
-  zalo: string;
-  zalo2: string;
-  zalo3: string;
   footerZalo: string;
   hotline: string;
   email: string;
@@ -22,9 +19,6 @@ const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [settings, setSettings] = useState<SiteSettings>({
-    zalo: '',
-    zalo2: '',
-    zalo3: '',
     footerZalo: '',
     hotline: '',
     email: '',
@@ -55,9 +49,6 @@ const AdminSettings: React.FC = () => {
       const response = await apiService.getSettings();
       if (response.success && response.data) {
         setSettings({
-          zalo: response.data.zalo || '',
-          zalo2: response.data.zalo2 || '',
-          zalo3: response.data.zalo3 || '',
           footerZalo: response.data.footerZalo || '',
           hotline: response.data.hotline || '',
           email: response.data.email || '',
@@ -101,9 +92,6 @@ const AdminSettings: React.FC = () => {
         // Update state directly from response data
         console.log('Updating state with response data:', response.data);
         setSettings({
-          zalo: response.data.zalo || '',
-          zalo2: response.data.zalo2 || '',
-          zalo3: response.data.zalo3 || '',
           footerZalo: response.data.footerZalo || '',
           hotline: response.data.hotline || '',
           email: response.data.email || '',
@@ -216,120 +204,6 @@ const AdminSettings: React.FC = () => {
           gap: 'var(--space-4)',
           marginBottom: 'var(--space-6)'
         }}>
-          <div>
-            <label style={{
-              display: 'block',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              marginBottom: 'var(--space-2)',
-              color: '#d1d5db'
-            }}>
-              Zalo 1
-            </label>
-            <input
-              type="text"
-              value={settings.zalo}
-              onChange={(e) => handleInputChange('zalo', e.target.value)}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                background: '#232733',
-                color: '#fff',
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ff7a00';
-                e.target.style.boxShadow = '0 0 0 2px rgba(255, 122, 0, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{
-              display: 'block',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              marginBottom: 'var(--space-2)',
-              color: '#d1d5db'
-            }}>
-              Zalo 2
-            </label>
-            <input
-              type="text"
-              value={settings.zalo2}
-              onChange={(e) => handleInputChange('zalo2', e.target.value)}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                background: '#232733',
-                color: '#fff',
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ff7a00';
-                e.target.style.boxShadow = '0 0 0 2px rgba(255, 122, 0, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{
-              display: 'block',
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-semibold)',
-              marginBottom: 'var(--space-2)',
-              color: '#d1d5db'
-            }}>
-              Zalo 3
-            </label>
-            <input
-              type="text"
-              value={settings.zalo3}
-              onChange={(e) => handleInputChange('zalo3', e.target.value)}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                background: '#232733',
-                color: '#fff',
-                fontFamily: 'var(--font-primary)',
-                fontSize: 'var(--text-sm)',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ff7a00';
-                e.target.style.boxShadow = '0 0 0 2px rgba(255, 122, 0, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-
           <div>
             <label style={{
               display: 'block',
