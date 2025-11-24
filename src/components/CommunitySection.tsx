@@ -33,7 +33,7 @@ const CommunitySection: React.FC = () => {
           lineHeight: 'var(--leading-tight)',
           letterSpacing: 'var(--tracking-tight)'
         }}>
-          CỘNG ĐỒNG VUA GÁI PHÚ QUỐC
+          CỘNG ĐỒNG GÁI GỌI PHÚ QUỐC
         </div>
         <div style={{
           width: '100px',
@@ -51,7 +51,7 @@ const CommunitySection: React.FC = () => {
           letterSpacing: 'var(--tracking-normal)',
           marginBottom: 'var(--space-4)'
         }}>
-          Cộng đồng ăn chơi Vua Gái Gọi Phú Quốc, nơi chia sẻ thông tin các em hàng đang hoạt động tại khu vực với chất lượng được đảm bảo uy tín nhất hiện nay. Chúng tôi cam kết mang đến sân chơi lành mạnh vì lợi ích của anh em Checker Phú Quốc.
+          Cộng đồng ăn chơi Gái Gọi Phú Quốc, nơi chia sẻ thông tin các em hàng đang hoạt động tại khu vực với chất lượng được đảm bảo uy tín nhất hiện nay. Chúng tôi cam kết mang đến sân chơi lành mạnh vì lợi ích của anh em Checker Phú Quốc.
         </div>
 
         {/* Contact Section */}
