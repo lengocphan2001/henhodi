@@ -64,7 +64,7 @@ const CommunitySection: React.FC = () => {
           Liên hệ đăng bài:
         </div>
         <a
-          href="https://t.me/tubapq01"
+          href="https://t.me/cheryvipPQ"
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -87,7 +87,7 @@ const CommunitySection: React.FC = () => {
             e.currentTarget.style.borderColor = '#3b82f6';
           }}
         >
-          https://t.me/tubapq01
+          https://t.me/cheryvipPQ
         </a>
       </div>
     </div>
