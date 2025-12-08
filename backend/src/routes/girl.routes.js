@@ -10,7 +10,8 @@ const router = express.Router();
 const detailImageUpload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    // Increase limit to 30MB to reduce 413 errors when admins upload/edit images
+    fileSize: 30 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
