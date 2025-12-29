@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# VPS Deployment Script for blackphuquoc.com
+# VPS Deployment Script for chumgaiphuquoc.com
 # This script will set up your entire application on a VPS
 
 set -e
 
-echo "🚀 Starting VPS deployment for blackphuquoc.com..."
+echo "🚀 Starting VPS deployment for chumgaiphuquoc.com..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -71,9 +71,9 @@ print_step "Step 6: Installing Certbot for SSL..."
 apt install certbot python3-certbot-nginx -y
 
 print_step "Step 7: Creating application directory..."
-mkdir -p /var/www/blackphuquoc.com
-cp -r . /var/www/blackphuquoc.com/
-chown -R $SUDO_USER:$SUDO_USER /var/www/blackphuquoc.com
+mkdir -p /var/www/chumgaiphuquoc.com
+cp -r . /var/www/chumgaiphuquoc.com/
+chown -R $SUDO_USER:$SUDO_USER /var/www/chumgaiphuquoc.com
 
 print_step "Step 8: Setting up database..."
 # Secure MySQL installation
@@ -84,7 +84,7 @@ mysql -e "GRANT ALL PRIVILEGES ON henhodi_db.* TO 'henhodi_user'@'localhost';"
 mysql -e "FLUSH PRIVILEGES;"
 
 print_step "Step 9: Setting up backend..."
-cd /var/www/blackphuquoc.com/backend
+cd /var/www/chumgaiphuquoc.com/backend
 
 # Create backend .env file
 cat > .env << EOF
@@ -101,12 +101,12 @@ npm install
 npm run setup-db
 
 print_step "Step 10: Setting up frontend..."
-cd /var/www/blackphuquoc.com
+cd /var/www/chumgaiphuquoc.com
 
 # Create frontend env.production file
 cat > env.production << EOF
-REACT_APP_API_URL=http://blackphuquoc.com/api
-REACT_APP_DOMAIN=blackphuquoc.com
+REACT_APP_API_URL=https://chumgaiphuquoc.com/api
+REACT_APP_DOMAIN=chumgaiphuquoc.com
 NODE_ENV=production
 EOF
 
@@ -114,7 +114,7 @@ npm install
 npm run build
 
 print_step "Step 11: Creating PM2 ecosystem file..."
-cd /var/www/blackphuquoc.com
+cd /var/www/chumgaiphuquoc.com
 mkdir -p logs
 
 # Create ecosystem.config.js
@@ -123,7 +123,7 @@ module.exports = {
   apps: [
     {
       name: 'henhodi-backend',
-      cwd: '/var/www/blackphuquoc.com/backend',
+      cwd: '/var/www/chumgaiphuquoc.com/backend',
       script: 'src/app.js',
       instances: 1,
       autorestart: true,
@@ -133,15 +133,15 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3000
       },
-      env_file: '/var/www/blackphuquoc.com/backend/.env',
-      error_file: '/var/www/blackphuquoc.com/logs/backend-error.log',
-      out_file: '/var/www/blackphuquoc.com/logs/backend-out.log',
-      log_file: '/var/www/blackphuquoc.com/logs/backend-combined.log',
+      env_file: '/var/www/chumgaiphuquoc.com/backend/.env',
+      error_file: '/var/www/chumgaiphuquoc.com/logs/backend-error.log',
+      out_file: '/var/www/chumgaiphuquoc.com/logs/backend-out.log',
+      log_file: '/var/www/chumgaiphuquoc.com/logs/backend-combined.log',
       time: true
     },
     {
       name: 'henhodi-frontend',
-      cwd: '/var/www/blackphuquoc.com',
+      cwd: '/var/www/chumgaiphuquoc.com',
       script: 'npm',
       args: 'start',
       instances: 1,
@@ -152,9 +152,9 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3001
       },
-      error_file: '/var/www/blackphuquoc.com/logs/frontend-error.log',
-      out_file: '/var/www/blackphuquoc.com/logs/frontend-out.log',
-      log_file: '/var/www/blackphuquoc.com/logs/frontend-combined.log',
+      error_file: '/var/www/chumgaiphuquoc.com/logs/frontend-error.log',
+      out_file: '/var/www/chumgaiphuquoc.com/logs/frontend-out.log',
+      log_file: '/var/www/chumgaiphuquoc.com/logs/frontend-combined.log',
       time: true
     }
   ]
@@ -162,10 +162,10 @@ module.exports = {
 EOF
 
 print_step "Step 12: Creating Nginx configuration..."
-cat > /etc/nginx/sites-available/blackphuquoc.com << 'EOF'
+cat > /etc/nginx/sites-available/chumgaiphuquoc.com << 'EOF'
 server {
     listen 80;
-    server_name blackphuquoc.com www.blackphuquoc.com;
+    server_name chumgaiphuquoc.com www.chumgaiphuquoc.com;
     
     # Frontend (React app)
     location / {
@@ -195,14 +195,14 @@ server {
     
     # Static files
     location /static {
-        alias /var/www/blackphuquoc.com/build/static;
+        alias /var/www/chumgaiphuquoc.com/build/static;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
     
     # Uploads
     location /uploads {
-        alias /var/www/blackphuquoc.com/backend/uploads;
+        alias /var/www/chumgaiphuquoc.com/backend/uploads;
         expires 1y;
         add_header Cache-Control "public";
     }
@@ -210,7 +210,7 @@ server {
 EOF
 
 # Enable the site
-ln -sf /etc/nginx/sites-available/blackphuquoc.com /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/chumgaiphuquoc.com /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Test and reload nginx
@@ -218,18 +218,18 @@ nginx -t
 systemctl reload nginx
 
 print_step "Step 13: Starting applications with PM2..."
-cd /var/www/blackphuquoc.com
+cd /var/www/chumgaiphuquoc.com
 pm2 start ecosystem.config.js
 pm2 save
 pm2 startup
 
 print_step "Step 14: Getting SSL certificate..."
-certbot --nginx -d blackphuquoc.com -d www.blackphuquoc.com --non-interactive --agree-tos --email admin@blackphuquoc.com
+certbot --nginx -d chumgaiphuquoc.com -d www.chumgaiphuquoc.com --non-interactive --agree-tos --email admin@chumgaiphuquoc.com
 
 print_status "Deployment completed successfully!"
 echo ""
 print_status "Your application is now running at:"
-echo "  🌐 Frontend: https://blackphuquoc.com"
+echo "  🌐 Frontend: https://chumgaiphuquoc.com"
 echo "  🔧 Backend API: http://localhost:5000/api"
 echo ""
 print_status "Useful commands:"

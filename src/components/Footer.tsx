@@ -156,7 +156,13 @@ const Footer: React.FC = () => {
               }}>
                 📞
               </div>
-              <span>Hotline: {settings.hotline || t('footer.hotline').replace('Hotline: ', '')}</span>
+              <span>Hotline: {(() => {
+                const hotlineValue = settings.hotline || t('footer.hotline').replace('Hotline: ', '');
+                // Remove "Hotline: " prefix if it exists in the value
+                return hotlineValue.toLowerCase().startsWith('hotline:') 
+                  ? hotlineValue.substring(8).trim() 
+                  : hotlineValue;
+              })()}</span>
             </div>
             <div style={{ 
               display: 'flex', 

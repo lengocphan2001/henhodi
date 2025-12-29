@@ -256,7 +256,15 @@ const AdminSettings: React.FC = () => {
             <input
               type="text"
               value={settings.hotline}
-              onChange={(e) => handleInputChange('hotline', e.target.value)}
+              onChange={(e) => {
+                // Remove "Hotline: " prefix if user types it
+                let value = e.target.value;
+                if (value.toLowerCase().startsWith('hotline:')) {
+                  value = value.substring(8).trim();
+                }
+                handleInputChange('hotline', value);
+              }}
+              placeholder="0375221547"
               style={{
                 width: '100%',
                 padding: 'var(--space-3)',
@@ -278,6 +286,14 @@ const AdminSettings: React.FC = () => {
                 e.target.style.boxShadow = 'none';
               }}
             />
+            <div style={{
+              marginTop: 'var(--space-1)',
+              fontSize: 'var(--text-xs)',
+              color: '#9ca3af',
+              fontFamily: 'var(--font-primary)'
+            }}>
+              {t('admin.hotlineHint')}
+            </div>
           </div>
 
           <div>

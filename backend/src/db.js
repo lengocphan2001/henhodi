@@ -210,7 +210,7 @@ const createTables = async () => {
       { key: 'zalo2', value: '' },
       { key: 'zalo3', value: '' },
       { key: 'hotline', value: '' },
-      { key: 'email', value: 'contact@blackphuquoc.com' },
+      { key: 'email', value: 'contact@chumgaiphuquoc.com' },
       { key: 'service1', value: 'Gái Gọi Phú Quốc' },
       { key: 'service2', value: 'Massage Phú Quốc' },
       { key: 'service3', value: 'Karaoke Phú Quốc' },
